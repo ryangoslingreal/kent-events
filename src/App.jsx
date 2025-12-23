@@ -1,9 +1,21 @@
 import './App.css'
+import './styles.css'
+import { Routes, Route } from "react-router-dom";
+import Header from "./components/layout/Header.jsx"
+import Home from "./pages/Home.jsx"
 
 function App() {
 
   return (
-    <h1>React app</h1>
+    
+    <>
+        {/* <Header />
+        <h1>React app5</h1> */}
+        
+        <Routes>
+          <Route path="/" element={<Home />} />
+        </Routes>
+    </>
   )
 }
 
