@@ -1,3 +1,5 @@
+
+import { Link } from "react-router-dom";
 import styles from "./Header.module.css";
 import kentlogo from "../../assets/kentlogo3.png";
 import searchicon from "../../assets/searchIcon.png"
@@ -18,8 +20,8 @@ function Header() {
             <nav className={styles.actions}>
                 <a className={styles.action}>My Tickets</a>
                 <a className={styles.action}>Create Events</a>
-                <a className={styles.action}>Log In</a>
-                <a className={styles.action}>Sign Up</a>
+                <Link to="/login" className={styles.action}>Log In</Link>
+                <Link to="/signup" className={styles.action}>Sign Up</Link>
             </nav>
         </header>
     )
