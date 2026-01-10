@@ -4,8 +4,6 @@ import styles from "../Login/Login.module.css";
 
 function Signup (){
     const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [showPassword, setShowPassword] = useState(false);
     const [confirmation, setConfirmation] = useState("");
 
     function handleSubmit(e) {
@@ -38,7 +36,7 @@ function Signup (){
             Log in
             </button>
 
-            <p className={styles.changeAuth}>Don't have an account? <Link to="../login" className={styles.changeAuthButton}>Create One</Link></p>
+            <p className={styles.changeAuth}>Have an account? <Link to="../login" className={styles.changeAuthButton}>Login</Link></p>
         </form>
         </div>
     </div>
