@@ -1,0 +1,237 @@
+
+
+
+.page {
+  min-height: 100vh;    
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background-color: rgba(125, 125, 125, 0.064);
+  font-family: Overpass, Helvetica, Arial, sans-serif;
+}
+
+.card {
+  width: 100%;  
+  max-width: 880px;
+  padding: 28px 0; 
+  border-radius: 14px;
+  border: 1px solid rgba(118, 118, 118, 0.307);
+  background: rgba(255, 255, 255, 0.06);
+  background-color: white;
+  margin-bottom: 200px;
+
+  display: flex;
+  justify-content: center;
+  
+}
+
+.form{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    
+    width: 70%;
+    gap: 10px;
+}
+
+.title{
+    margin-bottom: 0;
+}
+
+.subtitle{
+    color: rgb(114, 114, 114);
+    font-weight: normal;
+    margin-top: 0;
+}
+
+
+.details div,
+.whenWhere div,
+.tagsPricing div{
+    display: flex;
+    flex-direction: column;
+}
+
+.details h3,
+.whenWhere h3,
+.tagsPricing h3{
+    color: rgb(98, 98, 98);
+    margin-bottom: 5px;
+    margin-top: 5px;
+}
+
+.details label,
+.whenWhere label,
+.tagsPricing label{
+    color: rgb(96, 96, 96);
+}
+
+.details,
+.whenWhere,
+.tagsPricing{
+    gap: 20px;
+    border-top: 2px solid #ddd;
+    margin-bottom: 15px;
+}
+
+.description,
+.whenWhere input,
+.tagsPricing input,
+.details input{
+  padding: 0.6rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 0.8rem;
+}
+
+
+
+
+/*Details form style ----------------------------------------------*/
+.details{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.sub_title {
+    display: block;
+    width: 70% !important;
+}
+
+.description{
+    resize: none;
+    font-family: inherit;
+}
+
+
+
+/*When and where form style ----------------------------------------------*/
+.whenWhere{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.dateTime {
+  display: flex;
+  flex-direction: row !important;
+  gap: 16px;        
+  align-items: flex-start;
+  flex-wrap: nowrap;
+  width: 80%;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;           
+  min-width: 0;
+}
+
+.location{
+    width: 50% !important;
+}
+
+/*Tags and pricing form style ----------------------------------------------*/
+.tagsPricing{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    
+}
+
+.tags{
+    width: 40%
+}
+
+.searchBar {
+  display: flex;
+  flex-direction: row !important;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+.searchInput {
+  flex: 1;
+  border: none !important;
+  outline: none;
+  font-size: 0.8rem;
+  background: transparent;
+}
+.searchIcon {
+  width: 16px;
+  height: 16px;
+  opacity: 0.9;
+}
+
+.price {
+    padding: 0.6rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 0.8rem;
+    width: 40%;
+}
+.price input {
+    border: 0;
+    padding: 0 !important;
+    outline: none;
+}
+
+.repeat {
+    padding: 0.6rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 0.8rem;
+    width: 40%
+}
+
+.allowContactInfo{
+    display: flex;
+    flex-direction: row !important;
+}
+
+
+/*Form Submital ----------------------------------------------*/
+.formButton{
+    display: flex;
+    gap: 15px !important;
+    width: 40%;
+    justify-content: space-between;
+}
+
+.saveForm{
+    padding: 0.6rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    background-color: white;
+    cursor: pointer;
+    font-weight: 400;   
+    flex: 1;
+}
+
+.createForm {
+    padding: 0.6rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    background-color: rgba(53, 127, 255, 0.854);
+    color: white;
+    cursor: pointer;
+    font-weight: 400;
+    flex: 1;
+}
+
+
+
+
+
+
+
+
+
+

@@ -19,7 +19,7 @@ function Header() {
             </div>
             <nav className={styles.actions}>
                 <a className={styles.action}>My Tickets</a>
-                <a className={styles.action}>Create Events</a>
+                <Link to="/events/create" className={styles.action}>Create Events</Link>
                 <Link to="/login" className={styles.action}>Log In</Link>
                 <Link to="/signup" className={styles.action}>Sign Up</Link>
             </nav>
