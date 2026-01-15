@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import styles from "./Login.module.css";
+import Header from "../../components/layout/Header";
 
 
 function Login() {
@@ -16,6 +17,8 @@ function Login() {
   }
 
   return (
+    <>
+    <Header/>
     <div className={styles.page}>
       <div className={styles.card}>
         <form className={styles.form} onSubmit={handleSubmit}>
@@ -62,6 +65,7 @@ function Login() {
         </form>
       </div>
     </div>
+    </>
   );
 }
 

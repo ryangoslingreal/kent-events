@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import styles from "../Login/Login.module.css";
+import Header from "../../components/layout/Header";
 
 function Signup (){
     const [email, setEmail] = useState("");
@@ -15,6 +16,8 @@ function Signup (){
     }
 
     return (
+    <>
+    <Header/>
     <div className={styles.page}>
         <div className={styles.card}>
         <form className={styles.form} onSubmit={handleSubmit}>
@@ -40,6 +43,7 @@ function Signup (){
         </form>
         </div>
     </div>
+    </>
     );
 }
 
