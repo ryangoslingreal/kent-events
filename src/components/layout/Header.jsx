@@ -11,15 +11,24 @@ function Header() {
         <header className={styles.header}>
             <div className={styles.logoTitle}>
                 <img className={styles.logo} src={kentlogo}></img>
-                <h3 className={styles.title}>Student Events</h3>
+                <Link to="/" className={styles.homeLink}>
+                    <h3 className={styles.title}>Student Events</h3>
+                </Link>
             </div>
             <div className={styles.searchBar}>
                 <input className={styles.searchInput} placeholder="Search events..."></input>
                 <img className={styles.searchIcon} src={searchicon}></img>
             </div>
             <nav className={styles.actions}>
-                <a className={styles.action}>My Tickets</a>
-                <Link to="/events/create" className={styles.action}>Create Events</Link>
+                <div className={styles.eventDropdown}>
+                    <button className={`${styles.action} ${styles.dropbtn}`}>Events ˅</button>
+                    <div className={styles.eventDropdownContent}>
+                        <Link to="/events/create" >Create Events</Link>
+                        <a>My Tickets</a>
+                        <a>Edit Events</a>
+                    </div>
+                </div>
+
                 <Link to="/login" className={styles.action}>Log In</Link>
                 <Link to="/signup" className={styles.action}>Sign Up</Link>
             </nav>

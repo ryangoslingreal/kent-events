@@ -4,7 +4,8 @@
     justify-content: space-between;
     margin: 0;
     border-bottom: 2px solid #cccccca8;
-    min-height: 52px;
+    min-height: 42px;
+    max-height: 55px;
 }   
 
 .logoTitle{
@@ -27,6 +28,13 @@
     font-size: 1.3rem;
     font-weight: 600;
     margin: 0;
+}
+
+.homeLink{
+    text-decoration: none;
+    color: inherit;
+    margin: 0;
+
 }
 
 .searchBar {
@@ -64,11 +72,11 @@
 .actions{
     display: flex;
     justify-content: space-evenly;
-    font-family: Overpass, Helvetica, Arial, sans-serif;
+    font-family: Overpass, Helvetica, Arial, sans-serif !important;
     font-style: normal;
     font-size: 1rem;
     font-weight: 400;
-    max-width: 550px;
+    max-width: 450px;
     flex: 1;
     align-items: center;
     opacity: 0.7;
@@ -85,3 +93,40 @@
 .action:hover {
     background-color: rgba(188, 187, 187, 0.332);
 }
+
+.dropbtn {
+    font: inherit;      /* key line */
+    color: inherit;
+    background: transparent;
+    border: none;
+    outline: none;
+    appearance: none;
+} 
+
+.eventDropdown {
+  position: relative;
+  display: inline-block;
+  
+}
+
+.eventDropdownContent {
+  display: none;    
+  position: absolute;
+  background-color: #f1f1f1;
+  min-width: 160px;
+  /* box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); */
+  /* z-index: 1; */
+}
+
+.eventDropdownContent a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+.eventDropdownContent a:hover {background-color: #ddd;}
+
+.eventDropdown:hover .eventDropdownContent {display: block;}
+
+.eventDropdown:hover .dropbtn {background-color: rgba(188, 187, 187, 0.332);}
