@@ -160,3 +160,7 @@ textarea {
     background-color: var(--primary);
     color: white;
 }
+
+.required {
+    color: red;
+}

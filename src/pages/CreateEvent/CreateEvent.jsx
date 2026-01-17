@@ -46,6 +46,24 @@ function CreateEvent() {
         console.log("Form data:", formData);
     };
 
+    const handleReset = () => {
+        const initialForm = {
+            title: "",
+            subtitle: "",
+            description: "",
+            date: "",
+            time: "",
+            location: "",
+            tag: "",
+            price: "",
+            repeat: "never",
+            contactInfo: false,
+        }
+        setFormData(initialForm);
+
+        alert("Page reset")
+    }
+
     return (
         <>
             <Header />
@@ -58,12 +76,13 @@ function CreateEvent() {
                         <section className={styles.section}>
                             <h3 className={styles.sectionHeader}>Details</h3>
 
-                            <Field label="Title" htmlFor="title">
+                            <Field label={<>Title <span className={styles.required}>*</span></>} htmlFor="title">
                                 <input
                                     id="title"
                                     name="title"
                                     value={formData.title}
                                     onChange={handleInputChange}
+                                    required
                                 />
                             </Field>
 
@@ -76,13 +95,14 @@ function CreateEvent() {
                                 />
                             </Field>
 
-                            <Field label="Description" htmlFor="description">
+                            <Field label={<>Description <span className={styles.required}>*</span></>} htmlFor="description">
                                 <textarea
                                     id="description"
                                     name="description"
                                     rows={5}
                                     value={formData.description}
                                     onChange={handleInputChange}
+                                    required
                                 />
                             </Field>
                         </section>
@@ -91,33 +111,36 @@ function CreateEvent() {
                             <h3 className={styles.sectionHeader}>When & Where</h3>
 
                             <div className={styles.dateTime}>
-                                <Field label="Choose a date" htmlFor="date">
+                                <Field label={<>Choose a date <span className={styles.required}>*</span></>} htmlFor="date">
                                     <input
                                         type="date"
                                         id="date"
                                         name="date"
                                         value={formData.date}
                                         onChange={handleInputChange}
+                                        required
                                     />
                                 </Field>
 
-                                <Field label="Time" htmlFor="time">
+                                <Field label={<>Time <span className={styles.required}>*</span></>} htmlFor="time">
                                     <input
                                         type="time"
                                         id="time"
                                         name="time"
                                         value={formData.time}
                                         onChange={handleInputChange}
+                                        required
                                     />
                                 </Field>
                             </div>
 
-                            <Field label="Location" htmlFor="location">
+                            <Field label={<>Location <span className={styles.required}>*</span></>} htmlFor="location">
                                 <input
                                     id="location"
                                     name="location"
                                     value={formData.location}
                                     onChange={handleInputChange}
+                                    required
                                 />
                             </Field>
                         </section>
@@ -142,7 +165,7 @@ function CreateEvent() {
                                 </div>
                             </Field>
 
-                            <Field label="Price" htmlFor="price">
+                            <Field label={<>Price <span className={styles.required}>*</span></>} htmlFor="price">
                                 <div className={styles.price}>
                                     £
                                     <input
@@ -153,16 +176,18 @@ function CreateEvent() {
                                         step={1}
                                         value={formData.price}
                                         onChange={handleInputChange}
+                                        required
                                     />
                                 </div>
                             </Field>
 
-                            <Field label="Repeat?" htmlFor="repeat">
+                            <Field label={<>Repeat? <span className={styles.required}>*</span></>} htmlFor="repeat">
                                 <select
                                     id="repeat"
                                     name="repeat"
                                     value={formData.repeat}
                                     onChange={handleInputChange}
+                                    required
                                 >
                                     <option value="never">Never</option>
                                     <option value="daily">Every day</option>
@@ -186,8 +211,8 @@ function CreateEvent() {
                         </section>
 
                         <div className={styles.formButton}>
-                            <button type="button" className={styles.saveForm}>
-                                Save
+                            <button type="button" className={styles.saveForm} onClick={() => handleReset()}>
+                                Delete
                             </button>
                             <button type="submit" className={styles.createForm}>
                                 Create Event
@@ -200,4 +225,4 @@ function CreateEvent() {
     );
 }
 
-export default CreateEvent;
+export default CreateEvent; 
