@@ -1,6 +1,17 @@
 # Project name
 Kent events
 
+## Tech Stack
+- Docker & Docker Compose
+- React
+- Node.js
+- MySQL
+
+## Technical Report Document
+
+The full technical report for this project is available here:
+- https://docs.google.com/document/d/1CGVLdbOW_-rIPZs84L8Uq1hVenXK73U6aaddA-_L-TE/edit?tab=t.0
+
 ## Setup & Run
 
 This project is containerised using Docker Compose.
@@ -16,10 +27,16 @@ docker compose version
 ```
 
 ### Running the application
-- docker compose up
+```bash
+docker compose up
+```
 
 ### Rebuilding after changes:
-- docker compose up --build
+```bash
+docker compose up --build
+```
 
 ### Stopping the application
-- docker compose down
+```bash
+docker compose down
+```
