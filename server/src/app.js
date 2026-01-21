@@ -15,7 +15,8 @@ app.get("/api/health", (req, res) => {
   res.json({ ok: true });
 });
 
-// Routes
+// Route handers
+// ! Add more route handers here:
 app.use("/api/auth", authRouter);
 
 // Central error handler
