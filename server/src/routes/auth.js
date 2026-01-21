@@ -12,9 +12,9 @@ const router = Router();
 
 /**
  * POST /login
- * Authenticates a user with username and password credentials.
+ * Authenticates a user with email and password credentials.
  * 
- * @param {Object} req - Express request object with body containing username and password
+ * @param {Object} req - Express request object with body containing email and password
  * @param {Object} res - Express response object
  * 
  * @returns {Object} JSON response with message and user object (id, email)
@@ -24,9 +24,9 @@ const router = Router();
  * @status 500 - Server error
  */
 router.post("/login", async (req, res) => {
-    const { username, password } = req.body;
+    const { email, password } = req.body;
     try {
-        const user = await authService.login(username, password);
+        const user = await authService.login(email, password);
         if (user) {
             res.status(200).json({ 
                 message: "Login successful", 

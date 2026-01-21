@@ -1,7 +1,7 @@
 const authRepo = require('../repos/authRepo');
 
-async function login(username, password) {
-	return await authRepo.login(username, password);
+async function login(email, password) {
+	return await authRepo.login(email, password);
 }
 
 module.exports = { login };
