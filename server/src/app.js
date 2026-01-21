@@ -1,14 +1,14 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const eventsRouter = require("./routes/events");
+
+const authRouter = require("./routes/auth");
 
 const app = express();
+app.use(express.json());
 
 const allowedOrigin = process.env.CORS_ORIGIN ?? "http://localhost:9000";
 app.use(cors({ origin: allowedOrigin }));
-
-app.use(express.json());
 
 // Health check
 app.get("/api/health", (req, res) => {
@@ -16,7 +16,7 @@ app.get("/api/health", (req, res) => {
 });
 
 // Routes
-app.use("/api/events", eventsRouter);
+app.use("/api/auth", authRouter);
 
 // Central error handler
 app.use((err, req, res, next) => {
