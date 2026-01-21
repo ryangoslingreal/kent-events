@@ -21,7 +21,9 @@ function Header() {
             </div>
             <nav className={styles.actions}>
                 <div className={styles.eventDropdown}>
-                    <button className={`${styles.action} ${styles.dropbtn}`}>Events ˅</button>
+                    <button className={`${styles.action} ${styles.dropbtn}`}>
+                        Events <span className={styles.chevron}>▾</span>
+                    </button>
                     <div className={styles.eventDropdownContent}>
                         <Link to="/events/create" >Create Events</Link>
                         <a>My Tickets</a>
