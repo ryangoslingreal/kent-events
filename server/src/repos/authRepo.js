@@ -7,4 +7,11 @@ async function login(email, password_hash) {
     return rows[0];
 }
 
-module.exports = { login };
+async function register(email, password_hash) {
+    const query = 'INSERT INTO users (email, password_hash) VALUES ($1, $2) RETURNING *';
+    const values = [email, password_hash];
+    const { rows } = await db.query(query, values);
+    return rows[0];
+}
+
+module.exports = { login, register};
