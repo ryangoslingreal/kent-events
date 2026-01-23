@@ -1,9 +1,17 @@
-.page {
+.header_page{
   min-height: 100vh;
+  background-color: rgba(125, 125, 125, 0.064);
+  display: flex;
+  flex-direction: column;
+
+}
+
+.page {
+  flex: 1;
   display: grid;
   place-items: center;
   padding: 24px;
-  background-color: rgba(125, 125, 125, 0.064);
+  /* background-color: rgba(125, 125, 125, 0.064); */
   font-family: Overpass, Helvetica, Arial, sans-serif;
 }
 
@@ -68,8 +76,16 @@
   opacity: 0.9;
 }
 
-.checkbox {
-  gap: 10px;
+.showPassword {
+  gap: 5px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+.checkbox{
+  width: 15px;
+  height: 15px;
 }
 
 .changeAuthButton,
