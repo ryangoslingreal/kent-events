@@ -1,8 +1,9 @@
 /**
  * Authentication Routes
  * 
- * This module handles user authentication endpoints including login and session management.
- * All requests/responses are in JSON format.
+ * This module handles user authentication and account verification endpoints,
+ * including login, registration, email verification, and verification resends.
+ * All requests/responses are JSON unless otherwise noted.
  */
 
 const { Router } = require("express");
@@ -68,7 +69,7 @@ router.post("/register", async (req, res) => {
 		const user = await authService.register(email, password_hash);
 
 		return res.status(201).json({
-			message: "User registered successfully",
+			message: "User registered successfully, verification required",
 			user: { id: user.id, email: user.email }
 		});
 	} catch (error) {
@@ -80,6 +81,17 @@ router.post("/register", async (req, res) => {
 	}
 });
 
+/**
+ * GET /verify-email
+ * Verifies a user's email address using a token provided as a query parameter.
+ * 
+ * @param {string} token - The authentication token passed as a query parameter
+ * 
+ * @returns {Object} JSON response with message
+ * 
+ * @status 200 - Email verified successfully
+ * @status 400 - Invalid or expired verification link
+ */
 router.get("/verify-email", async (req, res) => {
     const { token } = req.query;
 
@@ -92,6 +104,17 @@ router.get("/verify-email", async (req, res) => {
     }
 });
 
+/**
+ * POST /resend-verification
+ * Resends the email verification link to the user's email address.
+ * 
+ * @param {string} email - The user's email address
+ * 
+ * @returns {Object} JSON response with message
+ * 
+ * @status 200 - Verification email sent (if account exists)
+ * @status 500 - Server error
+ */
 router.post("/resend-verification", async (req, res) => {
     const { email } = req.body;
 

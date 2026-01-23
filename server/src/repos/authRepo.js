@@ -69,7 +69,7 @@ async function findByEmail(email) {
 /**
  * Sets the email verification token and expiration time for a user.
  * 
- * @param {string} user_id - The id of the user to update
+ * @param {int} user_id - The id of the user to update
  * @param {string} token_hash - The hashed verification token
  * @param {Date | string} expires_at - The expiration timestamp for the verification token
  * 

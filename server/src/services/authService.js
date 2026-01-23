@@ -66,19 +66,19 @@ async function register(email, password_hash) {
  * The function hashes the provided token using SHA-256 and attempts to
  * mark the corresponding account as verified.
  *
- * @param {string} token_hash - The email verification token
+ * @param {string} token - The raw email verification token
  * 
  * @throws {Error} If the token is missing or not a string
  * @throws {Error} If the token is invalid or expired (verification failed)
  * 
  * @returns {Promise<void>} Resolves when verification succeeds
  */
-async function verifyEmail(token_hash) {
-    if (!token_hash || typeof token_hash !== "string") {
+async function verifyEmail(token) {
+    if (!token || typeof token !== "string") {
         throw new Error("Missing token");
     }
 
-    const tokenHash = crypto.createHash("sha256").update(token_hash).digest("hex");
+    const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
 
     const updated = await authRepo.verifyEmail(tokenHash);
     if (!updated) {
