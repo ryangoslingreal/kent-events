@@ -3,6 +3,7 @@ const express = require("express");
 const cors = require("cors");
 
 const authRouter = require("./routes/auth");
+const eventRouter = require("./routes/events");
 
 const app = express();
 app.use(express.json());
@@ -18,6 +19,7 @@ app.get("/api/health", (req, res) => {
 // Route handers
 // ! Add more route handers here:
 app.use("/api/auth", authRouter);
+app.use("/api/events", eventRouter)
 
 // Central error handler
 app.use((err, req, res, next) => {
