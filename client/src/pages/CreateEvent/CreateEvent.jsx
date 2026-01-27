@@ -2,6 +2,7 @@ import { useState } from "react";
 import Header from "../../components/layout/Header";
 import styles from "./CreateEvent.module.css";
 import searchicon from "../../assets/searchIcon.png";
+import { createEvent } from "../../api";
 
 function Field({ label, htmlFor, children }) {
     return (
@@ -20,7 +21,7 @@ function CreateEvent() {
         date: "",
         time: "",
         location: "",
-        tag: "",
+        tags: [],
         price: "",
         repeat: "never",
         contactInfo: false,
@@ -37,12 +38,19 @@ function CreateEvent() {
 
         setFormData(prev => ({
             ...prev,
-            [name]: nextValue,
+            [name]: nextValue,  
         }));
     };
 
-    const handleSubmit = e => {
+    const handleSubmit = async(e) => {
         e.preventDefault();
+        const result = await createEvent(formData.title, formData.subtitle, formData.description, formData.date, formData.time, formData.location, formData.tag, formData.price, formData.repeat, formData.contactInfo)
+
+        if (result.error){
+            alert(result.error)
+        } else{
+            alert(result.message)
+        }
         console.log("Form data:", formData);
     };
 
@@ -54,7 +62,7 @@ function CreateEvent() {
             date: "",
             time: "",
             location: "",
-            tag: "",
+            tag: [],
             price: "",
             repeat: "never",
             contactInfo: false,
