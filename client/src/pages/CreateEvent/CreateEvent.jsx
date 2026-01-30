@@ -18,6 +18,7 @@ function CreateEvent() {
         title: "",
         subtitle: "",
         description: "",
+        image: null,
         date: "",
         time: "",
         location: "",
@@ -36,6 +37,24 @@ function CreateEvent() {
             nextValue = Math.max(0, Number(nextValue || 0));
         }
 
+        if (name === "image"){
+            console.log("image getting hit")
+            setFormData(prev => ({
+                ...prev,
+                image: target.files[0]
+            }));
+            return;
+        }
+        
+        if (name === "tags") {
+            setFormData(prev => ({
+                ...prev,
+                // tags: [...prev.tags, value],
+                tags: value
+            }));
+            return;
+        }
+
         setFormData(prev => ({
             ...prev,
             [name]: nextValue,  
@@ -44,7 +63,8 @@ function CreateEvent() {
 
     const handleSubmit = async(e) => {
         e.preventDefault();
-        const result = await createEvent(formData.title, formData.subtitle, formData.description, formData.date, formData.time, formData.location, formData.tag, formData.price, formData.repeat, formData.contactInfo)
+        // const result = await createEvent(formData.title, formData.subtitle, formData.description, formData.date, formData.time, formData.location, formData.tag, formData.price, formData.repeat, formData.contactInfo)
+        const result = await createEvent(formData);
 
         if (result.error){
             alert(result.error)
@@ -59,10 +79,11 @@ function CreateEvent() {
             title: "",
             subtitle: "",
             description: "",
+            image: null,
             date: "",
             time: "",
             location: "",
-            tag: [],
+            tags: [],
             price: "",
             repeat: "never",
             contactInfo: false,
@@ -113,6 +134,11 @@ function CreateEvent() {
                                     required
                                 />
                             </Field>
+
+                            <Field label={<>Select an image</>} htmlFor="image">
+                                <input type="file" accept="image/jpeg, image/png" name="image" onChange={handleInputChange} />
+                            </Field>
+
                         </section>
 
                         <section className={styles.section}>
@@ -156,12 +182,12 @@ function CreateEvent() {
                         <section className={styles.section}>
                             <h3 className={styles.sectionHeader}>Tags & Pricing</h3>
 
-                            <Field label="Choose tags" htmlFor="tag">
+                            <Field label="Choose tags" htmlFor="tags">
                                 <div className={styles.searchBar}>
                                     <input
-                                        id="tag"
-                                        name="tag"
-                                        value={formData.tag}
+                                        id="tags"
+                                        name="tags"
+                                        value={formData.tags}
                                         onChange={handleInputChange}
                                         aria-label="Search tags"
                                     />

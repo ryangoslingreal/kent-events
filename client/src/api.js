@@ -5,15 +5,25 @@ export async function healthCheck() {
   return res.json();
 }
 
-export async function createEvent(title, subtitle, description, date, time, location, tag, price, repeat, contactInfo){
+//This function takes all the create event fields given by CreateEvent.jsx, and passes them to the backend and then waits for a response
+export async function createEvent(data){
+  let formData = new FormData();
+  Object.entries(data).forEach(([key, value]) => {
+    console.log(key + " " + value)
+    if (value === undefined || value === null) return;
+    formData.append(key, value);
+  })
+
   try{
     const res = await fetch(`${API_BASE}/api/events/create-event`, {
       method: "POST",
-      headers: { "Content-Type": "application/json"},
-      body: JSON.stringify({ title, subtitle, description, date, time, location, tag, price, repeat, contactInfo }),
+      // headers: { "Content-Type": "application/json"},
+      // body: JSON.stringify({ title, subtitle, description, date, time, location, tag, price, repeat, contactInfo }),
+      body: formData,
     });
     
-    const data = await res.json().catch(() => ({}));
+    //As I don't return anything from inserting an event, await res.json (below) throws an error, the catch is there to prevent the frontend from thinking it failed
+    const data = await res.json().catch(() => ({}));     
     console.log("createEvent:", res.status, data);
 
     if (!res.ok) {
@@ -22,7 +32,7 @@ export async function createEvent(title, subtitle, description, date, time, loca
 
     return data;
   } catch (error){
-    console.error("createEvent:", error);
+    //Only happens with network errors (like if your not connected to the VPN so can't access dragon)
     return { error: "Network error: Failed to create event" };
   }
 };
