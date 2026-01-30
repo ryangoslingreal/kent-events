@@ -1,0 +1,23 @@
+    // This is the middle layer between 
+    // routes -> HTTP concerns
+    // and 
+    // repos -> database concerns
+    // This layer deals with all the logic to check before passing to the database, such as making sure events are in the future and not in the past
+
+    const eventsRepo = require('../repos/eventsRepo');
+
+
+    //Deals with passing a createEvent request to repos
+    async function createEvent(title, subtitle, description, image, date, time, location, tag, price, repeat, contactInfo) {
+        try{
+            await eventsRepo.createEvent(title, subtitle, description, image, date, time, location, tag, price, repeat, contactInfo);
+
+        } catch (error){
+            throw error
+        }
+    }
+
+
+    module.exports = { 
+        createEvent 
+    };
