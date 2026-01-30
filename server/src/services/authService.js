@@ -1,4 +1,5 @@
 const authRepo = require('../repos/authRepo');
+const emailService = require('./emailService');
 const crypto = require('crypto');
 
 const VERIFY_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
@@ -46,7 +47,7 @@ async function register(email, password_hash) {
     try {
         const user = await authRepo.register(email, password_hash, tokenHash, expiresAt);
 
-        // TODO: send verification email with token
+        await emailService.sendVerificationEmail(email, token);
 
         return user;
     } catch (error) {
@@ -84,6 +85,8 @@ async function verifyEmail(token) {
     if (!updated) {
         throw new Error("Invalid or expired token");
     }
+
+    // TODO: Should redirect on successful verification
 }
 
 async function resendVerification(email) {
@@ -95,7 +98,7 @@ async function resendVerification(email) {
     const { token, tokenHash, expiresAt } = makeVerifyToken();
     await authRepo.setVerificationToken(user.id, tokenHash, expiresAt);
 
-    // TODO: send email with token
+    await emailService.sendVerificationEmail(user.email, token);
 }
 
 /**

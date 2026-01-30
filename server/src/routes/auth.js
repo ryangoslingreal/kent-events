@@ -25,7 +25,7 @@ const router = Router();
  * @status 403 - Email not verified
  * @status 500 - Server error
  */
-router.post("/login", async (req, res) => {
+router.post("/login", async (req, res) => { // ! Should hash password client-side and send over HTTPS.
     const { email, password_hash } = req.body;
 
     try {
@@ -62,7 +62,7 @@ router.post("/login", async (req, res) => {
  * @status 409 - User with this email already exists
  * @status 500 - Server error
  */
-router.post("/register", async (req, res) => {
+router.post("/register", async (req, res) => { // ! Should hash password client-side and send over HTTPS.
 	const { email, password_hash } = req.body;
 
 	try {
