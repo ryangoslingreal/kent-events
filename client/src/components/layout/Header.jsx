@@ -27,7 +27,7 @@ function Header() {
                     <div className={styles.eventDropdownContent}>
                         <Link to="/events/create" >Create Events</Link>
                         <a>My Tickets</a>
-                        <a>Edit Events</a>
+                        <Link to="/events/choose">Edit Events</Link>
                     </div>
                 </div>
 
