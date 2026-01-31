@@ -1,7 +1,5 @@
 const nodemailer = require('nodemailer');
 
-// ! Awaiting email to be set up...
-
 const transporter = nodemailer.createTransport({
     host: process.env.EMAIL_SMTP_HOST,
     port: Number(process.env.EMAIL_SMTP_PORT || 587),
@@ -13,7 +11,11 @@ const transporter = nodemailer.createTransport({
 });
 
 async function sendVerificationEmail(to, token) {
-    const verifyUrl = `${process.env.CORS_ORIGIN}/verify-email?token=${token}`;
+    // * NOTE: This currently points directly to the backend verification endpoint.
+    // * If/when a frontend verification page is implemented, this should instead target the frontend:
+    // * `${process.env.CORS_ORIGIN}/verify-email?token=${token}`
+    // * and let the frontend call the backend API.
+    const verifyUrl = `${process.env.VITE_API_TARGET}/api/auth/verify-email?token=${token}`;
 
     const from = process.env.EMAIL_FROM;
     const subject = "Verify your email address";
