@@ -1,7 +1,5 @@
-const API_BASE = import.meta.env.VITE_API_BASE ?? "http://localhost:3001";
-
 export async function healthCheck() {
-  const res = await fetch(`${API_BASE}/api/health`);
+  const res = await fetch(`/api/health`);
   return res.json();
 }
 
@@ -15,7 +13,7 @@ export async function createEvent(data){
   })
 
   try{
-    const res = await fetch(`${API_BASE}/api/events/create-event`, {
+    const res = await fetch(`/api/events/create-event`, {
       method: "POST",
       // headers: { "Content-Type": "application/json"},
       // body: JSON.stringify({ title, subtitle, description, date, time, location, tag, price, repeat, contactInfo }),
