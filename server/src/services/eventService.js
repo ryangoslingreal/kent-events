@@ -17,7 +17,17 @@
         }
     }
 
+    async function getUserMadeEvents(){
+        try{
+            return await eventsRepo.getUserMadeEvents()
+
+        } catch (error){
+            throw error
+        }
+    }
+
 
     module.exports = { 
-        createEvent 
+        createEvent,
+        getUserMadeEvents
     };

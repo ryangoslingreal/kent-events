@@ -35,7 +35,7 @@ router.post("/create-event", upload.single("image"), async (req, res) => {
         
         await eventService.createEvent(title, subtitle, description, req.file ?? null, date, time, location, tags, price, repeat, intContactInfo)
 
-        return res.status(201).json({
+        return res.status(201).json({    //201 means successfully posted
             message: "Created event successfully",
         })
     } catch (error){
@@ -43,5 +43,17 @@ router.post("/create-event", upload.single("image"), async (req, res) => {
         return res.status(500).json({message: "Server error", error: error.message, code: error.code,});
     }
 });
+
+router.get("/get-user-made-events", async(req, res) => {
+    try{
+        const events = await eventService.getUserMadeEvents()
+
+        return res.status(200).json(events)        //200 means ok
+            
+    } catch (error){
+        console.error("get-user-made-events error:", error);
+        return res.status(500).json({message: "Server error", error: error.message, code: error.code,});
+    }   
+})
 
 module.exports = router;

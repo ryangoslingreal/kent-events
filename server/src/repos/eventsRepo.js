@@ -11,7 +11,21 @@ async function createEvent(title, subtitle, description, image,  date, time, loc
 
 }
 
+async function getUserMadeEvents(){
+    const user_id = 1;  //change to user signed in
+    const query = `
+                    SELECT id, title, event_date
+                    FROM events
+                    WHERE user_id = ?
+                `;    
+
+        const [rows] = await db.query(query, user_id);     //[rows] returns the data as a list here, which stops the output of metadata
+        return rows;
+}
+
 
 module.exports = { 
-    createEvent
+    createEvent,
+    getUserMadeEvents
+
 };

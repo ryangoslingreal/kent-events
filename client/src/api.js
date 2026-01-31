@@ -7,10 +7,10 @@ export async function healthCheck() {
 
 //This function takes all the create event fields given by CreateEvent.jsx, and passes them to the backend and then waits for a response
 export async function createEvent(data){
+
+  //FormData is being used to pass the image to the backen/db, doing it with FormData instead of json is a lot more efficient
   let formData = new FormData();
   Object.entries(data).forEach(([key, value]) => {
-    console.log(key + " " + value)
-    if (value === undefined || value === null) return;
     formData.append(key, value);
   })
 
@@ -36,3 +36,22 @@ export async function createEvent(data){
     return { error: "Network error: Failed to create event" };
   }
 };
+
+export async function getUserMadeEvents() {
+  try{
+    const res = await fetch(`${API_BASE}/api/events/get-user-made-events`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json"},
+    })
+
+    const data = await res.json()
+
+    if (!res.ok) {
+      return { error: data.message }
+    }
+
+    return data;
+  } catch(error){
+    return { error: "Network error: Failed to grab users events"}
+  }
+}

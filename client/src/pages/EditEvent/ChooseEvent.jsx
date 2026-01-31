@@ -1,29 +1,41 @@
 // ChooseEventPage.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../../components/layout/Header.jsx"
 import styles from "./ChooseEvent.module.css";
-
-
-const events = [
-{ id: 1, name: "Winter Makers Market", date: "Feb 7, 2026" },
-{ id: 2, name: "Studio Open Night", date: "Feb 12, 2026" },
-{ id: 3, name: "Product Launch Showcase", date: "Feb 24, 2026" },
-{ id: 4, name: "Coffee & Code Meetup", date: "Mar 1, 2026" },
-];
-
-
-
-
+import { getUserMadeEvents } from "../../api";
 
 function ChooseEvent() {    
     const [selectedId, setSelectedId] = useState(null);
+    const [events, setEvents] = useState([])
     const navigate = useNavigate();
 
     const editEvent = () => {
         navigate(`/edit/event/${selectedId}`)
     }
 
+    useEffect(() => {
+        const getUsersEvents = async() => {
+            
+            const data = await getUserMadeEvents();
+
+            let userEvents = []
+            if (data.error) {
+                alert(data.error)
+            }  else{
+                for (let i=0; i<data.length; i++){
+                    const formattedDate = data[i].event_date.split("T")[0];
+                    let event = { id: data[i].id, name: data[i].title, date: formattedDate }
+                    userEvents.push(event);
+                }
+                setEvents(userEvents)
+            }
+        
+        }
+        getUsersEvents()
+        
+    }, [])
+    
     return (
         <div className={styles.page_header}>
         <Header />
