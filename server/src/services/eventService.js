@@ -8,9 +8,9 @@
 
 
     //Deals with passing a createEvent request to repos
-    async function createEvent(title, subtitle, description, image, date, time, location, tag, price, repeat, contactInfo) {
+    async function createEvent(title, subtitle, description, image, image_mime, date, time, location, tag, price, repeat, contactInfo) {
         try{
-            await eventsRepo.createEvent(title, subtitle, description, image, date, time, location, tag, price, repeat, contactInfo);
+            await eventsRepo.createEvent(title, subtitle, description, image, image_mime, date, time, location, tag, price, repeat, contactInfo);
 
         } catch (error){
             throw error
@@ -26,8 +26,18 @@
         }
     }
 
+    async function getEvent(eventId) {
+        try{
+            return await eventsRepo.getEvent(eventId)
+
+        } catch (error){
+            throw error
+        }
+    }
+
 
     module.exports = { 
         createEvent,
-        getUserMadeEvents
+        getUserMadeEvents,
+        getEvent,
     };

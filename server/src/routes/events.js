@@ -15,7 +15,7 @@ const upload = multer({ storage: multer.memoryStorage() });
 router.post("/create-event", upload.single("image"), async (req, res) => {
    
     // console.log("file:", req.file); // uploaded file (if any)            --to print out image file
-    const { title, subtitle, description, date, time, location, tags, price, repeat, contactInfo } = req.body;
+    const { title, subtitle, description, image_mime ,date, time, location, tags, price, repeat, contactInfo } = req.body;
     
 
     //Basic validation 
@@ -33,7 +33,7 @@ router.post("/create-event", upload.single("image"), async (req, res) => {
     
     try{
         
-        await eventService.createEvent(title, subtitle, description, req.file ?? null, date, time, location, tags, price, repeat, intContactInfo)
+        await eventService.createEvent(title, subtitle, description, req.file ?? null, image_mime, date, time, location, tags, price, repeat, intContactInfo)
 
         return res.status(201).json({    //201 means successfully posted
             message: "Created event successfully",
@@ -54,6 +54,22 @@ router.get("/get-user-made-events", async(req, res) => {
         console.error("get-user-made-events error:", error);
         return res.status(500).json({message: "Server error", error: error.message, code: error.code,});
     }   
+})
+
+//grabbing all data for one event
+router.get("/get-event", async(req, res) => {
+    try{
+        let eventId = req.query.eventId;
+        console.log("grabbing eventId: " + eventId);
+
+        const event = await eventService.getEvent(eventId)
+
+        return res.status(200).json(event)  //ok
+
+    } catch (error){
+        console.error("get-event error:", error);
+        return res.status(500).json({message: "Server error", error: error.message, code: error.code,});
+    }
 })
 
 module.exports = router;

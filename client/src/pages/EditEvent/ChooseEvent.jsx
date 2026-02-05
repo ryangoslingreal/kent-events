@@ -11,7 +11,7 @@ function ChooseEvent() {
     const navigate = useNavigate();
 
     const editEvent = () => {
-        navigate(`/edit/event/${selectedId}`)
+        navigate(`/events/edit/${selectedId}`)
     }
 
     useEffect(() => {

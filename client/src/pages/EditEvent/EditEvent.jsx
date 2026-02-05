@@ -1,8 +1,10 @@
-import { useState } from "react";
-import Header from "../../components/layout/Header";
-import styles from "./CreateEvent.module.css";
+import { useEffect, useState } from "react";
+import { useParams } from 'react-router-dom';
+import { getEvent } from "../../api";
 import searchicon from "../../assets/searchIcon.png";
-import { createEvent } from "../../api";
+import Header from "../../components/layout/Header.jsx";
+import styles from "./EditEvent.module.css";
+
 
 function Field({ label, htmlFor, children }) {
     return (
@@ -13,25 +15,14 @@ function Field({ label, htmlFor, children }) {
     );
 }
 
-function CreateEvent() {
-    const [formData, setFormData] = useState({
-        title: "",
-        subtitle: "",
-        description: "",
-        image: null,
-        image_mime: null,
-        event_date: "",
-        event_time: "",
-        location: "",
-        tags: [],
-        price: "",
-        repeat_event: "never",
-        available_contact: false,
-    });
+function EditEvent(){
+    const { id } = useParams();
+    const [formData, setFormData] = useState({});
+    const [selectedFile, setSelectedFile] = useState();
+
 
     const handleInputChange = ({ target }) => {
         const { name, value, type, checked } = target;
-
         let nextValue = type === "checkbox" ? checked : value;
 
         if (name === "price") {
@@ -39,14 +30,11 @@ function CreateEvent() {
         }
 
         if (name === "image"){
-            console.log(target.files[0].type)
-            
             setFormData(prev => ({
                 ...prev,
-                image: target.files[0],
-                image_mime: target.files[0].type
+                image: target.files[0]
             }));
-
+            setSelectedFile(target.files[0])
             return;
         }
         
@@ -78,27 +66,40 @@ function CreateEvent() {
         console.log("Form data:", formData);
     };
 
-    const handleReset = () => {
-        const initialForm = {
-            title: "",
-            subtitle: "",
-            description: "",
-            image: null,
-            image_mime: null,
-            event_date: "",
-            event_time: "",
-            location: "",
-            tags: [],
-            price: "",
-            repeat_event: "never",
-            available_contact: false,
+
+
+    //grabbing event data
+    useEffect(() => {
+        const getEventData = async() => {
+            
+            const data = await getEvent(id);
+            let eventData = data[0];
+
+            //changing event date, time and contact info to conform with the HTML format
+            eventData.event_time = eventData.event_time.toString().slice(0, 5);
+            eventData.event_date = eventData.event_date.slice(0, 10);
+            if (eventData.available_contact == 1){
+                eventData.available_contact = true
+            }  else {
+                eventData.available_contact = false
+            }
+
+            setFormData(eventData);
+
+
+
+            if (data.error) {
+                alert(data.error)
+            }  else{
+                console.log(data);
+            }
+        
         }
-        setFormData(initialForm);
+        getEventData()
+        
+    }, [])
 
-        alert("Page reset")
-    }
-
-    return (
+    return(
         <>
             <Header />
             <div className={styles.page}>
@@ -140,8 +141,14 @@ function CreateEvent() {
                                 />
                             </Field>
 
-                            <Field label={<>Select an image</>} htmlFor="image">
-                                <input type="file" accept="image/jpeg, image/png" name="image" onChange={handleInputChange} />
+                            <Field label={<>Select an image</>}>
+                                <label htmlFor="image" className={styles.image} value={formData.image}>
+                                    {selectedFile ? selectedFile.name : formData.image ? "Choose new image" : "Select Image"}
+                                </label>
+                                {/* This is hidden due to me wanting to change the text next to the input image box ^  */}
+                                <div>
+                                    <input id="image" type="file" accept="image/jpeg, image/png" name="image" onChange={handleInputChange} hidden/>
+                                </div>
                             </Field>
 
                         </section>
@@ -254,14 +261,14 @@ function CreateEvent() {
                                 Delete
                             </button>
                             <button type="submit" className={styles.createForm}>
-                                Create Event
+                                Update Event
                             </button>
                         </div>
                     </form>
                 </div>
             </div>
         </>
-    );
+    )
 }
 
-export default CreateEvent; 
+export default EditEvent;

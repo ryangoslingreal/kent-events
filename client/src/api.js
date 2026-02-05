@@ -55,3 +55,23 @@ export async function getUserMadeEvents() {
     return { error: "Network error: Failed to grab users events"}
   }
 }
+
+//gets data from one specific event
+export async function getEvent(eventId) {
+  try{
+    const res = await fetch(`${API_BASE}/api/events/get-event?eventId=${encodeURIComponent(eventId)}`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json"},
+    })
+
+    const data = await res.json();
+
+    if (!res.ok){
+      return {error: data.message}
+    }
+
+    return data
+  } catch(error){
+    return {error : "Network error: Failed to grab event"}
+  }
+} 

@@ -8,6 +8,7 @@ import Login from "./pages/Login/Login.jsx"
 import Signup from "./pages/Signup/Signup.jsx"
 import CreateEvent from "./pages/CreateEvent/CreateEvent.jsx"
 import ChooseEvent from "./pages/EditEvent/ChooseEvent.jsx"
+import EditEvent from "./pages/EditEvent/EditEvent.jsx"
 
 function App() {
 
@@ -30,6 +31,7 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/events/create" element={<CreateEvent />} />
         <Route path="/events/choose" element={<ChooseEvent />} />
+        <Route path="/events/edit/:id" element={<EditEvent />} />
       </Routes>
     </>
   );
