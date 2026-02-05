@@ -75,3 +75,22 @@ export async function getEvent(eventId) {
     return {error : "Network error: Failed to grab event"}
   }
 } 
+
+export async function deleteEvent(eventId){
+  try{
+    const res = await fetch(`${API_BASE}/api/events/delete-event?eventId=${encodeURIComponent(eventId)}`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json"},
+    })
+
+    const data = await res.json()
+
+    if (!res.ok){
+      return {error: data.message}
+    }
+
+    return data;
+  } catch (error){
+    return {error: "Network error: Failed to delete event"}
+  }
+}

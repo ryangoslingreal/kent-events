@@ -35,9 +35,25 @@
         }
     }
 
+    async function deleteEvent(eventId){
+        try{
+            const result = await eventsRepo.deleteEvent(eventId);
+
+            if (result.affectedRows === 0) {
+                return{ status:"EVENTNOTFOUND"};
+            }
+
+            return "Event deleted";
+
+        } catch (error){
+            throw error
+        }
+    }
+
 
     module.exports = { 
         createEvent,
         getUserMadeEvents,
         getEvent,
+        deleteEvent,
     };

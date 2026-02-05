@@ -34,9 +34,21 @@ async function getEvent(eventId){
     return rows ?? null;
 }
 
+async function deleteEvent(eventId){
+    const query = `
+                DELETE 
+                FROM events
+                WHERE id = ?
+    `
+    const [result] = await db.execute(query, [eventId]);
+
+    return result
+}
+
 
 module.exports = { 
     createEvent,
     getUserMadeEvents,
-    getEvent
+    getEvent,
+    deleteEvent
 };

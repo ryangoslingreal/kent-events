@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { useParams } from 'react-router-dom';
-import { getEvent } from "../../api";
+import { useParams, useNavigate } from 'react-router-dom';
+import { getEvent, deleteEvent } from "../../api";
+
 import searchicon from "../../assets/searchIcon.png";
 import Header from "../../components/layout/Header.jsx";
 import styles from "./EditEvent.module.css";
@@ -17,6 +18,7 @@ function Field({ label, htmlFor, children }) {
 
 function EditEvent(){
     const { id } = useParams();
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({});
     const [selectedFile, setSelectedFile] = useState();
 
@@ -65,6 +67,17 @@ function EditEvent(){
         }
         console.log("Form data:", formData);
     };
+
+    const handleDeleteEvent = async(e) => {
+        const result = await deleteEvent(id);
+
+        if (result.error){
+            alert(result.error);
+        } else {
+            alert("event deleted")
+            navigate("/");
+        }
+    }
 
 
 
@@ -257,8 +270,8 @@ function EditEvent(){
                         </section>
 
                         <div className={styles.formButton}>
-                            <button type="button" className={styles.saveForm} onClick={() => handleReset()}>
-                                Delete
+                            <button type="button" className={styles.saveForm} onClick={() => handleDeleteEvent()}>
+                                Delete Event
                             </button>
                             <button type="submit" className={styles.createForm}>
                                 Update Event
