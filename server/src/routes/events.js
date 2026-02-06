@@ -15,17 +15,17 @@ const upload = multer({ storage: multer.memoryStorage() });
 router.post("/create-event", upload.single("image"), async (req, res) => {
    
     // console.log("file:", req.file); // uploaded file (if any)            --to print out image file
-    const { title, subtitle, description, image_mime ,date, time, location, tags, price, repeat, contactInfo } = req.body;
+    const { title, subtitle, description, image_mime , event_date, event_time, location, tags, price, repeat_event, available_contact } = req.body;
     
 
     //Basic validation 
-    if (!title || !description || !date || !time || !location || !contactInfo) {
+    if (!title || !description || !event_date || !event_time || !location || !available_contact) {
         return res.status(400).json({ message: "Form input requirement is missing" });
     }
     //deconstructing contactInfo
     // As FormData is now being used, contactinfo (bool) is turned into a string (unlike in json), so this needs to be automatically set now
     let intContactInfo
-    if (contactInfo === "true"){
+    if (available_contact === "true"){
         intContactInfo = 1
     } else{
         intContactInfo = 0
@@ -33,7 +33,7 @@ router.post("/create-event", upload.single("image"), async (req, res) => {
     
     try{
         
-        await eventService.createEvent(title, subtitle, description, req.file ?? null, image_mime, date, time, location, tags, price, repeat, intContactInfo)
+        await eventService.createEvent(title, subtitle, description, req.file ?? null, image_mime, event_date, event_time, location, tags, price, repeat_event, intContactInfo)
 
         return res.status(201).json({    //201 means successfully posted
             message: "Created event successfully",
@@ -78,7 +78,7 @@ router.delete("/delete-event", async(req, res) => {
 
         const result = await eventService.deleteEvent(eventId)
 
-        if (result.code === 'EVENTNOTFOUND') {
+        if (result.status === 'EVENTNOTFOUND') {
             return res.status(404).json({ message: "Event not found" });
         }
 
@@ -88,6 +88,32 @@ router.delete("/delete-event", async(req, res) => {
         return res.status(500).json({message: "Server error", error: error.message, code: error.code,});
     }
     
+})
+
+router.put("/update-event", upload.single("image"), async(req, res) => {
+
+    const { title, subtitle, description, image_mime , event_date, event_time, location, tags, price, repeat_event, available_contact } = req.body;
+    const eventId = req.query.eventId;
+
+    let intContactInfo
+    if (available_contact === "true"){
+        intContactInfo = 1
+    } else{
+        intContactInfo = 0
+    }
+
+    try{
+        const result = await eventService.updateEvent(eventId, title, subtitle, description, req.file ?? null, image_mime, event_date, event_time, location, tags, price, repeat_event, intContactInfo)
+
+        if (result.status === 'EVENTNOTFOUND') {
+            return res.status(404).json({ message: "Event not found" });
+        }
+
+        return res.status(200).json(result)  //ok
+    } catch (error){
+        console.error("update-event error:", error);
+        return res.status(500).json({message: "Server error", error: error.message, code: error.code,});
+    }
 })
 
 module.exports = router;

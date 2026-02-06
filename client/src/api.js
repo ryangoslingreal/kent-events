@@ -94,3 +94,30 @@ export async function deleteEvent(eventId){
     return {error: "Network error: Failed to delete event"}
   }
 }
+
+export async function updateEvent(eventId, data) {
+
+  let formData = new FormData();
+  Object.entries(data).forEach(([key, value]) => {
+    formData.append(key, value);
+  })
+
+  try{
+    const res = await fetch(`${API_BASE}/api/events/update-event?eventId=${encodeURIComponent(eventId)}`, {
+      method: "PUT",
+      body: formData,
+    })
+
+    const result = await res.json()
+
+    if (!res.ok){
+      return {error: result.message}
+    }
+
+    return result;
+  } catch (error){
+    return {error: "Network error: Failed to update event"}
+  }
+
+  
+}

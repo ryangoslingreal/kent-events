@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from 'react-router-dom';
-import { getEvent, deleteEvent } from "../../api";
+import { getEvent, deleteEvent, updateEvent } from "../../api";
 
 import searchicon from "../../assets/searchIcon.png";
 import Header from "../../components/layout/Header.jsx";
@@ -36,7 +36,8 @@ function EditEvent(){
                 ...prev,
                 image: target.files[0]
             }));
-            setSelectedFile(target.files[0])
+
+            setSelectedFile(target.files[0] ?? null)
             return;
         }
         
@@ -58,7 +59,16 @@ function EditEvent(){
     const handleSubmit = async(e) => {
         e.preventDefault();
         // const result = await createEvent(formData.title, formData.subtitle, formData.description, formData.date, formData.time, formData.location, formData.tag, formData.price, formData.repeat, formData.contactInfo)
-        const result = await createEvent(formData);
+        const payload = {...formData};
+        
+        if (selectedFile) {
+            payload.image = selectedFile;
+        } else {
+            delete payload.image;
+            delete payload.image_mime;
+        }
+        
+        const result = await updateEvent(id, payload);
 
         if (result.error){
             alert(result.error)

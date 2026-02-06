@@ -229,8 +229,8 @@ function CreateEvent() {
                                     required
                                 >
                                     <option value="never">Never</option>
-                                    <option value="daily">Every day</option>
                                     <option value="weekly">Weekly</option>
+                                    <option value="monthly">Monthly</option>
                                 </select>
                             </Field>
 

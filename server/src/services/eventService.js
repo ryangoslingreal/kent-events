@@ -43,9 +43,24 @@
                 return{ status:"EVENTNOTFOUND"};
             }
 
-            return "Event deleted";
+            return {message: "Event deleted" };
 
         } catch (error){
+            throw error
+        }
+    }
+
+    async function updateEvent(eventId, title, subtitle, description, image, image_mime, event_date, event_time, location, tag, price, repeat_event, available_contact){
+        try{
+            const result = await eventsRepo.updateEvent(eventId, title, subtitle, description, image, image_mime, event_date, event_time, location, tag, price, repeat_event, available_contact);
+            
+            // console.log(result);
+            if (result.affectedRows === 0) {
+                return{ status: "EVENTNOTFOUND"};
+            }
+
+            return { message: "Event updated" };
+        } catch (error) {
             throw error
         }
     }
@@ -56,4 +71,5 @@
         getUserMadeEvents,
         getEvent,
         deleteEvent,
+        updateEvent,
     };

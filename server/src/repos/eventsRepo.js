@@ -45,10 +45,34 @@ async function deleteEvent(eventId){
     return result
 }
 
+async function updateEvent(eventId, title, subtitle, description, image, image_mime, event_date, event_time, location, tags, price, repeat_event, available_contact){
+    //checks for image, to save executing time
+    if (!image){
+        const query = `
+                    UPDATE events
+                    SET title=?, subtitle=?, description=?, event_date=?, event_time=?, location=?, tags=?, price=?, repeat_event=?, available_contact=?
+                    WHERE id = ?
+        `
+        const [result] = await db.execute(query, [title, subtitle, description, event_date, event_time, location, JSON.stringify(tags), price, repeat_event, available_contact, eventId]);
+         return result
+    } else{
+        const query = `
+                    UPDATE events
+                    SET title=?, subtitle=?, description=?, image=?, image_mime=?, event_date=?, event_time=?, location=?, tags=?, price=?, repeat_event=?, available_contact=?
+                    WHERE id = ?
+        `
+        const [result] = await db.execute(query, [title, subtitle, description, image?.buffer, image_mime, event_date, event_time, location, JSON.stringify(tags), price, repeat_event, available_contact, eventId]);
+        return result
+    }
+   
+
+    // SHOULD i JUST UPDATE ALL COLUMNS with teh sepcific event, or only changed ones?
+}
 
 module.exports = { 
     createEvent,
     getUserMadeEvents,
     getEvent,
-    deleteEvent
+    deleteEvent,
+    updateEvent,
 };
