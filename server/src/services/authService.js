@@ -1,6 +1,6 @@
-const authRepo = require('../repos/authRepo');
-const emailService = require('./emailService');
 const crypto = require('crypto');
+const authRepo = require("../repos/authRepo");
+const emailService = require("./emailService");
 
 const VERIFY_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
 
@@ -43,7 +43,7 @@ async function login(email, password_hash) {
  */
 async function register(email, password_hash) {
     const { token, tokenHash, expiresAt } = makeVerifyToken();
-    
+        
     try {
         const user = await authRepo.register(email, password_hash, tokenHash, expiresAt);
 
@@ -115,8 +115,8 @@ function makeVerifyToken() {
     return { token, tokenHash, expiresAt };
 }
 
-module.exports = { 
-    login, 
+module.exports = {
+    login,
     register,
     verifyEmail,
     resendVerification

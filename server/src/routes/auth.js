@@ -25,7 +25,7 @@ const router = Router();
  * @status 403 - Email not verified
  * @status 500 - Server error
  */
-router.post("/login", async (req, res) => { // ! Should hash password client-side and send over HTTPS.
+router.post("/login", async (req, res) => { // ! Should hash password server-side and send plaintext over HTTPS.
     const { email, password_hash } = req.body;
 
     try {
@@ -34,11 +34,11 @@ router.post("/login", async (req, res) => { // ! Should hash password client-sid
         if (!result) {
             return res.status(401).json({message: "Invalid credentials"});
         }
-        
-        if (result.status == "UNVERIFIED") {
+            
+        if (result.status === "UNVERIFIED") {
             return res.status(403).json({message: "Email not verified"});
         } 
-        
+            
         // VERIFIED
         return res.status(200).json({ 
             message: "User logged in successfully", 
@@ -62,23 +62,23 @@ router.post("/login", async (req, res) => { // ! Should hash password client-sid
  * @status 409 - User with this email already exists
  * @status 500 - Server error
  */
-router.post("/register", async (req, res) => { // ! Should hash password client-side and send over HTTPS.
-	const { email, password_hash } = req.body;
+router.post("/register", async (req, res) => { // ! Should hash password server-side and send plaintext over HTTPS.
+    const { email, password_hash } = req.body;
 
-	try {
-		const user = await authService.register(email, password_hash);
+    try {
+        const user = await authService.register(email, password_hash);
 
-		return res.status(201).json({
-			message: "User registered successfully, verification required",
-			user: { id: user.id, email: user.email }
-		});
-	} catch (error) {
-		if (error.code === 'DUPLICATE_USER') {
-			return res.status(409).json({message: "User with this email already exists"});
-		}
+        return res.status(201).json({
+            message: "User registered successfully, verification required",
+            user: { id: user.id, email: user.email }
+        });
+    } catch (error) {
+        if (error.code === 'DUPLICATE_USER') {
+            return res.status(409).json({message: "User with this email already exists"});
+        }
 
-		return res.status(500).json({message: "Server error", error: error.message});
-	}
+        return res.status(500).json({message: "Server error", error: error.message});
+    }
 });
 
 /**
