@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "nodemon src/app.js",
     "start": "node src/app.js",
-    "test": "vitest",
-    "test:watch": "vitest --watch"
+    "test": "set NODE_ENV=test&& vitest",
+    "test:watch": "set NODE_ENV=test&& vitest --watch"
   },
   "keywords": [],
   "author": "",

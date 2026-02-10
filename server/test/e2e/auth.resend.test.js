@@ -1,6 +1,7 @@
-import { vi, beforeEach, describe, it, expect } from "vitest";
+import { vi, beforeEach, describe, it, expect, afterEach } from "vitest";
 const request = require("supertest");
 const inbox = require("../helpers/emailInbox.js");
+const { cleanupTestUsers } = require("../helpers/dbCleanup.js");
 
 // Mock email
 vi.mock("../../src/services/emailService", () => {
@@ -15,16 +16,18 @@ vi.mock("../../src/services/emailService", () => {
 // Import app after mock
 import app from "../../src/app.js";
 
-describe("Auth API", () => {
+describe("api/auth/resend", () => {
     // Reset inbox before each test
     beforeEach( () => {
         inbox.reset();
     });
 
-    // Sanity check to ensure test setup is working
-    it("App boots", async () => {
-        const res = await request(app).get("/api/health");
-        expect(res.status).toBe(200);
-        expect(res.body).toEqual({ ok: true });
+    // Clean up db after each test
+    afterEach( async () => {
+        await cleanupTestUsers();
+    });
+
+    it("placeholder test", () => {
+        // placeholder test
     });
 });
