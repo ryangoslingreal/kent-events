@@ -1,5 +1,4 @@
 import { vi } from "vitest";
-import { sendVerificationEmail } from "../../src/services/emailService";
 
 vi.mock("../../src/services/emailService", async () => {
     const inbox = await import("../helpers/emailInbox.js");
