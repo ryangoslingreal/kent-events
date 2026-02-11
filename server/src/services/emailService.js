@@ -10,11 +10,18 @@ const transporter = nodemailer.createTransport({
     },
 });
 
+/**
+ * Sends an email with a verification link.
+ * 
+ * * NOTE: This currently points directly to the backend verification endpoint.
+ * * If/when a frontend verification page is implemented, this should instead target the frontend:
+ * * `${process.env.CORS_ORIGIN}/api/auth/verify-email?token=${token}`
+ * * and let the frontend call the backend API.
+ * 
+ * @param {*} to 
+ * @param {*} token 
+ */
 async function sendVerificationEmail(to, token) {
-    // * NOTE: This currently points directly to the backend verification endpoint.
-    // * If/when a frontend verification page is implemented, this should instead target the frontend:
-    // * `${process.env.CORS_ORIGIN}/verify-email?token=${token}`
-    // * and let the frontend call the backend API.
     const verifyUrl = `${process.env.VITE_API_TARGET}/api/auth/verify-email?token=${token}`;
 
     const from = process.env.EMAIL_FROM;

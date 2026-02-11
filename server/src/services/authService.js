@@ -89,6 +89,15 @@ async function verifyEmail(token) {
     // TODO: Should redirect on successful verification
 }
 
+/**
+ * Regenerated and resends an email verification link to the specified user.
+ * 
+ * If no user exists, or user is already verified, silently returns.
+ * 
+ * @param {string} email - The email address of the user requesting verification
+ * 
+ * @returns {Promise<void>} Resolves when verification email is sent
+ */
 async function resendVerification(email) {
     const user = await authRepo.findByEmail(email);
     if (!user) return;
