@@ -2,16 +2,21 @@ import { beforeEach, describe, it, expect, afterEach } from "vitest";
 const request = require("supertest");
 const inbox = require("../helpers/emailInbox.js");
 const { cleanupTestUsers } = require("../helpers/dbCleanup.js");
-
-import "../setup/email.mock.js"; // Mock email
-import app from "../../src/app.js"; // Import app after mock
+const { makeTestEmail } = require("../helpers/emailUtils.js");
 
 describe("api/auth/login", () => {
-    // Reset inbox before each test
-    beforeEach( () => {
+    let app;
+        
+    // Reset inbox  and mock email service before each test
+    beforeEach( async () => {
         inbox.reset();
+    
+        const {mockEmail} = await import("../setup/email.mock.js");
+        mockEmail();
+    
+        app = (await import("../../src/app.js")).default; // Import app AFTER mock
     });
-
+    
     // Clean up db after each test
     afterEach( async () => {
         await cleanupTestUsers();

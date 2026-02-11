@@ -1,6 +1,6 @@
 const sent = [];
 
-function record({ to, token, verifyUrl}) {
+function record({ to, token, verifyUrl }) {
     sent.push({ to, token, verifyUrl, at: Date.now() });
 }
 

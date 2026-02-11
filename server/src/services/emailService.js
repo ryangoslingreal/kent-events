@@ -1,14 +1,16 @@
 const nodemailer = require('nodemailer');
 
-const transporter = nodemailer.createTransport({
-    host: process.env.EMAIL_SMTP_HOST,
-    port: Number(process.env.EMAIL_SMTP_PORT || 587),
-    secure: false,
-    auth: {
-        user: process.env.EMAIL_SMTP_USER,
-        pass: process.env.EMAIL_SMTP_PASS,
-    },
-});
+function createTransporter() {
+    return nodemailer.createTransport({
+        host: process.env.EMAIL_SMTP_HOST,
+        port: Number(process.env.EMAIL_SMTP_PORT || 587),
+        secure: false,
+        auth: {
+            user: process.env.EMAIL_SMTP_USER,
+            pass: process.env.EMAIL_SMTP_PASS,
+        },
+    });
+}
 
 /**
  * Sends an email with a verification link.
@@ -22,6 +24,8 @@ const transporter = nodemailer.createTransport({
  * @param {*} token 
  */
 async function sendVerificationEmail(to, token) {
+    const transporter = createTransporter();
+
     const verifyUrl = `${process.env.VITE_API_TARGET}/api/auth/verify-email?token=${token}`;
 
     const from = process.env.EMAIL_FROM;

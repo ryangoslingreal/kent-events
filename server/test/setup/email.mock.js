@@ -1,14 +1,13 @@
-import { vi } from "vitest";
+const inbox = require("../helpers/emailInbox.js");
+const emailService = require("../../src/services/emailService.js");
 
-vi.mock("../../src/services/emailService", async () => {
-    const inbox = await import("../helpers/emailInbox.js");
+export function mockEmail() {
+    emailService.sendVerificationEmail = async (to, token) => {
+        const verifyUrl = `${process.env.VITE_API_TARGET}/api/auth/verify-email?token=${token}`;
+        inbox.record({ to, token, verifyUrl });
+    }
+}
 
-    return {
-        sendVerificationEmail(to, token) {
-            const verifyUrl = `${process.env.VITE_API_TARGET}/api/auth/verify-email?token=${token}`;
-
-            inbox.record({ to, token, verifyUrl });
-            return Promise.resolve();
-        },
-    };
-});
+module.exports = {
+    mockEmail
+};
