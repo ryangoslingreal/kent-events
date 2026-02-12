@@ -1,7 +1,7 @@
 import { beforeEach, describe, it, expect, afterEach } from "vitest";
 const inbox = require("../helpers/emailInbox.js");
 const { cleanupTestUsers } = require("../helpers/dbCleanup.js");
-const { registerTestUser, verifyTestUser } = require("../helpers/authTestingUtils.js");
+const { makeTestEmail, registerTestUser, verifyTestUser } = require("../helpers/authTestingUtils.js");
 
 describe("api/auth/verify", () => {
     let app;
@@ -23,16 +23,16 @@ describe("api/auth/verify", () => {
 
     it("returns 200 when a valid verification token is provided, token becomes unusable", async () => {
         // Register user to generate token
-        const { email } = await registerTestUser(app);
+        await registerTestUser(app, makeTestEmail(), "testpassword");
         const sentEmail = inbox.last();
         const token = sentEmail.token;
 
         // First verification attempt should succeed
-        const res1 = await verifyTestUser(app, token);
+        const { res: res1 } = await verifyTestUser(app, token);
         expect(res1.status).toBe(200);
 
         // Second verification attempt should fail
-        const res2 = await verifyTestUser(app, token);
+        const { res: res2 } = await verifyTestUser(app, token);
         expect(res2.status).toBe(400);
     });
 });

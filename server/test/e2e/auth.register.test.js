@@ -1,7 +1,7 @@
 import { beforeEach, describe, it, expect, afterEach } from "vitest";
 const inbox = require("../helpers/emailInbox.js");
 const { cleanupTestUsers } = require("../helpers/dbCleanup.js");
-const { registerTestUser, registerTestUserNoEmail, registerTestUserNoPassword, registerTestUserInvalidEmail } = require("../helpers/authTestingUtils.js");
+const { makeTestEmail, registerTestUser } = require("../helpers/authTestingUtils.js");
 
 describe("api/auth/register", () => {
     let app;
@@ -23,7 +23,7 @@ describe("api/auth/register", () => {
 
     it("returns 201 with user payload and sends verification email on successful registration", async () => {
         // Regisistration should succeed
-        const { res, email } = await registerTestUser(app);
+        const { res, email } = await registerTestUser(app, makeTestEmail(), "testpassword");
         expect(res.status).toBe(201);
         expect(res.body).toHaveProperty("user");
         expect(res.body.user).toHaveProperty("id");
@@ -41,28 +41,25 @@ describe("api/auth/register", () => {
     });
 
     it("returns 400 when missing or invalid fields are provided", async () => {
-        // Missing email
-        const { res: res1 } = await registerTestUserNoEmail(app);
+        const { res: res1 } = await registerTestUser(app, undefined, "testpassword"); // Missing email
         expect(res1.status).toBe(400);
 
-        // Missing password
-        const { res: res2 } = await registerTestUserNoPassword(app);
+        const { res: res2 } = await registerTestUser(app, makeTestEmail(), undefined); // Missing password
         expect(res2.status).toBe(400);
 
-        // Invalid email
-        const { res: res3 } = await registerTestUserInvalidEmail(app);
+        const { res: res3 } = await registerTestUser(app, "not-an-email", "testpassword"); // Invalid email
         expect(res3.status).toBe(400);
     });
 
     it("returns 409 and does not send verification email when email already exists", async () => {
         // First registration should succeed
-        const { res: res1, email: email1 } = await registerTestUser(app);
+        const { res: res1, email: email1 } = await registerTestUser(app, makeTestEmail(), "testpassword");
         expect(res1.status).toBe(201);
 
         inbox.reset(); // Clear inbox
 
         // Second registration should fail
-        const { res: res2, email: email2 } = await registerTestUser(app, email1); // Override with same email
+        const { res: res2, email: email2 } = await registerTestUser(app, email1, "testpassword"); // Same email
         expect(res2.status).toBe(409);
         expect(inbox.all()).toHaveLength(0); // Check email is NOT sent
     });
