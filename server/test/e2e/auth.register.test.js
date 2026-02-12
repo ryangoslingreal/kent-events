@@ -1,8 +1,7 @@
 import { beforeEach, describe, it, expect, afterEach } from "vitest";
-const request = require("supertest");
 const inbox = require("../helpers/emailInbox.js");
 const { cleanupTestUsers } = require("../helpers/dbCleanup.js");
-const { makeTestEmail } = require("../helpers/emailUtils.js");
+const { registerTestUser } = require("../helpers/authTestingUtils.js");
 
 describe("api/auth/register", () => {
     let app;
@@ -22,15 +21,9 @@ describe("api/auth/register", () => {
         await cleanupTestUsers();
     });
 
-    it("returns 201 and sends verification email", async () => {
-        const email = makeTestEmail();
-        const password_hash = "testpassword"; // Currently hashed client-side
-
-        const res = await request(app)
-            .post("/api/auth/register")
-            .send({ email, password_hash });
-
-        // Check response
+    it("returns 201 with user payload and sends verification email on successful registration", async () => {
+        // Regisistration should succeed
+        const { res, email } = await registerTestUser(app);
         expect(res.status).toBe(201);
         expect(res.body).toHaveProperty("user");
         expect(res.body.user).toHaveProperty("id");
@@ -41,43 +34,22 @@ describe("api/auth/register", () => {
         expect(sentEmail).toBeTruthy();
         expect(sentEmail.to).toBe(email);
 
-        // Check token
+        // Check token and URL
         expect(sentEmail.token).toEqual(expect.any(String));
-        expect(sentEmail.token.length).toBeGreaterThan(0);
-
-        // Check verify URL
+        expect(sentEmail.token).not.toHaveLength(0);
         expect(sentEmail.verifyUrl).toContain("/api/auth/verify-email?token=" + sentEmail.token);
     });
 
-    it("returns 409 for existing email", async () => {
-        const email = makeTestEmail();
-        const password_hash = "testpassword";
-
+    it("returns 409 and does not send verification email when email already exists", async () => {
         // First registration should succeed
-        const res1 = await request(app)
-            .post("/api/auth/register")
-            .send({ email, password_hash });
-
-        // Check first response
+        const { res: res1, email: email1 } = await registerTestUser(app);
         expect(res1.status).toBe(201);
-
-        // Check first email sent
-        const sentEmail1 = inbox.last();
-        expect(sentEmail1).toBeTruthy();
-        expect(sentEmail1.to).toBe(email); 
 
         inbox.reset(); // Clear inbox
 
         // Second registration should fail
-        const res2 = await request(app)
-            .post("/api/auth/register")
-            .send({ email, password_hash });
-
-        // Check second response
+        const { res: res2, email: email2 } = await registerTestUser(app, email1); // Override with same email
         expect(res2.status).toBe(409);
-
-        // Check second email is NOT sent
-        const sentEmail2 = inbox.last();
-        expect(sentEmail2).toBeFalsy();
+        expect(inbox.all()).toHaveLength(0); // Check email is NOT sent
     });
 });
