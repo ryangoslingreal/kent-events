@@ -1,7 +1,7 @@
 import { beforeEach, describe, it, expect, afterEach } from "vitest";
 const inbox = require("../helpers/emailInbox.js");
 const { cleanupTestUsers } = require("../helpers/dbTestingUtils.js");
-const { registerTestUser } = require("../helpers/authTestingUtils.js");
+const { makeTestEmail, registerTestUser, verifyTestUser, requestNewVerification } = require("../helpers/authTestingUtils.js");
 
 describe.sequential("api/auth/resend", () => {
     let app;
@@ -21,7 +21,35 @@ describe.sequential("api/auth/resend", () => {
         await cleanupTestUsers();
     });
 
-    it.todo("returns 200 and sends verification email if the account exists", () => {
-        // ! placeholder test
+    it("returns 200 and sends a new verification email when the account exists, old token comes invalid", async () => {
+        // Register a new user
+        const { email } = await registerTestUser(app, makeTestEmail(), "testpassword");
+        const token1 = inbox.last()?.token;
+        expect(token1).toBeTruthy();
+
+        inbox.reset(); // Clear inbox
+
+        // Request resend
+        const { res } = await requestNewVerification(app, email);
+        expect(res.status).toBe(200);
+
+        const token2 = inbox.last()?.token;
+        expect(token2).toBeTruthy();
+        expect(token2).not.toBe(token1); // Should be a new token
+
+        // Old token should fail
+        const { res: resOld } = await verifyTestUser(app, token1);
+        expect(resOld.status).toBe(400);
+
+        // New token should succeed
+        const { res: resNew } = await verifyTestUser(app, token2);
+        expect(resNew.status).toBe(200);
+    });
+
+    it("returns 200 and does NOT send an email when the account does not exist", async () => {
+        // Attempt verification with nonexistent account
+        const { res } = await requestNewVerification(app, "not-an-account@example.com");
+        expect(res.status).toBe(200);
+        expect(inbox.all().length).toBe(0);
     });
 });

@@ -24,8 +24,7 @@ describe.sequential("api/auth/login", () => {
     it("returns 200 with user payload on successful login", async () => {
         // Register and verify a new user
         const { email: email } = await registerTestUser(app, makeTestEmail(), "testpassword");   
-        const sentEmail = inbox.last();
-        const token = sentEmail.token;
+        const token = inbox.last()?.token;
         await verifyTestUser(app, token);
 
         // Attempt login
@@ -39,8 +38,7 @@ describe.sequential("api/auth/login", () => {
     it("returns 401 for invalid credentials", async () => {
         // Register and verify a new user
         const { email: email } = await registerTestUser(app, makeTestEmail(), "testpassword");
-        const sentEmail = inbox.last();
-        const token = sentEmail.token;
+        const token = inbox.last()?.token;
         await verifyTestUser(app, token);
 
         const { res: res1 } = await loginTestUser(app, undefined, "testpassword"); // Missing email

@@ -105,7 +105,7 @@ router.get("/verify", async (req, res) => {
 });
 
 /**
- * POST /resend-verification
+ * POST /request-verify
  * Resends the email verification link to the user's email address.
  * 
  * @param {string} email - The user's email address
@@ -115,7 +115,7 @@ router.get("/verify", async (req, res) => {
  * @status 200 - Verification email sent (if account exists)
  * @status 500 - Server error
  */
-router.post("/verify-request", async (req, res) => {
+router.post("/request-verify", async (req, res) => {
     const { email } = req.body;
 
     try {

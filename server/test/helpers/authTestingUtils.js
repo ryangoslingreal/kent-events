@@ -30,9 +30,18 @@ async function loginTestUser(app, email, password_hash) {
     return { res };
 }
 
+async function requestNewVerification(app, email) {
+    const res = await request(app)
+        .post("/api/auth/request-verify")
+        .send({ email })
+
+    return { res };
+}
+
 module.exports = {
     makeTestEmail,
     registerTestUser,
     verifyTestUser,
-    loginTestUser
+    loginTestUser,
+    requestNewVerification
 };

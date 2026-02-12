@@ -24,8 +24,7 @@ describe.sequential("api/auth/verify", () => {
     it("returns 200 when a valid verification token is provided, token becomes unusable", async () => {
         // Register user to generate token
         await registerTestUser(app, makeTestEmail(), "testpassword");
-        const sentEmail = inbox.last();
-        const token = sentEmail.token;
+        const token = inbox.last()?.token;
 
         // First verification attempt should succeed
         const { res: res1 } = await verifyTestUser(app, token);
@@ -39,8 +38,7 @@ describe.sequential("api/auth/verify", () => {
     it("returns 400 when verification token is invalid or expired", async () => {
         // Register user to generate token
         const { email: email } = await registerTestUser(app, makeTestEmail(), "testpassword");
-        const sentEmail = inbox.last();
-        const token = sentEmail.token;
+        const token = inbox.last()?.token;
 
         const { res: res1 } = await verifyTestUser(app, "invalid-token"); // Invalid token
         expect(res1.status).toBe(400);
