@@ -40,6 +40,20 @@ describe("api/auth/register", () => {
         expect(sentEmail.verifyUrl).toContain("/api/auth/verify?token=" + sentEmail.token);
     });
 
+    it("returns 400 when missing or invalid fields are provided", async () => {
+        // Missing email
+        const { res: res1 } = await registerTestUserNoEmail(app);
+        expect(res1.status).toBe(400);
+
+        // Missing password
+        const { res: res2 } = await registerTestUserNoPassword(app);
+        expect(res2.status).toBe(400);
+
+        // Invalid email
+        const { res: res3 } = await registerTestUserInvalidEmail(app);
+        expect(res3.status).toBe(400);
+    });
+
     it("returns 409 and does not send verification email when email already exists", async () => {
         // First registration should succeed
         const { res: res1, email: email1 } = await registerTestUser(app);
