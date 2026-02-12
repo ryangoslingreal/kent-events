@@ -1,7 +1,7 @@
 import { beforeEach, describe, it, expect, afterEach } from "vitest";
 const inbox = require("../helpers/emailInbox.js");
 const { cleanupTestUsers } = require("../helpers/dbCleanup.js");
-const { registerTestUser } = require("../helpers/authTestingUtils.js");
+const { registerTestUser, registerTestUserNoEmail, registerTestUserNoPassword, registerTestUserInvalidEmail } = require("../helpers/authTestingUtils.js");
 
 describe("api/auth/register", () => {
     let app;

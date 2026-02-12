@@ -42,9 +42,18 @@ async function registerTestUserInvalidEmail(app) {
     return { res };
 }
 
+async function verifyTestUser(app, token) {
+    const res = await request(app)
+        .get("/api/auth/verify")
+        .query({ token });
+
+    return { res };
+}
+
 module.exports = {
     registerTestUser,
     registerTestUserNoEmail,
     registerTestUserNoPassword,
-    registerTestUserInvalidEmail
+    registerTestUserInvalidEmail,
+    verifyTestUser
 };
