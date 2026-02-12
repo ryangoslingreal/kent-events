@@ -92,7 +92,7 @@ router.post("/register", async (req, res) => { // ! Should hash password server-
  * @status 200 - Email verified successfully
  * @status 400 - Invalid or expired verification link
  */
-router.get("/verify-email", async (req, res) => {
+router.get("/verify", async (req, res) => {
     const { token } = req.query;
 
     // Either redirect or return JSON
@@ -115,7 +115,7 @@ router.get("/verify-email", async (req, res) => {
  * @status 200 - Verification email sent (if account exists)
  * @status 500 - Server error
  */
-router.post("/resend-verification", async (req, res) => {
+router.post("/verify-request", async (req, res) => {
     const { email } = req.body;
 
     try {

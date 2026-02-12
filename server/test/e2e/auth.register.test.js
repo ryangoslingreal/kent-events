@@ -37,7 +37,7 @@ describe("api/auth/register", () => {
         // Check token and URL
         expect(sentEmail.token).toEqual(expect.any(String));
         expect(sentEmail.token).not.toHaveLength(0);
-        expect(sentEmail.verifyUrl).toContain("/api/auth/verify-email?token=" + sentEmail.token);
+        expect(sentEmail.verifyUrl).toContain("/api/auth/verify?token=" + sentEmail.token);
     });
 
     it("returns 409 and does not send verification email when email already exists", async () => {
