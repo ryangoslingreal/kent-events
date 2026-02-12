@@ -1,12 +1,12 @@
 import { beforeEach, describe, it, expect, afterEach } from "vitest";
 const inbox = require("../helpers/emailInbox.js");
-const { cleanupTestUsers } = require("../helpers/dbCleanup.js");
+const { cleanupTestUsers, ageVerificationToken } = require("../helpers/dbTestingUtils.js");
 const { makeTestEmail, registerTestUser, verifyTestUser } = require("../helpers/authTestingUtils.js");
 
 describe.sequential("api/auth/verify", () => {
     let app;
         
-    // Reset inbox  and mock email service before each test
+    // Reset inbox and mock email service before each test
     beforeEach( async () => {
         inbox.reset();
     
@@ -36,7 +36,16 @@ describe.sequential("api/auth/verify", () => {
         expect(res2.status).toBe(400);
     });
 
-    it("", async () => {
-        // TODO: Test with expired token.
+    it("returns 400 when verification token is invalid or expired", async () => {
+        // Register user to generate token
+        const { email: email } = await registerTestUser(app, makeTestEmail(), "testpassword");
+        const sentEmail = inbox.last();
+        const token = sentEmail.token;
+
+        const { res: res1 } = await verifyTestUser(app, "invalid-token"); // Invalid token
+        expect(res1.status).toBe(400);
+
+        await ageVerificationToken(email);
+        const { res: res2 } = await verifyTestUser(app, token) // Expired token
     });
 });

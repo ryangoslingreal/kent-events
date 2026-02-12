@@ -1,4 +1,4 @@
-const pool = require("../../src/db/pool.js");
+const db = require("../../src/db/pool.js");
 
 const TEST_EMAIL_PREFIX = "vitest+";
 const TEST_EMAIL_DOMAIN = "@example.com";
@@ -16,7 +16,7 @@ async function cleanupTestUsers() {
 
     const pattern = `${TEST_EMAIL_PREFIX}%${TEST_EMAIL_DOMAIN}`;
 
-    const [result] = await pool.query(
+    const [result] = await db.query(
         "DELETE FROM users WHERE email LIKE ?",
         [pattern]
     );
@@ -24,6 +24,14 @@ async function cleanupTestUsers() {
     return { deleted: result?.affectedRows ?? 0 };
 };
 
+async function ageVerificationToken(email) {
+    assertIsTesting();
+
+    const query = "UPDATE users SET email_verification_expires_at = DATE_SUB(NOW(), INTERVAL 1 YEAR) WHERE email = ?"
+    await db.query(query, [email]);
+}
+
 module.exports = { 
-    cleanupTestUsers
+    cleanupTestUsers,
+    ageVerificationToken
 };

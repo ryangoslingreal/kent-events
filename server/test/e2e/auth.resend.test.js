@@ -1,12 +1,12 @@
 import { beforeEach, describe, it, expect, afterEach } from "vitest";
 const inbox = require("../helpers/emailInbox.js");
-const { cleanupTestUsers } = require("../helpers/dbCleanup.js");
+const { cleanupTestUsers } = require("../helpers/dbTestingUtils.js");
 const { registerTestUser } = require("../helpers/authTestingUtils.js");
 
 describe.sequential("api/auth/resend", () => {
     let app;
         
-    // Reset inbox  and mock email service before each test
+    // Reset inbox and mock email service before each test
     beforeEach( async () => {
         inbox.reset();
     
@@ -21,7 +21,7 @@ describe.sequential("api/auth/resend", () => {
         await cleanupTestUsers();
     });
 
-    it("placeholder test", () => {
-        // placeholder test
+    it.todo("returns 200 and sends verification email if the account exists", () => {
+        // ! placeholder test
     });
 });
