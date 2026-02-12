@@ -3,7 +3,7 @@ const inbox = require("../helpers/emailInbox.js");
 const { cleanupTestUsers } = require("../helpers/dbCleanup.js");
 const { makeTestEmail, registerTestUser, verifyTestUser, loginTestUser } = require("../helpers/authTestingUtils.js");
 
-describe("api/auth/login", () => {
+describe.sequential("api/auth/login", () => {
     let app;
         
     // Reset inbox  and mock email service before each test

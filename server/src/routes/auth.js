@@ -82,7 +82,7 @@ router.post("/register", async (req, res) => { // ! Should hash password server-
 });
 
 /**
- * GET /verify-email
+ * GET /verify
  * Verifies a user's email address using a token provided as a query parameter.
  * 
  * @param {string} token - The authentication token passed as a query parameter

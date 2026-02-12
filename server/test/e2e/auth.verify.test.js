@@ -3,7 +3,7 @@ const inbox = require("../helpers/emailInbox.js");
 const { cleanupTestUsers } = require("../helpers/dbCleanup.js");
 const { makeTestEmail, registerTestUser, verifyTestUser } = require("../helpers/authTestingUtils.js");
 
-describe("api/auth/verify", () => {
+describe.sequential("api/auth/verify", () => {
     let app;
         
     // Reset inbox  and mock email service before each test
@@ -34,5 +34,9 @@ describe("api/auth/verify", () => {
         // Second verification attempt should fail
         const { res: res2 } = await verifyTestUser(app, token);
         expect(res2.status).toBe(400);
+    });
+
+    it("", async () => {
+        // TODO: Test with expired token.
     });
 });
