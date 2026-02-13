@@ -28,6 +28,10 @@ const router = Router();
 router.post("/login", async (req, res) => { // ! Should hash password server-side and send plaintext over HTTPS.
     const { email, password_hash } = req.body;
 
+    if (!email || !password_hash || !isValidEmail(email)) {
+        return res.status(401).json({message: "Invalid request data"})
+    }
+
     try {
         const result = await authService.login(email, password_hash);
 
@@ -64,6 +68,10 @@ router.post("/login", async (req, res) => { // ! Should hash password server-sid
  */
 router.post("/register", async (req, res) => { // ! Should hash password server-side and send plaintext over HTTPS.
     const { email, password_hash } = req.body;
+
+    if (!email || !password_hash || !isValidEmail(email)) {
+        return res.status(400).json({message: "Invalid request data"})
+    }
 
     try {
         const user = await authService.register(email, password_hash);
@@ -125,5 +133,9 @@ router.post("/request-verify", async (req, res) => {
         return res.status(500).json({ message: "Server error", error: error.message });
     }
 });
+
+function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
+}
 
 module.exports = router;
