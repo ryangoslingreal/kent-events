@@ -17,7 +17,7 @@ function Login() {
   }
 
   return (
-    <>
+    <div className={styles.header_page}>
     <Header/>
     <div className={styles.page}>
       <div className={styles.card}>
@@ -46,14 +46,16 @@ function Login() {
             />
 
                 <div className={styles.checkboxRow}>
-                    <label className={styles.checkbox}>
-                    <input
-                        type="checkbox"
-                        checked={showPassword}
-                        onChange={(e) => setShowPassword(e.target.checked)}
-                    />
-                    <span>Show password</span>    
-                    </label>
+                    <div className={styles.showPassword}>
+                      <label>Show password</label>
+                      <input
+                          type="checkbox"
+                          checked={showPassword}
+                          onChange={(e) => setShowPassword(e.target.checked)}
+                          className={styles.checkbox}
+                      />
+                    </div>
+                    
                     <span className={styles.forgotPass}>forgot password?</span>
                 </div>
             
@@ -65,7 +67,7 @@ function Login() {
         </form>
       </div>
     </div>
-    </>
+    </div>
   );
 }
 

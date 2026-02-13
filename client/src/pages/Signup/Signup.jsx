@@ -16,7 +16,7 @@ function Signup (){
     }
 
     return (
-    <>
+    <div className={styles.header_page}>
     <Header/>
     <div className={styles.page}>
         <div className={styles.card}>
@@ -43,7 +43,7 @@ function Signup (){
         </form>
         </div>
     </div>
-    </>
+    </div>
     );
 }
 
