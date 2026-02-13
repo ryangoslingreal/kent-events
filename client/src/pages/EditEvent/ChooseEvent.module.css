@@ -88,6 +88,12 @@
     color: #cbd5f5;
 }
 
+.archiveToggle {
+  cursor: pointer;
+  font-family: Overpass, Helvetica, Arial, sans-serif;
+  padding: 10px 0;
+}
+
 
 .edit_button {
     margin-top: 20px;
