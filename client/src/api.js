@@ -5,10 +5,10 @@ export async function healthCheck() {
 
 //This function takes all the create event fields given by CreateEvent.jsx, and passes them to the backend and then waits for a response
 export async function createEvent(data){
+
+  //FormData is being used to pass the image to the backen/db, doing it with FormData instead of json is a lot more efficient
   let formData = new FormData();
   Object.entries(data).forEach(([key, value]) => {
-    console.log(key + " " + value)
-    if (value === undefined || value === null) return;
     formData.append(key, value);
   })
 
@@ -34,3 +34,88 @@ export async function createEvent(data){
     return { error: "Network error: Failed to create event" };
   }
 };
+
+export async function getUserMadeEvents() {
+  try{
+    const res = await fetch(`${API_BASE}/api/events/get-user-made-events`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json"},
+    })
+
+    const data = await res.json()
+
+    if (!res.ok) {
+      return { error: data.message }
+    }
+
+    return data;
+  } catch(error){
+    return { error: "Network error: Failed to grab users events"}
+  }
+}
+
+//gets data from one specific event
+export async function getEvent(eventId) {
+  try{
+    const res = await fetch(`${API_BASE}/api/events/get-event?eventId=${encodeURIComponent(eventId)}`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json"},
+    })
+
+    const data = await res.json();
+
+    if (!res.ok){
+      return {error: data.message}
+    }
+
+    return data
+  } catch(error){
+    return {error : "Network error: Failed to grab event"}
+  }
+} 
+
+export async function deleteEvent(eventId){
+  try{
+    const res = await fetch(`${API_BASE}/api/events/delete-event?eventId=${encodeURIComponent(eventId)}`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json"},
+    })
+
+    const data = await res.json()
+
+    if (!res.ok){
+      return {error: data.message}
+    }
+
+    return data;
+  } catch (error){
+    return {error: "Network error: Failed to delete event"}
+  }
+}
+
+export async function updateEvent(eventId, data) {
+
+  let formData = new FormData();
+  Object.entries(data).forEach(([key, value]) => {
+    formData.append(key, value);
+  })
+
+  try{
+    const res = await fetch(`${API_BASE}/api/events/update-event?eventId=${encodeURIComponent(eventId)}`, {
+      method: "PUT",
+      body: formData,
+    })
+
+    const result = await res.json()
+
+    if (!res.ok){
+      return {error: result.message}
+    }
+
+    return result;
+  } catch (error){
+    return {error: "Network error: Failed to update event"}
+  }
+
+  
+}
