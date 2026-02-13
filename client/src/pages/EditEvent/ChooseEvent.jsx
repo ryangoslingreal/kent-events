@@ -9,7 +9,6 @@ function ChooseEvent() {
     const [selectedId, setSelectedId] = useState(null);
     const [events, setEvents] = useState([]);
     const [archivedEvents, setArchivedEvents] = useState([]);
-    const [currentDate, setCurrentDate] = useState(new Date());
     const navigate = useNavigate();
 
     const editEvent = () => {
@@ -47,19 +46,8 @@ function ChooseEvent() {
         
         }
         getUsersEvents()
-
-        const getCurrentDate = () => {
-            // console.log(new Date());
-            
-            setCurrentDate(new Date());
-        }
-        getCurrentDate()
-
-        
-        // console.log(events[0].dateCheck, currentDate, events[0].dateCheck < currentDate);
         
     }, [])
-    // console.log(currentDate);
     return (
         <div className={styles.page_header}>
         <Header />
@@ -77,8 +65,6 @@ function ChooseEvent() {
                         >
                             <div className={styles.event_name}>{event.name}</div>
                             <div className={styles.event_date}>{event.date}</div>
-                            {/* <div>{event.dateCheck}</div>
-                            <div>{currentDate}</div> */}
                         </button>
                     ))}
                 </div>
@@ -95,8 +81,6 @@ function ChooseEvent() {
                             >
                                 <div className={styles.event_name}>{event.name}</div>
                                 <div className={styles.event_date}>{event.date}</div>
-                                {/* <div>{event.dateCheck}</div>
-                                <div>{currentDate}</div> */}
                             </button>
                         ))}
                     </div>
