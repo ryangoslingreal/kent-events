@@ -1,7 +1,7 @@
 const db = require("../../src/db/pool.js");
 
-const TEST_EMAIL_PREFIX = "vitest+";
-const TEST_EMAIL_DOMAIN = "@example.com";
+const TEST_PREFIX = process.env.TEST_PREFIX;
+const TEST_DOMAIN = process.env.TEST_DOMAIN;
 
 function assertIsTesting() {
     if (process.env.NODE_ENV !== "test") {
@@ -14,7 +14,7 @@ function assertIsTesting() {
 async function cleanupTestUsers() {
     assertIsTesting();
 
-    const pattern = `${TEST_EMAIL_PREFIX}%${TEST_EMAIL_DOMAIN}`;
+    const pattern = `${TEST_PREFIX}%${TEST_DOMAIN}`;
 
     const [result] = await db.query(
         "DELETE FROM users WHERE email LIKE ?",
@@ -23,6 +23,19 @@ async function cleanupTestUsers() {
 
     return { deleted: result?.affectedRows ?? 0 };
 };
+
+async function cleanupTestEvents() {
+    assertIsTesting();
+
+    const pattern = `${TEST_PREFIX}`;
+
+    const [result] = await db.query(
+        "DELETE FROM events WHERE title LIKE ?",
+        [pattern]
+    );
+
+    return { deleted: result?.affectedRows ?? 0 };
+}
 
 async function ageVerificationToken(email) {
     assertIsTesting();
@@ -33,5 +46,6 @@ async function ageVerificationToken(email) {
 
 module.exports = { 
     cleanupTestUsers,
+    cleanupTestEvents,
     ageVerificationToken
 };

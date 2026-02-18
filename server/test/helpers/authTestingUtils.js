@@ -1,9 +1,12 @@
 const request = require("supertest");
 const crypto = require("crypto");
 
+const TEST_PREFIX = process.env.TEST_PREFIX;
+const TEST_DOMAIN = process.env.TEST_DOMAIN;
+
 function makeTestEmail() {
     const random = crypto.randomBytes(6).toString("hex");
-    return `vitest+${random}@example.com`;
+    return `${TEST_PREFIX}${random}${TEST_DOMAIN}`;
 }
 
 async function registerTestUser(app, email, password_hash) {
