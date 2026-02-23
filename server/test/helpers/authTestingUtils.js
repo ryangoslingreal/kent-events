@@ -6,10 +6,10 @@ function makeTestEmail() {
     return `vitest+${random}@example.com`;
 }
 
-async function registerTestUser(app, email, password_hash) {
+async function registerTestUser(app, email, password) {
     const res = await request(app)
         .post("/api/auth/register")
-        .send({ email, password_hash });
+        .send({ email, password });
 
     return { res, email };
 }
@@ -22,10 +22,10 @@ async function verifyTestUser(app, token) {
     return { res };
 }
 
-async function loginTestUser(app, email, password_hash) {
+async function loginTestUser(app, email, password) {
     const res = await request(app)
         .post("/api/auth/login")
-        .send({ email, password_hash });
+        .send({ email, password });
 
     return { res };
 }

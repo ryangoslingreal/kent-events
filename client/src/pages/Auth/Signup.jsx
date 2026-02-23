@@ -1,18 +1,50 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import styles from "../Login/Login.module.css";
+import styles from "./Login.module.css";
 import Header from "../../components/layout/Header";
 
 function Signup (){
     const [email, setEmail] = useState("");
     const [confirmation, setConfirmation] = useState("");
 
-    function handleSubmit(e) {
-    e.preventDefault();
+    async function handleSubmit(e) {
+        e.preventDefault();
 
-        // TODO: call the API here
-        setConfirmation("An confirmation email has been sent too your email address")
-        console.log("Login:", { email, password });
+        try {
+            const res = await fetch("/api/auth/register", {
+                method: "POST",
+                headers: {"Content-Type": "application/json" },
+                body: JSON.stringify({ email, password })
+            });
+
+            const data = await res.json();
+
+            switch (res.status) {
+                case 200:
+                    window.alert(data.message);
+                    // TODO: Handle 200.
+                    break;
+
+                    case 400:
+                    window.alert(data.message);
+                    // TODO: Handle 400.
+                    break;
+
+                    case 403:
+                    window.alert(data.message);
+                    // TODO: Handle 403.
+                    break;
+                    
+                    case 500:
+                    console.error("Server error:", data);
+                    break;
+
+                    default:
+                    console.error("Unexpected response:", res.status);
+            }
+        } catch (err) {
+        console.error("Network error:", err);
+        }
     }
 
     return (

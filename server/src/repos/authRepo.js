@@ -1,18 +1,17 @@
 const db = require('../db/pool');
 
 /**
- * Authenticates a user by verifying their email and password hash.
+ * Retrieves a user record containing the password hash by email address.
  * 
  * @param {string} email - The user's email address
- * @param {string} password_hash - The hashed password to verify
  * 
- * @returns {Promise<Object | undefined>} The user object if authentication is successful, or undefined if no user is found
+ * @returns {Promise<Object | undefined>} The user object, or undefined if no user is found
  * 
  * @throws {Error} Throws an error if the database query fails
  */
-async function login(email, password_hash) {
-    const query = 'SELECT id, email, email_verified_at FROM users WHERE email = ? AND password_hash = ? LIMIT 1';
-    const values = [email, password_hash];
+async function login(email) { // ! Similar to findByEmail but also returns password_hash. Consider merging.
+    const query = 'SELECT id, email, password_hash, email_verified_at FROM users WHERE email = ? LIMIT 1';
+    const values = [email];
 
     const [rows] = await db.query(query, values);
 
