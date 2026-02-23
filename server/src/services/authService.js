@@ -19,7 +19,7 @@ const VERIFY_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
  * @throws {Error} Throws an error if the database query fails
  */
 async function login(email, password) {
-    const user = await authRepo.login(email);
+    const user = await authRepo.findUser(email);
 
     if (!user) return undefined;
 
@@ -102,7 +102,7 @@ async function verifyEmail(token) {
  * @returns {Promise<void>} Resolves when verification email is sent
  */
 async function resendVerification(email) {
-    const user = await authRepo.findByEmail(email);
+    const user = await authRepo.findUser(email);
     if (!user) return;
 
     if (user.email_verified_at) return;
