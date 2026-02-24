@@ -15,7 +15,7 @@ export async function createEvent(data){
   })
 
   try{
-    const res = await fetch(`/api/events/create-event`, {
+    const res = await fetch(`${API_BASE}/api/events/create-event`, {
       method: "POST",
       // headers: { "Content-Type": "application/json"},
       // body: JSON.stringify({ title, subtitle, description, date, time, location, tag, price, repeat, contactInfo }),

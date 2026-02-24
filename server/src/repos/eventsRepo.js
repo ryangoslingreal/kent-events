@@ -72,7 +72,7 @@ async function getAllEvents(){
     const query = `
                     SELECT *
                     FROM events
-                    WHERE event_date > CURDATE()
+                    WHERE event_date >= CURDATE()
     `
     const [rows] = await db.execute(query)
     return rows
