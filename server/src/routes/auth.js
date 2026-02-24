@@ -29,28 +29,29 @@ router.post("/login", async (req, res) => { // ! Should hash password server-sid
     const { email, password_hash } = req.body;
 
     if (!email || !password_hash || !isValidEmail(email)) {
-        return res.status(401).json({message: "Invalid request data"})
+        return res.status(401).json({ message: "Invalid request data." })
     }
 
+    let result;
     try {
-        const result = await authService.login(email, password_hash);
-
-        if (!result) {
-            return res.status(401).json({message: "Invalid credentials"});
-        }
-            
-        if (result.status === "UNVERIFIED") {
-            return res.status(403).json({message: "Email not verified"});
-        } 
-            
-        // VERIFIED
-        return res.status(200).json({ 
-            message: "User logged in successfully", 
-            user: { id: result.user.id, email: result.user.email } 
-        });
+        result = await authService.login(email, password_hash);
     } catch (error) {
-        return res.status(500).json({message: "Server error", error: error.message});
+        return res.status(500).json({ message: "Server error.", error: error.message });
     }
+
+    if (!result) {
+        return res.status(401).json({ message: "Invalid credentials." });
+    }
+            
+    if (result.status === "UNVERIFIED") {
+        return res.status(403).json({ message: "Email not verified." });
+    } 
+            
+    // VERIFIED
+    return res.status(200).json({ 
+        message: "User logged in successfully", 
+        user: { id: result.user.id, email: result.user.email } 
+    });
 });
 
 /**
@@ -70,23 +71,24 @@ router.post("/register", async (req, res) => { // ! Should hash password server-
     const { email, password_hash } = req.body;
 
     if (!email || !password_hash || !isValidEmail(email)) {
-        return res.status(400).json({message: "Invalid request data"})
+        return res.status(400).json({ message: "Invalid request data." })
     }
 
+    let user;
     try {
-        const user = await authService.register(email, password_hash);
-
-        return res.status(201).json({
-            message: "User registered successfully, verification required",
-            user: { id: user.id, email: user.email }
-        });
+        user = await authService.register(email, password_hash);
     } catch (error) {
         if (error.code === 'DUPLICATE_USER') {
-            return res.status(409).json({message: "User with this email already exists"});
+            return res.status(409).json({ message: "User with this email already exists." });
         }
 
-        return res.status(500).json({message: "Server error", error: error.message});
+        return res.status(500).json({ message: "Server error.", error: error.message });
     }
+
+    return res.status(201).json({
+        message: "User registered successfully, verification required.",
+        user: { id: user.id, email: user.email }
+    });
 });
 
 /**
@@ -106,9 +108,9 @@ router.get("/verify", async (req, res) => {
     // Either redirect or return JSON
     try {
         await authService.verifyEmail(token);
-        return res.status(200).json({ message: "Email verified successfully" });
+        return res.status(200).json({ message: "Email verified successfully." });
     } catch (error) {
-        return res.status(400).json({ message: "Invalid or expired verification link" });
+        return res.status(400).json({ message: "Invalid or expired verification link." });
     }
 });
 
@@ -130,7 +132,7 @@ router.post("/request-verify", async (req, res) => {
         await authService.resendVerification(email);
         return res.status(200).json({ message: "If the account exists, a verification email has been sent." });
     } catch (error) {
-        return res.status(500).json({ message: "Server error", error: error.message });
+        return res.status(500).json({ message: "Server error.", error: error.message });
     }
 });
 
