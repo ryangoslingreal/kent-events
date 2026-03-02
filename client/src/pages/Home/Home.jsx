@@ -6,15 +6,21 @@ import styles from "./Home.module.css"
 function Home(){
     const [activeFilter, setActiveFilter] = useState("All")
     const [allEvents, setAllEvents] = useState([])
+    const [rawEvents, setRawEvents] = useState([])
+    const [filters, setFilters] = useState({
+        filterDate: "any",
+        filterPrice: "any"
+    })
     const API_BASE = "http://localhost:3001"
     let events = []
     useEffect (() => {
         
         const getHomeEvents = async() => {
             const data = await getAllEvents()
-            console.log(data[0].event_time)
+            // console.log(data[0].event_time)
             
             for (let i=0; i<data.length; i++){
+                console.log(data[i].event_date)
                 //formatting date and time
                 const formattedDate = new Intl.DateTimeFormat("en-GB", {
                     weekday: "short",
@@ -37,6 +43,7 @@ function Home(){
                     imageUrl: data[i].imageUrl, 
                     time: formattedTime,
                     date: formattedDate,
+                    event_date: data[i].event_date,
                     location: data[i].location,
                     price: data[i].price,
                     title: data[i].title,
@@ -45,10 +52,57 @@ function Home(){
                 events.push(event)
             }
             setAllEvents(events)
+            setRawEvents(events)
             console.log(data);
         }
         getHomeEvents()
     }, [])
+
+    function handleChange(e){
+        console.log(e)
+        const {name, value} = e.target; 
+        setFilters((prev) => ({...prev, [name]: value }))
+    }
+
+    function handleSubmit(e){
+        e.preventDefault()   //prevents refreshing page
+        const now = new Date(); 
+
+        const endOfWeek = new Date(now);
+        endOfWeek.setDate(now.getDate() + (7 - now.getDate()));
+        endOfWeek.setHours(23, 59, 59, 999);
+
+        const monthFromNow = new Date(Date.now())
+        monthFromNow.setMonth(monthFromNow.getMonth() + 1);
+        monthFromNow.setDate(0);
+        monthFromNow.setHours(23, 59, 59, 999)
+
+        
+        const day = now.getDay(); // 0=Sun, 6=Sat
+        const daysUntilSat = (6 - day)
+        const weekendStart = new Date(now);
+        weekendStart.setDate(now.getDate() + daysUntilSat);
+        weekendStart.setHours(0, 0, 0, 0);
+        const weekendEnd = new Date(weekendStart);
+        weekendEnd.setDate(weekendStart.getDate() + 1); // Sunday end
+        weekendEnd.setHours(23, 59, 59, 999);
+
+ 
+        let filtered = rawEvents.filter((event) => {
+            const event_date = new Date(event.event_date)
+            
+            console.log(event_date, monthFromNow)
+            console.log(filters.filterDate)
+            if (filters.filterDate === "week" && event_date > endOfWeek){return false;} 
+            if (filters.filterDate === "month" && event_date > monthFromNow) {return false;}
+            if (filters.filterDate === "weekend" && !(event_date <= weekendEnd && event_date >= weekendStart)){return false;}
+            if (filters.filterPrice === "free" && event.price !== '0.00'){return false;}
+            if (filters.filterPrice === "paid" && event.price === '0.00'){return false;}
+            return true
+        })
+        setAllEvents(filtered);
+
+    }
 
     return(
         <>
@@ -94,10 +148,10 @@ function Home(){
                         </div>
                     </div>
                     <div className={styles.filter_Events}>
-                        <div className={styles.filter}>
+                        <form onSubmit={handleSubmit}className={styles.filter}>
                             <h3>Filters</h3>
                             <label>Date</label>
-                            <select className={styles.select} defaultValue="any">
+                            <select className={styles.select} name="filterDate" onChange={handleChange}>
                                 <option value="any">Anytime</option>
                                 <option value="weekend">This weekend</option>
                                 <option value="week">This week</option>
@@ -105,13 +159,13 @@ function Home(){
                             </select>
 
                             <label>Price</label>
-                            <select className={styles.select} defaultValue="any">
+                            <select className={styles.select} name="filterPrice" onChange={handleChange}>
                                 <option value="any">Any</option>
                                 <option value="free">Free</option>
                                 <option value="paid">Paid</option>
                             </select>
-                            <button>Clear filter</button>
-                        </div>
+                            <button type="submit">Submit</button>
+                        </form>
                         <div className={styles.events}>
                             <h3>Popular events</h3>
                             <div className={styles.eventList}>
