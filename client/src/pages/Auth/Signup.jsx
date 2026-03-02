@@ -1,11 +1,14 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import toast, { Toaster } from "react-hot-toast";
 import styles from "./Login.module.css";
 import Header from "../../components/layout/Header";
 
 function Signup (){
     const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
     const [confirmation, setConfirmation] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
 
     async function handleSubmit(e) {
         e.preventDefault();
@@ -21,26 +24,25 @@ function Signup (){
 
             switch (res.status) {
                 case 200:
-                    window.alert(data.message);
-                    // TODO: Handle 200.
+                    toast.success(data.message);
                     break;
 
-                    case 400:
-                    window.alert(data.message);
-                    // TODO: Handle 400.
+                case 400:
+                    toast.error(data.message)
                     break;
 
-                    case 403:
-                    window.alert(data.message);
-                    // TODO: Handle 403.
+                case 403:
+                    toast.error(data.message)
                     break;
-                    
-                    case 500:
+                
+                case 500:
                     console.error("Server error:", data);
-                    break;
+                    toast.error(data.message)
+                break;
 
-                    default:
+                default:
                     console.error("Unexpected response:", res.status);
+                    toast.error("Unexpected error")
             }
         } catch (err) {
         console.error("Network error:", err);
@@ -49,6 +51,14 @@ function Signup (){
 
     return (
     <div className={styles.header_page}>
+    <Toaster 
+        position="top-center"
+        toastOptions={{
+            style: {
+                fontFamily: "Overpass, Helvetica, Arial, sans-serif",
+            },
+        }}
+    />
     <Header/>
     <div className={styles.page}>
         <div className={styles.card}>
@@ -65,10 +75,29 @@ function Signup (){
                 placeholder="Email"
                 required
             />
+            <input
+                id="password"
+                className={styles.input}
+                type={showPassword ? "text" : "password"}
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Password"
+                required
+            />
+            <div className={styles.showPassword}>
+                <label>Show password</label>
+                <input
+                    type="checkbox"
+                    checked={showPassword}
+                    onChange={(e) => setShowPassword(e.target.checked)}
+                    className={styles.checkbox}
+                />
+            </div>
             <p className={styles.confMessage}>{confirmation}</p>
                 
             <button className={styles.button} type="submit">
-            Log in
+            Sign up
             </button>
 
             <p className={styles.changeAuth}>Have an account? <Link to="../login" className={styles.changeAuthButton}>Login</Link></p>

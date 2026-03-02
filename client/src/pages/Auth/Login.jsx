@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import toast, { Toaster } from "react-hot-toast";
 import styles from "./Login.module.css";
 import Header from "../../components/layout/Header";
+
 
 function Login() {
     const [email, setEmail] = useState("");
@@ -22,22 +24,20 @@ function Login() {
 
             switch (res.status) {
                 case 200:
-                    window.alert(data.message);
-                    // TODO: Handle 200.
+                    toast.success(data.message);
                     break;
 
                 case 401:
-                    window.alert(data.message);
-                    // TODO: Handle 401.
+                    toast.error(data.message)
                     break;
 
                 case 403:
-                    window.alert(data.message);
-                    // TODO: Handle 403.
+                    toast.error(data.message)
                     break;
 
                 case 500:
                     console.error("Server error:", data);
+                    toast.error(data.message)
                     break;
 
                 default:
@@ -50,6 +50,14 @@ function Login() {
 
     return (
         <div className={styles.header_page}>
+            <Toaster 
+                position="top-center"
+                toastOptions={{
+                    style: {
+                        fontFamily: "Overpass, Helvetica, Arial, sans-serif",
+                    },
+                }}
+            />
             <Header />
             <div className={styles.page}>
                 <div className={styles.card}>
