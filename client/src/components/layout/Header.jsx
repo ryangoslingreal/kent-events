@@ -1,7 +1,7 @@
 
 import { Link } from "react-router-dom";
 import styles from "./Header.module.css";
-import kentlogo from "../../assets/kentlogo3.png";
+import kentlogo from "../../assets/kentlogo.png";
 import searchicon from "../../assets/searchIcon.png"
 
 function Header() {
@@ -10,13 +10,12 @@ function Header() {
     return(
         <header className={styles.header}>
             <div className={styles.logoTitle}>
-                <img className={styles.logo} src={kentlogo}></img>
                 <Link to="/" className={styles.homeLink}>
-                    <h3 className={styles.title}>Student Events</h3>
+                    <img className={styles.logo} src={kentlogo}></img>
                 </Link>
             </div>
             <div className={styles.searchBar}>
-                <input className={styles.searchInput} placeholder="Search events..."></input>
+                <input className={styles.searchInput} placeholder="Find... new friends"></input>
                 <img className={styles.searchIcon} src={searchicon}></img>
             </div>
             <nav className={styles.actions}>
