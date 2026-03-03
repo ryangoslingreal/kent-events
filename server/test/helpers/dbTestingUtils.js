@@ -27,7 +27,7 @@ async function cleanupTestUsers() {
 async function cleanupTestEvents() {
     assertIsTesting();
 
-    const pattern = `${TEST_PREFIX}`;
+    const pattern = `${TEST_PREFIX}%`;
 
     const [result] = await db.query(
         "DELETE FROM events WHERE title LIKE ?",
