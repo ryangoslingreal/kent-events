@@ -15,7 +15,7 @@ export async function createEvent(data){
   })
 
   try{
-    const res = await fetch(`/api/events/create-event`, {
+    const res = await fetch(`${API_BASE}/api/events/create-event`, {
       method: "POST",
       // headers: { "Content-Type": "application/json"},
       // body: JSON.stringify({ title, subtitle, description, date, time, location, tag, price, repeat, contactInfo }),
@@ -118,6 +118,23 @@ export async function updateEvent(eventId, data) {
   } catch (error){
     return {error: "Network error: Failed to update event"}
   }
+}
 
-  
+export async function getAllEvents() {
+  try{
+    const res = await fetch(`${API_BASE}/api/events/get-all-events`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json"},
+    })
+
+    const data = await res.json()
+
+    if (!res.ok) {
+      return { error: data.message }
+    }
+
+    return data;
+  } catch (error) {
+    return {error: "Network error: Failed to get all events"}
+  }
 }

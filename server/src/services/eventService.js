@@ -80,11 +80,23 @@ async function updateEvent(eventId, title, subtitle, description, image, image_m
     return { message: "Event updated" };
 }
 
+    async function getAllEvents(){
+        try{
+            const result =  await eventsRepo.getAllEvents();
+            
+            return result
+            
+        } catch(error) {
+            throw error
+        }
+    }
+
 
 module.exports = { 
     createEvent,
     getUserMadeEvents,
     getEvent,
     deleteEvent,
-    updateEvent
+    updateEvent,
+    getAllEvents
 };

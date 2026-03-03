@@ -132,4 +132,48 @@ router.put("/update-event", upload.single("image"), async(req, res) => {
     return res.status(200).json(result);
 })
 
+router.get("/get-all-events", async(req, res) => {
+    try{
+        const result = await eventService.getAllEvents();
+
+        if (!result || result.length === 0){
+            return res.status(404).json({ message: "No events found" })
+        }
+
+        //This sends the image url to the frontend
+        const events = result.map((event) => ({
+            ...event,
+            imageUrl: `${event.id}/image`, 
+            image: undefined             //done to reduce how much is being sent back
+        }))
+
+        return res.status(200).json(events);
+    } catch (error){
+        console.error("get-all-events error:", error);
+        return res.status(500).json({message: "Server error", error: error.message, code: error.code,});
+    }
+})
+
+//THis creates an image url so that it can be called from the frontend
+router.get("/:id/image", async(req, res) => {
+    try{
+        const event = await eventService.getEvent(req.params.id);
+        
+        if (!event[0] || !event[0].image) {
+            return res.status(404).send("Event not found");
+        }
+
+        const image_type = event[0].image_mime
+
+        res.setHeader("Content-Type", image_type);
+
+        res.setHeader("Cache-Control", "public, max-age=86400");  //caches image for one day (browser will reuse the image till then)
+
+        return res.send(event[0].image)
+    } catch (error){
+        console.error("get-event-image error:", error);
+        return res.status(500).send({ message: "Server error", error: error.message, code: error.code });
+    }
+})
+
 module.exports = router;

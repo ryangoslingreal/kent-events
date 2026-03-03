@@ -68,10 +68,21 @@ async function updateEvent(eventId, title, subtitle, description, image, image_m
     // ? SHOULD i JUST UPDATE ALL COLUMNS with teh sepcific event, or only changed ones?
 }
 
+async function getAllEvents(){
+    const query = `
+                    SELECT *
+                    FROM events
+                    WHERE event_date >= CURDATE()
+    `
+    const [rows] = await db.execute(query)
+    return rows
+}
+
 module.exports = { 
     createEvent,
     getUserMadeEvents,
     getEvent,
     deleteEvent,
-    updateEvent
+    updateEvent,
+    getAllEvents,
 };
