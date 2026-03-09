@@ -1,5 +1,6 @@
 
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { getAllEvents } from "../../api"
 import Header from "../../components/layout/Header"
 import styles from "./Home.module.css"
@@ -138,7 +139,7 @@ function Home(){
                                     }}>
                                     <h3>{allEvents[0].title}</h3>
                                     <p>{allEvents[0].date} - {allEvents[0].time} - {allEvents[0].location} - £{allEvents[0].price} </p>
-                                    <button>View Details</button>
+                                    <Link to="/events/detail"><button>View Details</button> </Link>
                                 </div>
                                 ) : (
                                 <div className={styles.featuredEvent}>
