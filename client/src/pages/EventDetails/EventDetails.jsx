@@ -12,6 +12,7 @@ function EventDetails() {
             <div className={styles.page}>
                 <div className={styles.eventHeader}>
                     <h2 className={styles.title}>Random, random</h2>
+                    <p className={styles.eventOrganiser}>Organised by <span>Spanish Society</span> · University of Kent</p>
                 </div>
                 <div className={styles.informationWrapper}>
                     <div className={styles.centerInfo}>
