@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { getAllEvents } from "../../api"
 import Header from "../../components/layout/Header"
 import styles from "./Home.module.css"
@@ -12,6 +12,8 @@ function Home(){
         filterDate: "any",
         filterPrice: "any"
     })
+    const navigate = useNavigate();
+
     const API_BASE = "http://localhost:3001"
     let events = []
     useEffect (() => {
@@ -29,7 +31,7 @@ function Home(){
                     day: "numeric",
                 }).format(new Date(data[i].event_date));
                 
-                const [h, m] = data[0].event_time.split(":").map(Number);
+                const [h, m] = data[i].event_time.split(":").map(Number);
                 const d = new Date();
                 d.setHours(h, m, 0, 0);
                 const formattedTime = new Intl.DateTimeFormat("en-US", {
@@ -105,6 +107,10 @@ function Home(){
 
     }
 
+    function eventDetail(eventId){
+        navigate(`/events/detail/${eventId}`)
+    }
+
     return(
         <>
             <Header/>
@@ -171,7 +177,7 @@ function Home(){
                             <h3>Popular events</h3>
                             <div className={styles.eventList}>
                                 {allEvents.map((event) => (
-                                    <div className={styles.eventCard}>
+                                    <div className={styles.eventCard} onClick={() => eventDetail(event.id)}>
                                         <div className={styles.imageWrapper}>
                                             <img className={styles.eventImage} src={`${API_BASE}/api/events/${event.imageUrl}`}/>
                                             {event.id === allEvents[0].id && (

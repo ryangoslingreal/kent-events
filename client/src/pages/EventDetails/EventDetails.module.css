@@ -60,13 +60,11 @@
     /* align-items: center; */
     justify-content: center;
     gap: 30px;
+    overflow: visible;
 }
 
 
-
-
 /* Centre section of the page  */
-
 .centerInfo {
     display: flex;
     flex-direction: column;
@@ -74,6 +72,8 @@
     width: 40%;
     padding: 1.5rem 0;
     font-family: Overpass, Helvetica, Arial, sans-serif;
+    min-width: 0;  
+    
 }
 
 .descriptionWrapper {
@@ -141,12 +141,46 @@
     border-color: #05345C;
 }
 
+.contact {
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #e5dfd5;
+    box-shadow: 0 2px 8px rgba(5,52,92,0.06);
+    padding: 1.5rem 1.75rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.contact h3 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #05345C;
+    margin: 0 0 0.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #f5edda;
+}
+
+.contact p {
+    margin: 0;
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: #937227;
+    /* text-decoration: underline; */
+    cursor: pointer;
+}
+
+.contact p:hover {
+    color: #05345C;
+}
+
 .otherEvents {
     background: #ffffff;
     border-radius: 12px;
     border: 1px solid #e5dfd5;
     box-shadow: 0 2px 8px rgba(5,52,92,0.06);
     padding: 1.5rem 1.75rem;
+    min-width: 0;   
+    overflow: hidden;
 }
 
 .otherEvents h3 {
@@ -156,6 +190,68 @@
     margin: 0 0 0.75rem;
     padding-bottom: 0.75rem;
     border-bottom: 2px solid #f5edda;
+}
+
+.otherEventsScroller {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    overflow-x: scroll;    
+    padding-bottom: 0.5rem;
+    scrollbar-width: none;
+    width: 100%;  
+}
+
+.otherEventsScroller::-webkit-scrollbar {
+    display: none;                
+}
+
+.otherEventsScroller .eventCard {
+    min-width: 220px;             
+    flex-shrink: 0;
+}
+
+.eventCard {
+    min-width: 200px;
+    max-width: 200px;
+    flex-shrink: 0;
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    position: relative;
+    height: 140px;
+    box-shadow: 0 2px 8px rgba(5,52,92,0.10);
+    transition: transform 0.18s, box-shadow 0.18s;
+}
+
+.eventCard:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(5,52,92,0.18);
+}
+
+.eventImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(5,52,92,0.85) 0%, rgba(5,52,92,0.2) 60%, transparent 100%);
+}
+
+.eventTitle {
+    position: absolute;
+    bottom: 0.7rem;
+    left: 0.8rem;
+    right: 0.8rem;
+    margin: 0;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #ffffff;
+    line-height: 1.3;
 }
 
 
