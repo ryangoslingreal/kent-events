@@ -8,6 +8,8 @@
     max-height: 55px;
     background-color: #002F70;
     color: #ffffff;
+    z-index: 100;   /*make header highest in oder */
+    position: relative;
 }   
 
 .logoTitle{
