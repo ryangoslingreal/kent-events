@@ -72,7 +72,14 @@ router.get("/get-event", async(req, res) => {
     try {
         let eventId = req.query.eventId;
 
-        const event = await eventService.getEvent(eventId)
+        const result = await eventService.getEvent(eventId);
+        let event = result[0]
+
+        //This sends the image url to the frontend
+        
+        event.imageUrl = `${event.id}/image`; 
+        event.image = undefined  ;           //done to reduce how much is being sent back
+    
 
         return res.status(200).json(event);
 

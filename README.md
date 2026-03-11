@@ -30,6 +30,10 @@ docker compose version
 ```bash
 docker compose up
 ```
+- Could also use
+```bash
+docker compose up -v
+```
 
 ### Rebuilding after changes:
 ```bash
@@ -40,3 +44,4 @@ docker compose up --build
 ```bash
 docker compose down
 ```
+

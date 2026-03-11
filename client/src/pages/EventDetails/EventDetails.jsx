@@ -4,6 +4,7 @@ import Header from "../../components/layout/Header"
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from 'react-router-dom';
 import { getEvent, getAllEvents } from "../../api";
+import toast, { Toaster } from "react-hot-toast";
 const API_BASE = "http://localhost:3001"
 
 function EventDetails() {
@@ -16,10 +17,9 @@ function EventDetails() {
     useEffect(() => {
         const getEventData = async() => {
             
-            const data = await getEvent(id)
-            console.log(data)
-            let eventData = data[0]
+            const eventData = await getEvent(id)
             let date = new Date(eventData.event_date);
+            console.log(eventData)
             eventData.event_date = date.toLocaleDateString('en-GB', {
                 weekday: 'long',
                 day: 'numeric',
@@ -38,6 +38,7 @@ function EventDetails() {
         //Get other events section
         const getOtherEvents = async() => {
             const data = await getAllEvents()
+            console.log(data)
             let events = []
             let otherEventLen = 5
             if (5 > data.length){
@@ -86,9 +87,21 @@ function EventDetails() {
         <>
             <Header /> 
             <div className={styles.page}>
+                <Toaster 
+                    position="bottom-right"
+                    toastOptions={{
+                        style: {
+                            fontFamily: "Overpass, Helvetica, Arial, sans-serif",
+                        },
+                    }}
+                />
                 <div className={styles.eventHeader}>
-                    <h2 className={styles.title}>{formData.title}</h2>
-                    <p className={styles.eventOrganiser}>Organised by <span>Spanish Society</span> · University of Kent</p>
+                    <img className={styles.eventHeaderImg} src={`${API_BASE}/api/events/${formData.imageUrl}`}></img>
+                    <div className={styles.eventHeaderOverlay} />
+                    <div className={styles.eventHeaderContent}>
+                        <h2 className={styles.title}>{formData.title}</h2>
+                        <p className={styles.eventOrganiser}>Organised by <span>Spanish Society</span> · University of Kent</p>
+                    </div>
                 </div>
                 <div className={styles.informationWrapper}>
                     <div className={styles.centerInfo}>
@@ -179,7 +192,10 @@ function EventDetails() {
                         
                         <div className={styles.shareEvent}>
                             <p className={styles.shareLabel}>Share Event</p>
-                            <button className={styles.shareButton}>Copy Link</button>
+                            <button className={styles.shareButton} onClick={() => {
+                                navigator.clipboard.writeText(window.location.href)
+                                toast.success('Link Copied!', {style: {background: '#05345C', color: 'white'}})
+                            }}>Copy Link</button>
                         </div>
                     </div>
                 </div>
