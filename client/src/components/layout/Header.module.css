@@ -24,8 +24,14 @@
 
 .logo{
     /*width: 90px;*/
+    display: flex;
+    justify-content: center;
+    align-items: center;
     min-height: 42px;
     max-height: 55px;
+    height: 45px;
+    object-fit: contain;
+    margin-left: 2rem;
 }
 
 .title{

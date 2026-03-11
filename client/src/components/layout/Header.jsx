@@ -1,7 +1,7 @@
 
 import { Link } from "react-router-dom";
 import styles from "./Header.module.css";
-import kentlogo from "../../assets/kentlogo.png";
+import kentlogo from "../../assets/kentlogoblue.png";
 import searchicon from "../../assets/searchIcon.png"
 
 function Header() {
