@@ -15,10 +15,9 @@ function Home(){
     const navigate = useNavigate();
 
     const API_BASE = "http://localhost:3001"
-    let events = []
     useEffect (() => {
-        
         const getHomeEvents = async() => {
+            let events = []
             const data = await getAllEvents()
             // console.log(data[0].event_time)
             
@@ -145,7 +144,7 @@ function Home(){
                                     }}>
                                     <h3>{allEvents[0].title}</h3>
                                     <p>{allEvents[0].date} - {allEvents[0].time} - {allEvents[0].location} - £{allEvents[0].price} </p>
-                                    <Link to="/events/detail"><button>View Details</button> </Link>
+                                    <button onClick={() => navigate(`/events/detail/${allEvents[0].id}`)}>View Details</button>
                                 </div>
                                 ) : (
                                 <div className={styles.featuredEvent}>

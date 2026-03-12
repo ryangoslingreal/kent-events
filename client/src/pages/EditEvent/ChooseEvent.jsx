@@ -28,7 +28,6 @@ function ChooseEvent() {
             }  else{
                 for (let i=0; i<data.length; i++){
                     const formattedDate = data[i].event_date.split("T")[0];
-                    console.log(today + "  " + formattedDate);
                     if (today > formattedDate){
                         let event = { id: data[i].id, name: data[i].title, date: formattedDate, dateCheck: data[i].event_date }
                         oldEvents.push(event);

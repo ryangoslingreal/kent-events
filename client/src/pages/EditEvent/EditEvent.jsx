@@ -95,8 +95,8 @@ function EditEvent(){
     useEffect(() => {
         const getEventData = async() => {
             
-            const data = await getEvent(id);
-            let eventData = data[0];
+            const eventData = await getEvent(id);
+            // let eventData = data[0];
 
             //changing event date, time and contact info to conform with the HTML format
             eventData.event_time = eventData.event_time.toString().slice(0, 5);
@@ -108,13 +108,10 @@ function EditEvent(){
             }
 
             setFormData(eventData);
-
-
-
-            if (data.error) {
+            if (eventData.error) {
                 alert(data.error)
             }  else{
-                console.log(data);
+                console.log(eventData);
             }
         
         }
