@@ -5,6 +5,7 @@ import { getEvent, deleteEvent, updateEvent } from "../../api";
 import searchicon from "../../assets/searchIcon.png";
 import Header from "../../components/layout/Header.jsx";
 import styles from "./EditEvent.module.css";
+import toast, { Toaster } from "react-hot-toast";
 
 
 function Field({ label, htmlFor, children }) {
@@ -71,9 +72,9 @@ function EditEvent(){
         const result = await updateEvent(id, payload);
 
         if (result.error){
-            alert(result.error)
+            toast.error(result.error, {style: {background: '#05345C', color: 'white'}})
         } else{
-            alert(result.message)
+            toast.success(result.message, {style: {background: '#05345C', color: 'white'}})
         }
         console.log("Form data:", formData);
     };
@@ -82,10 +83,11 @@ function EditEvent(){
         const result = await deleteEvent(id);
 
         if (result.error){
-            alert(result.error);
+            toast.error(result.error, {style: {background: '#05345C', color: 'white'}})
         } else {
-            alert("event deleted")
-            navigate("/");
+            toast.success('Event deleted', {style: {background: '#05345C', color: 'white'}})
+            setTimeout(() => navigate("/"), 1000);
+            
         }
     }
 
@@ -122,6 +124,14 @@ function EditEvent(){
     return(
         <>
             <Header />
+            <Toaster 
+                position="bottom-right"
+                toastOptions={{
+                    style: {
+                        fontFamily: "Overpass, Helvetica, Arial, sans-serif",
+                    },
+                }}  
+            />
             <div className={styles.page}>
                 <div className={styles.card}>
                     <form className={styles.form} onSubmit={handleSubmit}>

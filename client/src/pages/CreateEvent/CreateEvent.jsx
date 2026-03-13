@@ -3,6 +3,7 @@ import Header from "../../components/layout/Header";
 import styles from "./CreateEvent.module.css";
 import searchicon from "../../assets/searchIcon.png";
 import { createEvent } from "../../api";
+import toast, { Toaster } from "react-hot-toast";
 
 function Field({ label, htmlFor, children }) {
     return (
@@ -71,9 +72,9 @@ function CreateEvent() {
         const result = await createEvent(formData);
 
         if (result.error){
-            alert(result.error)
+             toast.error(result.error, {style: {background: '#05345C', color: 'white'}})
         } else{
-            alert(result.message)
+            toast.success(result.message, {style: {background: '#05345C', color: 'white'}})
         }
         console.log("Form data:", formData);
     };
@@ -95,12 +96,19 @@ function CreateEvent() {
         }
         setFormData(initialForm);
 
-        alert("Page reset")
-    }
+        toast.success('Event form reset', {style: {background: '#05345C', color: 'white'}})    }
 
     return (
         <>
             <Header />
+            <Toaster 
+                position="bottom-right"
+                toastOptions={{
+                    style: {
+                        fontFamily: "Overpass, Helvetica, Arial, sans-serif",
+                    },
+                }}
+            />
             <div className={styles.page}>
                 <div className={styles.card}>
                     <form className={styles.form} onSubmit={handleSubmit}>
