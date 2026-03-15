@@ -24,7 +24,7 @@ function Login() {
 
             switch (res.status) {
                 case 200:
-                    toast.success(data.message);
+                    toast.success(data.message); // TODO: redirect to homepage
                     break;
 
                 case 401:
@@ -42,6 +42,7 @@ function Login() {
 
                 default:
                     console.error("Unexpected response:", res.status);
+                    toast.error("Unexpected error")
             }
         } catch (err) {
             console.error("Network error:", err);

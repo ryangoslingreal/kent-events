@@ -23,7 +23,7 @@ function Signup (){
             const data = await res.json();
 
             switch (res.status) {
-                case 200:
+                case 201:
                     toast.success(data.message);
                     break;
 
@@ -38,7 +38,7 @@ function Signup (){
                 case 500:
                     console.error("Server error:", data);
                     toast.error(data.message)
-                break;
+                    break;
 
                 default:
                     console.error("Unexpected response:", res.status);
