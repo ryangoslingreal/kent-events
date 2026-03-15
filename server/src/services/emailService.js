@@ -26,7 +26,9 @@ function createTransporter() {
 async function sendVerificationEmail(to, token) {
     const transporter = createTransporter();
 
-    const verifyUrl = `${process.env.VITE_API_TARGET}/api/auth/verify?token=${token}`;
+    // const verifyUrl = `${process.env.VITE_API_TARGET}/api/auth/verify?token=${token}`;
+
+    const verifyUrl = `${process.env.CORS_ORIGIN}/auth/verify/${token}`
 
     const from = process.env.EMAIL_FROM;
     const subject = "Verify your email address";
