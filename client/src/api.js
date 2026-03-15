@@ -121,3 +121,19 @@ export async function updateEvent(eventId, data) {
 
   
 }
+
+export async function verify(token) {
+   try{
+    const res = await fetch(`/api/auth/verify?token=${encodeURIComponent(token)}`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json"},
+    })
+
+    const data = await res.json();
+    return data;
+  } catch (error) {
+    return {error: "Network error: Failed to verify user"}
+  }
+}
+
+
