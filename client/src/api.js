@@ -135,6 +135,21 @@ export async function verify(token) {
     return {error: "Network error: Failed to verify user"}
   }
 }
+
+export async function logout() {
+  try{
+    const res = await fetch('/api/auth/logout', {
+      method: "POST",
+      headers: { "Content-Type": "application/json"},
+    })
+
+    const data = await res.json()
+    return data;
+  } catch (error){
+    return {error: "Network error: Failed to logout user"}
+  }
+}
+
 export async function getMe() {
   try{
     const res = await fetch('/api/auth/me', {
