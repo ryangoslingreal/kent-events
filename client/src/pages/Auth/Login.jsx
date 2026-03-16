@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import toast, { Toaster } from "react-hot-toast";
+import { Link, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import styles from "./Login.module.css";
 import Header from "../../components/layout/Header";
 
@@ -9,6 +9,7 @@ function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
+    const navigate = useNavigate();
 
     async function handleSubmit(e) {
         e.preventDefault();
@@ -25,6 +26,7 @@ function Login() {
             switch (res.status) {
                 case 200:
                     toast.success(data.message); // TODO: redirect to homepage
+                    navigate("/")
                     break;
 
                 case 401:
@@ -51,14 +53,6 @@ function Login() {
 
     return (
         <div className={styles.header_page}>
-            <Toaster 
-                position="top-center"
-                toastOptions={{
-                    style: {
-                        fontFamily: "Overpass, Helvetica, Arial, sans-serif",
-                    },
-                }}
-            />
             <Header />
             <div className={styles.page}>
                 <div className={styles.card}>

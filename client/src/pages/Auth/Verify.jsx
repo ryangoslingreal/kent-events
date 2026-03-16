@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { verify } from "../../api"
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import styles from "./Verify.module.css"
 
 function Verify() {
@@ -19,14 +19,6 @@ function Verify() {
     }
     return(
         <>
-            <Toaster 
-                position="top-center"
-                toastOptions={{
-                    style: {
-                        fontFamily: "Overpass, Helvetica, Arial, sans-serif",
-                    },
-                }}
-            />
             <div className={styles.verify_root}>
                 <div className={styles.verify_card}>
                     <h1>Verify your email</h1>

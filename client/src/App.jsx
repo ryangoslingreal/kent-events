@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import './App.css'
 import './styles.css'
 import { Routes, Route } from "react-router-dom";
+import toast, { Toaster } from "react-hot-toast";
 import Home from "./pages/Home/Home.jsx"
 import Login from "./pages/Auth/Login.jsx"
 import Signup from "./pages/Auth/Signup.jsx"
@@ -25,6 +26,14 @@ function App() {
 
   return (
     <>
+      <Toaster 
+        position="bottom-right"
+        toastOptions={{
+            style: {
+                fontFamily: "Overpass, Helvetica, Arial, sans-serif",
+            },
+        }}
+      />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
