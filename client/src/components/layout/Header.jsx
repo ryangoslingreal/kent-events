@@ -1,7 +1,7 @@
 
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import styles from "./Header.module.css";
 import kentlogo from "../../assets/kentlogo3.png";
 import searchicon from "../../assets/searchIcon.png"
@@ -41,14 +41,6 @@ function Header() {
 
     return(
         <>
-        {/* <Toaster 
-            position="bottom-right"
-            toastOptions={{
-                style: {
-                    fontFamily: "Overpass, Helvetica, Arial, sans-serif",
-                },
-            }}
-        /> */}
         <header className={styles.header}>
             <div className={styles.logoTitle}>
                 <img className={styles.logo} src={kentlogo}></img>

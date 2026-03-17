@@ -13,7 +13,12 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 //Passes data onto eventService and does error checks on the data
 router.post("/create-event", upload.single("image"), async (req, res) => {
-    // console.log("file:", req.file); // uploaded file (if any)            --to print out image file
+    //authentication check
+    if (!req.session.user) {
+        return res.status(401).json({ message: "You are not authenticated, please sign in to use this feature." });
+    }
+
+
     const { 
         title, 
         subtitle, description, 
@@ -23,8 +28,7 @@ router.post("/create-event", upload.single("image"), async (req, res) => {
         tags, 
         price, 
         repeat_event, 
-        available_contact,
-        user_id
+        available_contact
     } = req.body;
 
     //Basic validation 
@@ -47,7 +51,7 @@ router.post("/create-event", upload.single("image"), async (req, res) => {
             price, 
             repeat_event, 
             intContactInfo,
-            user_id
+            req.session.user.id
         );
     } catch (error) {
         console.error("CREATE EVENT FAILED:", error);

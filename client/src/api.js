@@ -17,9 +17,8 @@ export async function createEvent(data){
   try{
     const res = await fetch(`/api/events/create-event`, {
       method: "POST",
-      // headers: { "Content-Type": "application/json"},
-      // body: JSON.stringify({ title, subtitle, description, date, time, location, tag, price, repeat, contactInfo }),
       body: formData,
+      credentials: 'include'
     });
     
     //As I don't return anything from inserting an event, await res.json (below) throws an error, the catch is there to prevent the frontend from thinking it failed

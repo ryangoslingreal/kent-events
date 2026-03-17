@@ -68,15 +68,7 @@ function CreateEvent() {
 
     const handleSubmit = async(e) => {
         e.preventDefault();
-        // Checking there is a user signed in 
         try{
-            const user = await getMe()
-
-            if (user.message !== "Authenticated."){
-                toast.error("Please Signin to create an event")
-                return;
-            }
-            const updatedForm = {...formData, "user_id": user.user.id};
             const result = await createEvent(updatedForm);
             
             if (result.error){
