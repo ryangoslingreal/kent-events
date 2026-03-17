@@ -23,7 +23,8 @@ router.post("/create-event", upload.single("image"), async (req, res) => {
         tags, 
         price, 
         repeat_event, 
-        available_contact 
+        available_contact,
+        user_id
     } = req.body;
 
     //Basic validation 
@@ -45,7 +46,8 @@ router.post("/create-event", upload.single("image"), async (req, res) => {
             tags, 
             price, 
             repeat_event, 
-            intContactInfo
+            intContactInfo,
+            user_id
         );
     } catch (error) {
         console.error("CREATE EVENT FAILED:", error);

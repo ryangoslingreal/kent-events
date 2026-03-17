@@ -2,7 +2,8 @@ import { useState } from "react";
 import Header from "../../components/layout/Header";
 import styles from "./CreateEvent.module.css";
 import searchicon from "../../assets/searchIcon.png";
-import { createEvent } from "../../api";
+import { createEvent, getMe } from "../../api";
+import toast from "react-hot-toast";
 
 function Field({ label, htmlFor, children }) {
     return (
@@ -67,15 +68,26 @@ function CreateEvent() {
 
     const handleSubmit = async(e) => {
         e.preventDefault();
-        // const result = await createEvent(formData.title, formData.subtitle, formData.description, formData.date, formData.time, formData.location, formData.tag, formData.price, formData.repeat, formData.contactInfo)
-        const result = await createEvent(formData);
+        // Checking there is a user signed in 
+        try{
+            const user = await getMe()
 
-        if (result.error){
-            alert(result.error)
-        } else{
-            alert(result.message)
+            if (user.message !== "Authenticated."){
+                toast.error("Please Signin to create an event")
+                return;
+            }
+            const updatedForm = {...formData, "user_id": user.user.id};
+            const result = await createEvent(updatedForm);
+            
+            if (result.error){
+                alert(result.error)
+            } else{
+                alert(result.message)
+            }
+            console.log("Form data:", formData);
+        } catch(error){
+            console.error(error)
         }
-        console.log("Form data:", formData);
     };
 
     const handleReset = () => {

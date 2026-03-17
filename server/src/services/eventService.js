@@ -6,7 +6,7 @@
 const eventsRepo = require('../repos/eventsRepo');
 
 //Deals with passing a createEvent request to repos
-async function createEvent(title, subtitle, description, image, image_mime, date, time, location, tag, price, repeat, contactInfo) {
+async function createEvent(title, subtitle, description, image, image_mime, date, time, location, tag, price, repeat, contactInfo, user_id) {
     try {
         await eventsRepo.createEvent(
             title, 
@@ -17,7 +17,8 @@ async function createEvent(title, subtitle, description, image, image_mime, date
             tag, 
             price, 
             repeat, 
-            contactInfo
+            contactInfo,
+            user_id
         );
     } catch (error) {
         throw error;
