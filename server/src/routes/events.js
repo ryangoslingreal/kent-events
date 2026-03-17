@@ -58,9 +58,13 @@ router.post("/create-event", upload.single("image"), async (req, res) => {
 });
 
 router.get("/get-user-made-events", async(req, res) => {
+    if (!req.session.user) {
+        return res.status(401).json({ message: "You are not authenticated, please sign in to use this feature." });
+    }
+    
     let events;
     try {
-        events = await eventService.getUserMadeEvents()     
+        events = await eventService.getUserMadeEvents(req.session.user.id)     
     } catch (error) {
         console.error("get-user-made-events error:", error);
         return res.status(500).json({ message: "Server error.", error: error.message, code: error.code });

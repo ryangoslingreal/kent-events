@@ -42,6 +42,7 @@ export async function getUserMadeEvents() {
     const res = await fetch(`${API_BASE}/api/events/get-user-made-events`, {
       method: "GET",
       headers: { "Content-Type": "application/json"},
+      credentials: 'include'
     })
 
     const data = await res.json()

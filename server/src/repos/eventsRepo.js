@@ -9,8 +9,7 @@ async function createEvent(title, subtitle, description, image, image_mime, date
     await db.query(query, values);
 }
 
-async function getUserMadeEvents() {
-    const user_id = 1;  // ! Change to user signed in
+async function getUserMadeEvents(user_id) {
     const query = `
         SELECT id, title, event_date
         FROM events

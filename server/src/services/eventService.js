@@ -25,9 +25,9 @@ async function createEvent(title, subtitle, description, image, image_mime, date
     }
 }
 
-async function getUserMadeEvents() {
+async function getUserMadeEvents(event_id) {
     try {
-        return await eventsRepo.getUserMadeEvents();
+        return await eventsRepo.getUserMadeEvents(event_id);
     } catch (error) {
         throw error;
     }

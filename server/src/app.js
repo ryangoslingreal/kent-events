@@ -8,7 +8,10 @@ const { registerRoutes } = require("./routes");
 
 const app = express();
 app.use(express.json());
-app.use(cors({ origin: process.env.CORS_ORIGIN ?? "http://localhost:9000" }));
+app.use(cors({ 
+  origin: process.env.CORS_ORIGIN ?? "http://localhost:9000",
+  credentials: true
+}));
 
 // Session config
 const sessionStore = new MySQLStore({
