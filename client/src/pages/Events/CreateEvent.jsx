@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
 import Header from "../../components/layout/Header";
 import styles from "./CreateEvent.module.css";
 import searchicon from "../../assets/searchIcon.png";
@@ -15,6 +16,7 @@ function Field({ label, htmlFor, children }) {
 }
 
 function CreateEvent() {
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         title: "",
         subtitle: "",
@@ -29,6 +31,20 @@ function CreateEvent() {
         repeat_event: "never",
         available_contact: false,
     });
+
+    useEffect(() => {
+        const checkUserAuthentication = async() => {
+            const authenticated = await getMe();
+            console.log(authenticated)
+            if (authenticated.message === "Not authenticated."){
+                toast.error("Please sign in to use this feature")
+                setTimeout(() => navigate("/"), 1000);
+            }
+           
+        };
+        checkUserAuthentication()
+
+    }, [])
 
     const handleInputChange = ({ target }) => {
         const { name, value, type, checked } = target;

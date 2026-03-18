@@ -152,9 +152,10 @@ export async function logout() {
 
 export async function getMe() {
   try{
-    const res = await fetch('/api/auth/me', {
+    const res = await fetch(`${API_BASE}/api/auth/me`, {
       method: "GET",
       headers: { "Content-Type": "application/json"},
+      credentials: 'include'
     })
 
     const data = await res.json();

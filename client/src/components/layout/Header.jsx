@@ -21,12 +21,15 @@ function Header() {
 
     useEffect(() => {
         const getUser = async() => {
-            const data = await getMe()
-            console.log(data)
-            if (data.message == "Authenticated."){
-                setSignedIn(true)
-                setInitial(data.user.email[0].toUpperCase())
-                setUserEmail(data.user.email)
+            try{
+                const data = await getMe()
+                if (data.message == "Authenticated."){
+                    setSignedIn(true)
+                    setInitial(data.user.email[0].toUpperCase())
+                    setUserEmail(data.user.email)
+                }
+            } catch(error){
+            
             }
         }
         getUser();
