@@ -1,10 +1,11 @@
 import { beforeEach, describe, it, expect, afterEach } from "vitest";
 const inbox = require("../helpers/emailInbox.js");
 const { cleanupTestUsers } = require("../helpers/dbTestingUtils.js");
-const { makeTestEmail, registerTestUser, verifyTestUser, loginTestUser } = require("../helpers/authTestingUtils.js");
+const { createTestAgent, makeTestEmail, registerTestUser, verifyTestUser, loginTestUser, registerAndLoginTestUser } = require("../helpers/authTestingUtils.js");
 
 describe.sequential("api/auth/login", () => {
     let app;
+    let agent;
         
     // Reset inbox and mock email service before each test
     beforeEach( async () => {
@@ -14,6 +15,7 @@ describe.sequential("api/auth/login", () => {
         mockEmail();
     
         app = (await import("../../src/app.js")).default; // Import app AFTER mock
+        agent = createTestAgent(app);
     });
     
     // Clean up db after each test
@@ -22,41 +24,46 @@ describe.sequential("api/auth/login", () => {
     });
 
     it("returns 200 with user payload on successful login", async () => {
-        // Register and verify a new user
-        const { email: email } = await registerTestUser(app, makeTestEmail(), "testpassword");   
-        const token = inbox.last()?.token;
-        await verifyTestUser(app, token);
-
-        // Attempt login
-        const { res } = await loginTestUser(app, email, "testpassword");
+        // Register, verify, and log in a new user
+        const { res, email } = await registerAndLoginTestUser(agent, makeTestEmail(), "testpassword");
         expect(res.status).toBe(200);
         expect(res.body).toHaveProperty("user");
         expect(res.body.user).toHaveProperty("id");
         expect(res.body.user).toHaveProperty("email", email);
     });
 
+    it("returns 400 if already logged in", async () => {
+        // Register, verify, and log in a new user
+        const { res: res1, email: email1 } = await registerAndLoginTestUser(agent, makeTestEmail(), "testpassword");
+        expect(res1.status).toBe(200);
+
+        // Second login with same session should fail
+        const { res: res2 } = await loginTestUser(agent, email1, "testpassword")
+        expect(res2.status).toBe(400);
+    });
+
     it("returns 401 for invalid credentials", async () => {
         // Register and verify a new user
-        const { email: email } = await registerTestUser(app, makeTestEmail(), "testpassword");
+        const { email: email } = await registerTestUser(agent, makeTestEmail(), "testpassword");
         const token = inbox.last()?.token;
-        await verifyTestUser(app, token);
+        await verifyTestUser(agent, token);
 
-        const { res: res1 } = await loginTestUser(app, undefined, "testpassword"); // Missing email
+        const { res: res1 } = await loginTestUser(agent, undefined, "testpassword"); // Missing email
         expect(res1.status).toBe(401);
 
-        const { res: res2 } = await loginTestUser(app, email, undefined); // Missing password
+        const { res: res2 } = await loginTestUser(agent, email, undefined); // Missing password
         expect(res2.status).toBe(401);
 
-        const { res: res3 } = await loginTestUser(app, email, "wrongpassword"); // Wrong password
+        const { res: res3 } = await loginTestUser(agent, email, "wrongpassword"); // Wrong password
         expect(res3.status).toBe(401);
     });
 
     it("returns 403 for unverified email", async () => {
         // Register a new user but do not verify
-        const { email: email } = await registerTestUser(app, makeTestEmail(), "testpassword");
+        const { email: email } = await registerTestUser(agent, makeTestEmail(), "testpassword");
 
         // Attempt login
-        const { res } = await loginTestUser(app, email, "testpassword");
+        const { res } = await loginTestUser(agent, email, "testpassword");
         expect(res.status).toBe(403);
     });
 });

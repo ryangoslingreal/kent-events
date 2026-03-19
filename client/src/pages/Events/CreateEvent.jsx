@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
 import Header from "../../components/layout/Header";
 import styles from "./CreateEvent.module.css";
 import searchicon from "../../assets/searchIcon.png";
-import { createEvent } from "../../api";
+import { createEvent, getMe } from "../../api";
 import toast, { Toaster } from "react-hot-toast";
 
 function Field({ label, htmlFor, children }) {
@@ -15,6 +16,7 @@ function Field({ label, htmlFor, children }) {
 }
 
 function CreateEvent() {
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         title: "",
         subtitle: "",
@@ -29,6 +31,20 @@ function CreateEvent() {
         repeat_event: "never",
         available_contact: false,
     });
+
+    useEffect(() => {
+        const checkUserAuthentication = async() => {
+            const authenticated = await getMe();
+            console.log(authenticated)
+            if (authenticated.message === "Not authenticated."){
+                toast.error("Please sign in to use this feature")
+                setTimeout(() => navigate("/"), 1000);
+            }
+           
+        };
+        checkUserAuthentication()
+
+    }, [])
 
     const handleInputChange = ({ target }) => {
         const { name, value, type, checked } = target;
@@ -68,15 +84,18 @@ function CreateEvent() {
 
     const handleSubmit = async(e) => {
         e.preventDefault();
-        // const result = await createEvent(formData.title, formData.subtitle, formData.description, formData.date, formData.time, formData.location, formData.tag, formData.price, formData.repeat, formData.contactInfo)
-        const result = await createEvent(formData);
-
-        if (result.error){
-             toast.error(result.error, {style: {background: '#05345C', color: 'white'}})
-        } else{
-            toast.success(result.message, {style: {background: '#05345C', color: 'white'}})
+        try{
+            const result = await createEvent(updatedForm);
+            
+            if (result.error){
+                 toast.error(result.error, {style: {background: '#05345C', color: 'white'}})
+            } else{
+                toast.success(result.message, {style: {background: '#05345C', color: 'white'}})
+            }
+            console.log("Form data:", formData);
+        } catch(error){
+            console.error(error)
         }
-        console.log("Form data:", formData);
     };
 
     const handleReset = () => {

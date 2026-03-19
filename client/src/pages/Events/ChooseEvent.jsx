@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../../components/layout/Header.jsx"
 import styles from "./ChooseEvent.module.css";
-import { getUserMadeEvents } from "../../api";
+import { getUserMadeEvents, getMe } from "../../api";
 
 function ChooseEvent() {    
     const [selectedId, setSelectedId] = useState(null);
@@ -17,7 +17,6 @@ function ChooseEvent() {
 
     useEffect(() => {
         const getUsersEvents = async() => {
-            
             const data = await getUserMadeEvents();
 
             const today = new Date().toISOString().split("T")[0];
@@ -25,6 +24,7 @@ function ChooseEvent() {
             let oldEvents = []
             if (data.error) {
                 alert(data.error)
+                setTimeout(() => navigate("/"), 1000);
             }  else{
                 for (let i=0; i<data.length; i++){
                     const formattedDate = data[i].event_date.split("T")[0];

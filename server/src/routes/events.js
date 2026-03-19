@@ -13,7 +13,12 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 //Passes data onto eventService and does error checks on the data
 router.post("/create-event", upload.single("image"), async (req, res) => {
-    // console.log("file:", req.file); // uploaded file (if any)            --to print out image file
+    //authentication check
+    if (!req.session.user) {
+        return res.status(401).json({ message: "You are not authenticated, please sign in to use this feature." });
+    }
+
+
     const { 
         title, 
         subtitle, description, 
@@ -23,7 +28,7 @@ router.post("/create-event", upload.single("image"), async (req, res) => {
         tags, 
         price, 
         repeat_event, 
-        available_contact 
+        available_contact
     } = req.body;
 
     //Basic validation 
@@ -45,7 +50,8 @@ router.post("/create-event", upload.single("image"), async (req, res) => {
             tags, 
             price, 
             repeat_event, 
-            intContactInfo
+            intContactInfo,
+            req.session.user.id
         );
     } catch (error) {
         console.error("CREATE EVENT FAILED:", error);
@@ -56,9 +62,13 @@ router.post("/create-event", upload.single("image"), async (req, res) => {
 });
 
 router.get("/get-user-made-events", async(req, res) => {
+    if (!req.session.user) {
+        return res.status(401).json({ message: "You are not authenticated, please sign in to use this feature." });
+    }
+    
     let events;
     try {
-        events = await eventService.getUserMadeEvents()     
+        events = await eventService.getUserMadeEvents(req.session.user.id)     
     } catch (error) {
         console.error("get-user-made-events error:", error);
         return res.status(500).json({ message: "Server error.", error: error.message, code: error.code });

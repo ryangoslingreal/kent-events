@@ -1,5 +1,3 @@
-const API_BASE = import.meta.env.VITE_API_BASE ?? "http://localhost:3001";
-
 export async function healthCheck() {
   const res = await fetch(`/api/health`);
   return res.json();
@@ -15,11 +13,10 @@ export async function createEvent(data){
   })
 
   try{
-    const res = await fetch(`${API_BASE}/api/events/create-event`, {
+    const res = await fetch("/api/events/create-event", {
       method: "POST",
-      // headers: { "Content-Type": "application/json"},
-      // body: JSON.stringify({ title, subtitle, description, date, time, location, tag, price, repeat, contactInfo }),
       body: formData,
+      credentials: "include"
     });
     
     //As I don't return anything from inserting an event, await res.json (below) throws an error, the catch is there to prevent the frontend from thinking it failed
@@ -39,9 +36,10 @@ export async function createEvent(data){
 
 export async function getUserMadeEvents() {
   try{
-    const res = await fetch(`${API_BASE}/api/events/get-user-made-events`, {
+    const res = await fetch(`/api/events/get-user-made-events`, {
       method: "GET",
       headers: { "Content-Type": "application/json"},
+      credentials: 'include'
     })
 
     const data = await res.json()
@@ -59,7 +57,7 @@ export async function getUserMadeEvents() {
 //gets data from one specific event
 export async function getEvent(eventId) {
   try{
-    const res = await fetch(`${API_BASE}/api/events/get-event?eventId=${encodeURIComponent(eventId)}`, {
+    const res = await fetch(`/api/events/get-event?eventId=${encodeURIComponent(eventId)}`, {
       method: "GET",
       headers: { "Content-Type": "application/json"},
     })
@@ -78,7 +76,7 @@ export async function getEvent(eventId) {
 
 export async function deleteEvent(eventId){
   try{
-    const res = await fetch(`${API_BASE}/api/events/delete-event?eventId=${encodeURIComponent(eventId)}`, {
+    const res = await fetch(`/api/events/delete-event?eventId=${encodeURIComponent(eventId)}`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json"},
     })
@@ -103,7 +101,7 @@ export async function updateEvent(eventId, data) {
   })
 
   try{
-    const res = await fetch(`${API_BASE}/api/events/update-event?eventId=${encodeURIComponent(eventId)}`, {
+    const res = await fetch(`/api/events/update-event?eventId=${encodeURIComponent(eventId)}`, {
       method: "PUT",
       body: formData,
     })
@@ -122,7 +120,7 @@ export async function updateEvent(eventId, data) {
 
 export async function getAllEvents() {
   try{
-    const res = await fetch(`${API_BASE}/api/events/get-all-events`, {
+    const res = await fetch(`/api/events/get-all-events`, {
       method: "GET",
       headers: { "Content-Type": "application/json"},
     })
@@ -138,3 +136,49 @@ export async function getAllEvents() {
     return {error: "Network error: Failed to get all events"}
   }
 }
+
+export async function verify(token) {
+   try{
+    const res = await fetch(`/api/auth/verify?token=${encodeURIComponent(token)}`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json"},
+    })
+
+    const data = await res.json();
+    return data;
+  } catch (error) {
+    return {error: "Network error: Failed to verify user"}
+  }
+}
+
+export async function logout() {
+  try{
+    const res = await fetch('/api/auth/logout', {
+      method: "POST",
+      headers: { "Content-Type": "application/json"},
+      credentials: "include"
+    })
+
+    const data = await res.json()
+    return data;
+  } catch (error){
+    return {error: "Network error: Failed to logout user"}
+  }
+}
+
+export async function getMe() {
+  try{
+    const res = await fetch(`/api/auth/me`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json"},
+      credentials: 'include'
+    })
+
+    const data = await res.json();
+    return data;
+  } catch (error) {
+    return {error: "Network error: Failed to grab user authentication"}
+  }
+}
+
+
