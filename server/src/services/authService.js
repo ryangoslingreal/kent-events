@@ -124,7 +124,7 @@ async function hashPassword(password) {
 }
 
 /**
- * Compares a paintext password to a password hash.
+ * Compares a plaintext password to a password hash.
  * 
  * @param {string} password - The plaintext password to verify
  * @param {string} hash - The bcrypt hash to compare against

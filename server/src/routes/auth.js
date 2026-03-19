@@ -62,10 +62,10 @@ router.post("/login", async (req, res) => { // * NOTE: Ensure HTTPS.
 
 /**
  * POST /register
- * Registers a new user with the provided email and hashed password.
+ * Registers a new user with the provided email and plaintext password.
  * 
  * @param {string} email - The email address of the user to register
- * @param {string} password_hash - The hashed password for the user
+ * @param {string} password - The plaintext password for the user
  * 
  * @returns {Object} JSON response with message and user object (id, email)
  * 
