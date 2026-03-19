@@ -1,5 +1,3 @@
-const API_BASE = import.meta.env.VITE_API_BASE ?? "http://localhost:3001";
-
 export async function healthCheck() {
   const res = await fetch(`/api/health`);
   return res.json();
@@ -38,7 +36,7 @@ export async function createEvent(data){
 
 export async function getUserMadeEvents() {
   try{
-    const res = await fetch(`${API_BASE}/api/events/get-user-made-events`, {
+    const res = await fetch(`/api/events/get-user-made-events`, {
       method: "GET",
       headers: { "Content-Type": "application/json"},
       credentials: 'include'
@@ -59,7 +57,7 @@ export async function getUserMadeEvents() {
 //gets data from one specific event
 export async function getEvent(eventId) {
   try{
-    const res = await fetch(`${API_BASE}/api/events/get-event?eventId=${encodeURIComponent(eventId)}`, {
+    const res = await fetch(`/api/events/get-event?eventId=${encodeURIComponent(eventId)}`, {
       method: "GET",
       headers: { "Content-Type": "application/json"},
     })
@@ -78,7 +76,7 @@ export async function getEvent(eventId) {
 
 export async function deleteEvent(eventId){
   try{
-    const res = await fetch(`${API_BASE}/api/events/delete-event?eventId=${encodeURIComponent(eventId)}`, {
+    const res = await fetch(`/api/events/delete-event?eventId=${encodeURIComponent(eventId)}`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json"},
     })
@@ -103,7 +101,7 @@ export async function updateEvent(eventId, data) {
   })
 
   try{
-    const res = await fetch(`${API_BASE}/api/events/update-event?eventId=${encodeURIComponent(eventId)}`, {
+    const res = await fetch(`/api/events/update-event?eventId=${encodeURIComponent(eventId)}`, {
       method: "PUT",
       body: formData,
     })
@@ -152,7 +150,7 @@ export async function logout() {
 
 export async function getMe() {
   try{
-    const res = await fetch(`${API_BASE}/api/auth/me`, {
+    const res = await fetch(`/api/auth/me`, {
       method: "GET",
       headers: { "Content-Type": "application/json"},
       credentials: 'include'

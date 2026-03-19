@@ -25,7 +25,7 @@ function Login() {
 
             switch (res.status) {
                 case 200:
-                    toast.success(data.message); // TODO: redirect to homepage
+                    toast.success(data.message);
                     navigate("/")
                     break;
 
