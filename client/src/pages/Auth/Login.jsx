@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { login } from "../../api.js";
+
 import toast from "react-hot-toast";
 import styles from "./Login.module.css";
 import Header from "../../components/layout/Header";
-
 
 function Login() {
     const [email, setEmail] = useState("");
@@ -14,42 +15,15 @@ function Login() {
     async function handleSubmit(e) {
         e.preventDefault();
 
-        try {
-            const res = await fetch("/api/auth/login", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                credentials: "include",
-                body: JSON.stringify({ email, password })
-            });
+        const result = await login({ email, password });
 
-            const data = await res.json();
-
-            switch (res.status) {
-                case 200:
-                    toast.success(data.message);
-                    navigate("/")
-                    break;
-
-                case 401:
-                    toast.error(data.message)
-                    break;
-
-                case 403:
-                    toast.error(data.message)
-                    break;
-
-                case 500:
-                    console.error("Server error:", data);
-                    toast.error(data.message)
-                    break;
-
-                default:
-                    console.error("Unexpected response:", res.status);
-                    toast.error("Unexpected error")
-            }
-        } catch (err) {
-            console.error("Network error:", err);
+        if (result.error) {
+            toast.error(result.error);
+            return;
         }
+
+        toast.success(result.message);
+        navigate("/");
     }
 
     return (
@@ -99,7 +73,12 @@ function Login() {
                             Log in
                         </button>
 
-                        <p className={styles.changeAuth}>Don't have an account? <Link to="../signup" className={styles.changeAuthButton}>Create One</Link></p>
+                        <p className={styles.changeAuth}>
+                            Don't have an account?
+                            <Link to="../signup" className={styles.changeAuthButton}>
+                                Create One
+                            </Link>
+                        </p>
                     </form>
                 </div>
             </div>

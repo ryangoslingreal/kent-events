@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
+import { createEvent, getMe } from "../../api";
+
 import Header from "../../components/layout/Header";
 import styles from "./CreateEvent.module.css";
 import searchicon from "../../assets/searchIcon.png";
-import { createEvent, getMe } from "../../api";
 import toast, { Toaster } from "react-hot-toast";
 
 function Field({ label, htmlFor, children }) {
@@ -15,40 +16,39 @@ function Field({ label, htmlFor, children }) {
     );
 }
 
+const initialForm = {
+    title: "",
+    subtitle: "",
+    description: "",
+    image: null,
+    image_mime: null,
+    event_date: "",
+    event_time: "",
+    location: "",
+    tags: [],
+    price: "",
+    repeat_event: "never",
+    available_contact: false
+}
+
 function CreateEvent() {
     const navigate = useNavigate();
-    const [formData, setFormData] = useState({
-        title: "",
-        subtitle: "",
-        description: "",
-        image: null,
-        image_mime: null,
-        event_date: "",
-        event_time: "",
-        location: "",
-        tags: [],
-        price: "",
-        repeat_event: "never",
-        available_contact: false,
-    });
+    const [formData, setFormData] = useState(initialForm);
 
     useEffect(() => {
-        const checkUserAuthentication = async() => {
+        async function checkUserAuthentication() {
             const authenticated = await getMe();
-            console.log(authenticated)
-            if (authenticated.message === "Not authenticated."){
+            
+            if (authenticated.error){
                 toast.error("Please sign in to use this feature")
                 setTimeout(() => navigate("/"), 1000);
             }
-           
         };
         checkUserAuthentication()
-
-    }, [])
+    }, [navigate])
 
     const handleInputChange = ({ target }) => {
-        const { name, value, type, checked } = target;
-
+        const { name, value, type, checked, files } = target;
         let nextValue = type === "checkbox" ? checked : value;
 
         if (name === "price") {
@@ -56,12 +56,12 @@ function CreateEvent() {
         }
 
         if (name === "image"){
-            console.log(target.files[0].type)
+            const selectedFile = files?.[0] ?? null;
             
             setFormData(prev => ({
                 ...prev,
-                image: target.files[0],
-                image_mime: target.files[0].type
+                image: selectedFile,
+                image_mime: selectedFile?.type ?? null
             }));
 
             return;
@@ -70,52 +70,35 @@ function CreateEvent() {
         if (name === "tags") {
             setFormData(prev => ({
                 ...prev,
-                // tags: [...prev.tags, value],
                 tags: value
             }));
+
             return;
         }
 
         setFormData(prev => ({
             ...prev,
-            [name]: nextValue,  
+            [name]: nextValue
         }));
     };
 
     const handleSubmit = async(e) => {
         e.preventDefault();
-        try{
-            const result = await createEvent(updatedForm);
-            
-            if (result.error){
-                 toast.error(result.error, {style: {background: '#05345C', color: 'white'}})
-            } else{
-                toast.success(result.message, {style: {background: '#05345C', color: 'white'}})
-            }
-            console.log("Form data:", formData);
-        } catch(error){
-            console.error(error)
+
+        const result = await createEvent(formData);
+
+        if (result.error){
+            toast.error(result.error, {style: {background: "#05345C", color: "white"}});
+            return;
         }
+
+        toast.success(result.message, {style: {background: "#05345C", color: "white"}});
     };
 
     const handleReset = () => {
-        const initialForm = {
-            title: "",
-            subtitle: "",
-            description: "",
-            image: null,
-            image_mime: null,
-            event_date: "",
-            event_time: "",
-            location: "",
-            tags: [],
-            price: "",
-            repeat_event: "never",
-            available_contact: false,
-        }
         setFormData(initialForm);
-
-        toast.success('Event form reset', {style: {background: '#05345C', color: 'white'}})    }
+        toast.success("Event form reset", {style: {background: "#05345C", color: "white"}});
+    };
 
     return (
         <>
@@ -125,7 +108,7 @@ function CreateEvent() {
                 toastOptions={{
                     style: {
                         fontFamily: "Overpass, Helvetica, Arial, sans-serif",
-                    },
+                    }
                 }}
             />
             <div className={styles.page}>
@@ -168,9 +151,13 @@ function CreateEvent() {
                             </Field>
 
                             <Field label={<>Select an image</>} htmlFor="image">
-                                <input type="file" accept="image/jpeg, image/png" name="image" onChange={handleInputChange} />
+                                <input
+                                    type="file"
+                                    accept="image/jpeg, image/png"
+                                    name="image"
+                                    onChange={handleInputChange} 
+                                />
                             </Field>
-
                         </section>
 
                         <section className={styles.section}>
@@ -223,11 +210,7 @@ function CreateEvent() {
                                         onChange={handleInputChange}
                                         aria-label="Search tags"
                                     />
-                                    <img
-                                        className={styles.searchIcon}
-                                        src={searchicon}
-                                        alt="Search"
-                                    />
+                                    <img className={styles.searchIcon} src={searchicon} alt="Search" />
                                 </div>
                             </Field>
 

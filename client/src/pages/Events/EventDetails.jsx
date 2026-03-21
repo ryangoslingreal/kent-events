@@ -1,11 +1,10 @@
-import styles from "./EventDetails.module.css";
-import homeStyles from "../Home/Home.module.css";
-import Header from "../../components/layout/Header"
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from 'react-router-dom';
-import { getEvent, getAllEvents } from "../../api";
+import { getEvent, getAllEvents, getEventImageUrl } from "../../api";
+
+import styles from "./EventDetails.module.css";
+import Header from "../../components/layout/Header"
 import toast, { Toaster } from "react-hot-toast";
-const API_BASE = "http://localhost:3001"
 
 function EventDetails() {
     const [otherEvents, setOtherEvents] = useState([])
@@ -15,75 +14,74 @@ function EventDetails() {
     const { id } = useParams();
 
     useEffect(() => {
-        const getEventData = async() => {
-            
-            const eventData = await getEvent(id)
-            let date = new Date(eventData.event_date);
-            console.log(eventData)
-            eventData.event_date = date.toLocaleDateString('en-GB', {
-                weekday: 'long',
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric'
-            });
-            
-            let time = eventData.event_time;
-            const [hours, minutes] = time.split(':');
-            eventData.event_time = `${hours}:${minutes}`
+        async function getEventData() {
+            const eventData = await getEvent(id);
 
-            setFormData(eventData)
-        }
-        getEventData()
-
-        //Get other events section
-        const getOtherEvents = async() => {
-            const data = await getAllEvents()
-            console.log(data)
-            let events = []
-            let otherEventLen = 5
-            if (5 > data.length){
-                otherEventLen = data.length
-            } 
-
-            for (let i=0; i<otherEventLen; i++){
-                let event = data[i]
-                if (String(event.id) === String(id)){
-                    console.log("Hitting")
-                    continue
-                }
-                //formatting date and time
-                const formattedDate = new Intl.DateTimeFormat("en-GB", {
-                    weekday: "short",
-                    month: "short",
-                    day: "numeric",
-                }).format(new Date(data[i].event_date));
-                
-                const [h, m] = data[i].event_time.split(":").map(Number);
-                const d = new Date();
-                d.setHours(h, m, 0, 0);
-                const formattedTime = new Intl.DateTimeFormat("en-US", {
-                    hour: "numeric",    
-                    minute: "2-digit",
-                    hour12: true,
-                }).format(d);
-
-                event.event_time = formattedTime
-                event.event_date = formattedDate
-
-                events.push(event)
+            if (eventData.error) {
+                setFormData({});
+                return;
             }
-            setOtherEvents(events)
-            
+
+            const date = new Date(eventData.event_date);
+            const [hours, minutes] = eventData.event_time.split(':');
+
+            setFormData({
+                ...eventData,
+                event_date: date.toLocaleDateString("en-GB", {
+                    weekday: "long",
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric"
+                }),
+                event_time: `${hours}:${minutes}`
+            });
         }
-        getOtherEvents()
-    }, [])
+
+        async function getOtherEvents() {
+            const data = await getAllEvents();
+
+            if (data.error) {
+                setOtherEvents([]);
+                return;
+            }
+
+            const events = data
+                .filter((event) => String(event.id) !== String(id))
+                .slice(0, 5)
+                .map((event) => {
+                    const formattedDate = new Intl.DateTimeFormat("en-GB", {
+                        weekday: "short",
+                        month: "short",
+                        day: "numeric"
+                    }).format(new Date(event.event_date));
+                    
+                    const [h, m] = event.event_time.split(":").map(Number);
+
+                    const formattedTime = new Intl.DateTimeFormat("en-US", {
+                        hour: "numeric",    
+                        minute: "2-digit",
+                        hour12: true
+                    }).format(new Date().setHours(h, m, 0, 0));
+
+                    return {
+                        ...event,
+                        event_time: formattedTime,
+                        event_date: formattedDate
+                    };
+                });
+
+            setOtherEvents(events)
+        }
+
+        getEventData();
+        getOtherEvents();
+    }, [id]);
 
     const eventDetail = (eventId) => {
-        navigate(`/events/detail/${eventId}`)
-        window.location.reload();
+        navigate(`/events/detail/${eventId}`);
     }
 
-    return(
+    return (
         <>
             <Header /> 
             <div className={styles.page}>
@@ -92,11 +90,15 @@ function EventDetails() {
                     toastOptions={{
                         style: {
                             fontFamily: "Overpass, Helvetica, Arial, sans-serif",
-                        },
+                        }
                     }}
                 />
                 <div className={styles.eventHeader}>
-                    <img className={styles.eventHeaderImg} src={`${API_BASE}/api/events/${formData.imageUrl}`}></img>
+                    <img
+                        className={styles.eventHeaderImg}
+                        src={getEventImageUrl(formData.imageUrl)}
+                        alt={formData.title}
+                    />
                     <div className={styles.eventHeaderOverlay} />
                     <div className={styles.eventHeaderContent}>
                         <h2 className={styles.title}>{formData.title}</h2>
@@ -111,12 +113,11 @@ function EventDetails() {
                         </div>
                         <div className={styles.tags}>
                             <h3>Tags</h3>
-                            {/* <a>{formData.tags}</a> */}
-                            <a>Food</a>
-                            <a>Sports</a>
-                            <a>Drinking</a>
+                            <span>Food </span>
+                            <span>Sports </span>
+                            <span>Drinking </span>
                         </div>
-                        {formData.available_contact === 1 ? (
+                        {formData.available_contact ? (
                             <div className={styles.contact}>
                                 <h3>Who to contact</h3>
                                 <p>example@email.co.uk</p>
@@ -128,8 +129,12 @@ function EventDetails() {
                             <h3>Other events you may like</h3>
                             <div className={styles.otherEventsScroller}>
                                 {otherEvents.map((event) => (
-                                    <div className={styles.eventCard} onClick={() => eventDetail(event.id)}>
-                                        <img className={styles.eventImage} src={`${API_BASE}/api/events/${event.imageUrl}`}/>
+                                    <div key={event.id} className={styles.eventCard} onClick={() => eventDetail(event.id)}>
+                                        <img
+                                            className={styles.eventImage}
+                                            src={getEventImageUrl(event.imageUrl)}
+                                            alt={event.title}
+                                        />
                                         <div className={styles.overlay} />
                                         <h4 className={styles.eventTitle}>{event.title}</h4>
                                     </div>

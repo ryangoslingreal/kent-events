@@ -1,113 +1,121 @@
-
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { getAllEvents } from "../../api"
+import { useNavigate } from "react-router-dom";
+import { getAllEvents, getEventImageUrl } from "../../api"
+
 import Header from "../../components/layout/Header"
 import styles from "./Home.module.css"
+
 function Home(){
-    const [activeFilter, setActiveFilter] = useState("All")
-    const [allEvents, setAllEvents] = useState([])
-    const [rawEvents, setRawEvents] = useState([])
+    const [activeFilter, setActiveFilter] = useState("All");
+    const [allEvents, setAllEvents] = useState([]);
+    const [rawEvents, setRawEvents] = useState([]);
     const [filters, setFilters] = useState({
         filterDate: "any",
         filterPrice: "any"
-    })
+    });
     const navigate = useNavigate();
 
-    const API_BASE = "http://localhost:3001"
     useEffect (() => {
-        const getHomeEvents = async() => {
-            let events = []
-            const data = await getAllEvents()
-            // console.log(data[0].event_time)
+        async function getHomeEvents() {
+            const data = await getAllEvents();
+
+            if (data.error) {
+                setAllEvents([]);
+                setRawEvents([]);
+                return;
+            }
             
-            for (let i=0; i<data.length; i++){
-                console.log(data[i].event_date)
-                //formatting date and time
+            const events = data.map((item) => {
                 const formattedDate = new Intl.DateTimeFormat("en-GB", {
                     weekday: "short",
                     month: "short",
-                    day: "numeric",
-                }).format(new Date(data[i].event_date));
+                    day: "numeric"
+                }).format(new Date(item.event_date));
                 
-                const [h, m] = data[i].event_time.split(":").map(Number);
-                const d = new Date();
-                d.setHours(h, m, 0, 0);
+                const [h, m] = item.event_time.split(":").map(Number);
+
                 const formattedTime = new Intl.DateTimeFormat("en-US", {
                     hour: "numeric",
                     minute: "2-digit",
-                    hour12: true,
-                }).format(d);
+                    hour12: true
+                }).format(new Date().setHours(h, m, 0, 0));
 
-                let event = { 
-                    id: data[i].id,
-                    image: data[i].image, 
-                    imageUrl: data[i].imageUrl, 
+                return { 
+                    id: item.id,
+                    image: item.image, 
+                    imageUrl: item.imageUrl, 
                     time: formattedTime,
                     date: formattedDate,
-                    event_date: data[i].event_date,
-                    location: data[i].location,
-                    price: data[i].price,
-                    title: data[i].title,
-                    tags: data[i].tags,
-                }
-                events.push(event)
-            }
-            setAllEvents(events)
-            setRawEvents(events)
-            console.log(data);
+                    event_date: item.event_date,
+                    location: item.location,
+                    price: item.price,
+                    title: item.title,
+                    tags: item.tags,
+                };
+            });
+
+            setAllEvents(events);
+            setRawEvents(events);
         }
-        getHomeEvents()
-    }, [])
+        
+        getHomeEvents();
+    }, []);
 
     function handleChange(e){
-        console.log(e)
         const {name, value} = e.target; 
         setFilters((prev) => ({...prev, [name]: value }))
     }
 
     function handleSubmit(e){
-        e.preventDefault()   //prevents refreshing page
+        e.preventDefault();
+
         const now = new Date(); 
 
         const endOfWeek = new Date(now);
-        endOfWeek.setDate(now.getDate() + (7 - now.getDate()));
+        endOfWeek.setDate(now.getDate() + (7 - now.getDay()));
         endOfWeek.setHours(23, 59, 59, 999);
 
-        const monthFromNow = new Date(Date.now())
-        monthFromNow.setMonth(monthFromNow.getMonth() + 1);
-        monthFromNow.setDate(0);
-        monthFromNow.setHours(23, 59, 59, 999)
+        const endOfMonth = new Date(Date.now())
+        endOfMonth.setMonth(endOfMonth.getMonth() + 1);
+        endOfMonth.setDate(0);
+        endOfMonth.setHours(23, 59, 59, 999)
 
-        
-        const day = now.getDay(); // 0=Sun, 6=Sat
-        const daysUntilSat = (6 - day)
         const weekendStart = new Date(now);
-        weekendStart.setDate(now.getDate() + daysUntilSat);
+        weekendStart.setDate(now.getDate() + ((6 - now.getDay() + 7) % 7)); // 0=Sun, 6=Sat
         weekendStart.setHours(0, 0, 0, 0);
+
         const weekendEnd = new Date(weekendStart);
-        weekendEnd.setDate(weekendStart.getDate() + 1); // Sunday end
+        weekendEnd.setDate(weekendStart.getDate() + 1);
         weekendEnd.setHours(23, 59, 59, 999);
 
- 
-        let filtered = rawEvents.filter((event) => {
-            const event_date = new Date(event.event_date)
-            
-            console.log(event_date, monthFromNow)
-            console.log(filters.filterDate)
-            if (filters.filterDate === "week" && event_date > endOfWeek){return false;} 
-            if (filters.filterDate === "month" && event_date > monthFromNow) {return false;}
-            if (filters.filterDate === "weekend" && !(event_date <= weekendEnd && event_date >= weekendStart)){return false;}
-            if (filters.filterPrice === "free" && event.price !== '0.00'){return false;}
-            if (filters.filterPrice === "paid" && event.price === '0.00'){return false;}
-            return true
-        })
-        setAllEvents(filtered);
+        const filteredEvents = rawEvents.filter((event) => {
+            const eventDate = new Date(event.event_date);
+            const isFree = Number(event.price) === 0;
 
+            const matchesDate = 
+                filters.filterDate === "week"
+                    ? eventDate <= endOfWeek
+                    : filters.filterDate === "month"
+                        ? eventDate <= endOfMonth
+                        : filters.filterDate === "weekend"
+                            ? eventDate >= weekendStart && eventDate <= weekendEnd
+                            : true;
+
+            const matchesPrice = 
+                filters.filterPrice === "free"
+                    ? isFree
+                    : filters.filterPrice === "paid"
+                        ? !isFree
+                        : true;
+
+            return matchesDate && matchesPrice;
+        });
+
+        setAllEvents(filteredEvents);
     }
 
-    function eventDetail(eventId){
-        navigate(`/events/detail/${eventId}`)
+    function eventDetail(eventId) {
+        navigate(`/events/detail/${eventId}`);
     }
 
     return(
@@ -121,30 +129,56 @@ function Home(){
                                 <h2>Discover <span className = {styles.gold}>events</span> on campus for you</h2>
                                 <h4 className={styles.filterSubtitle}>Browse events, save you favourites, and share plans</h4>
                                 <div className={styles.filterParent} >
-                                    <a className={`${styles.eventFilter} ${activeFilter === "All" ? styles.active : ""}`} onClick={() => setActiveFilter("All")}>All</a>
-                                    <a className={`${styles.eventFilter} ${activeFilter === "University" ? styles.active : ""}`} onClick={() => setActiveFilter("University")}>University events</a>
-                                    <a className={`${styles.eventFilter} ${activeFilter === "Society" ? styles.active : ""}`} onClick={() => setActiveFilter("Society")}>Society events</a>
-                                    <a className={`${styles.eventFilter} ${activeFilter === "Student" ? styles.active : ""}`} onClick={() => setActiveFilter("Student")}>Student ran events</a>
+                                    <a
+                                        className={`${styles.eventFilter} ${activeFilter === "All" ? styles.active : ""}`}
+                                        onClick={() => setActiveFilter("All")}
+                                    >
+                                        All
+                                    </a>
+                                    <a
+                                        className={`${styles.eventFilter} ${activeFilter === "University" ? styles.active : ""}`}
+                                        onClick={() => setActiveFilter("University")}
+                                    >
+                                        University events
+                                    </a>
+                                    <a
+                                        className={`${styles.eventFilter} ${activeFilter === "Society" ? styles.active : ""}`}
+                                        onClick={() => setActiveFilter("Society")}
+                                    >
+                                        Society events
+                                    </a>
+                                    <a
+                                        className={`${styles.eventFilter} ${activeFilter === "Student" ? styles.active : ""}`}
+                                        onClick={() => setActiveFilter("Student")}
+                                    >
+                                        Student ran events
+                                    </a>
                                 </div>
                             </div>
-                            {allEvents[0] ? (
-                                <div className={styles.featuredEvent} style={{
-                                    //Fades background image at the bottom
-                                    backgroundImage:`    
-                                        linear-gradient(   
+                            
+                            { allEvents[0] ? (
+                                <div className={styles.featuredEvent}
+                                    style={{ // Fades background image at the bottom
+                                    backgroundImage: `
+                                        linear-gradient(
                                             to top,
                                             rgba(0,0,0,0.85) 0%,
                                             rgba(0,0,0,0.6) 40%,
                                             rgba(0,0,0,0.2) 70%,
                                             transparent 100%
                                         ),
-                                        url(${API_BASE}/api/events/${allEvents[0].imageUrl})`,
+                                        url(${getEventImageUrl(allEvents[0].imageUrl)})
+                                        `,
                                         backgroundSize: "cover",
                                         backgroundPosition: "center"
-                                    }}>
+                                    }}
+                                >
                                     <h3>{allEvents[0].title}</h3>
-                                    <p>{allEvents[0].date} - {allEvents[0].time} - {allEvents[0].location} - £{allEvents[0].price} </p>
-                                    <button onClick={() => navigate(`/events/detail/${allEvents[0].id}`)}>View Details</button>
+                                    <p>{allEvents[0].date} - {allEvents[0].time} - {allEvents[0].location} - £{allEvents[0].price}</p>
+
+                                    <button onClick={() => navigate(`/events/detail/${allEvents[0].id}`)}>
+                                        View Details
+                                    </button>
                                 </div>
                                 ) : (
                                 <div className={styles.featuredEvent}>
@@ -153,9 +187,11 @@ function Home(){
                             )}
                         </div>
                     </div>
+
                     <div className={styles.filter_Events}>
-                        <form onSubmit={handleSubmit}className={styles.filter}>
+                        <form onSubmit={handleSubmit} className={styles.filter}>
                             <h3>Filters</h3>
+
                             <label>Date</label>
                             <select className={styles.select} name="filterDate" onChange={handleChange}>
                                 <option value="any">Anytime</option>
@@ -170,22 +206,30 @@ function Home(){
                                 <option value="free">Free</option>
                                 <option value="paid">Paid</option>
                             </select>
+
                             <button type="submit">Submit</button>
                         </form>
+
                         <div className={styles.events}>
                             <h3>Popular events</h3>
                             <div className={styles.eventList}>
-                                {allEvents.map((event) => (
-                                    <div className={styles.eventCard} onClick={() => eventDetail(event.id)}>
+                                { allEvents.map((event) => (
+                                    <div key={event.id} className={styles.eventCard} onClick={() => eventDetail(event.id)}>
                                         <div className={styles.imageWrapper}>
-                                            <img className={styles.eventImage} src={`${API_BASE}/api/events/${event.imageUrl}`}/>
+                                            <img 
+                                                className={styles.eventImage}
+                                                src={getEventImageUrl(event.imageUrl)}
+                                                alt={event.title}
+                                            />
                                             {event.id === allEvents[0].id && (
                                                 <span className={styles.badge}>featured</span>
                                             )}
-                                            
                                         </div>
+
                                         <div className={styles.eventContent}>
-                                            <p className={styles.eventDetails}>{event.date} - {event.time} - {event.price === 0.00 ? "Free" : `£${event.price}`}</p>
+                                            <p className={styles.eventDetails}>
+                                                {event.date} - {event.time} - {Number(event.price) === 0.00 ? "Free" : `£${event.price}`}
+                                            </p>
                                             <h4 className={styles.eventTitle}>{event.title}</h4>
                                             <p className={styles.location_tag}>
                                                 {event.location}
@@ -193,20 +237,16 @@ function Home(){
                                                     <span className={styles.tag}>{event.tags}</span>
                                                 )}
                                             </p>
-
                                         </div>
                                     </div>
-                                    
-                                    
                                 ))}
                             </div>
                         </div>
                     </div>
-
                 </div>
             </div>
         </>
-    )
+    );
 }
 
 export default Home;  
