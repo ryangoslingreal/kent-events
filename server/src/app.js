@@ -32,12 +32,7 @@ app.use(session({
     httpOnly: true,
     maxAge: 24 * 60 * 60 * 1000 // 24 hours
   }
-}))
-
-// Health check
-app.get("/api/health", (req, res) => {
-  res.json({ ok: true });
-});
+}));
 
 // Mount feature routes
 registerRoutes(app);
