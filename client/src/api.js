@@ -16,6 +16,9 @@ function toFormData(payload) {
 		}
 
 		if (Array.isArray(v)) {
+			v.forEach(item => formData.append(k, item));
+			return;
+		} else {
 			formData.append(k, JSON.stringify(v));
 			return;
 		}

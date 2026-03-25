@@ -53,7 +53,7 @@ export function applyEventInputChange(setFormData) {
         if (name === "tags") {
             setFormData(prev => ({
                 ...prev,
-                tags: value
+                tags: [value]
             }));
 
             return null;
