@@ -19,50 +19,9 @@ function EventDetails() {
         async function getEventData() {
             const eventData = await getEvent(id);
 
-<<<<<<< HEAD:client/src/pages/Events/EventDetails.jsx
             if (eventData.error) {
                 setFormData({});
                 return;
-=======
-            setFormData(eventData)
-        }
-        getEventData()
-
-        //Get other events section
-        const getOtherEvents = async() => {
-            const data = await getAllEvents()
-            let events = []
-            let otherEventLen = 5
-            if (5 > data.length){
-                otherEventLen = data.length
-            } 
-
-            for (let i=0; i<otherEventLen; i++){
-                let event = data[i]
-                if (String(event.id) === String(id)){
-                    continue
-                }
-                //formatting date and time
-                const formattedDate = new Intl.DateTimeFormat("en-GB", {
-                    weekday: "short",
-                    month: "short",
-                    day: "numeric",
-                }).format(new Date(data[i].event_date));
-                
-                const [h, m] = data[i].event_time.split(":").map(Number);
-                const d = new Date();
-                d.setHours(h, m, 0, 0);
-                const formattedTime = new Intl.DateTimeFormat("en-US", {
-                    hour: "numeric",    
-                    minute: "2-digit",
-                    hour12: true,
-                }).format(d);
-
-                event.event_time = formattedTime
-                event.event_date = formattedDate
-
-                events.push(event)
->>>>>>> 3e9df8e (feat: removing console logs):client/src/pages/EventDetails/EventDetails.jsx
             }
 
             setFormData(mapEventToDetails(eventData));
@@ -97,16 +56,22 @@ function EventDetails() {
             <Header /> 
             <div className={styles.page}>
                 <div className={styles.eventHeader}>
-                    <img
-                        className={styles.eventHeaderImg}
-                        src={getEventImageUrl(formData.imageUrl)}
-                        alt={formData.title}
-                    />
+                    {formData.source !== 'ksu' && formData.source !== 'kentUni' ? (
+                        <img
+                            className={styles.eventHeaderImg}
+                            src={getEventImageUrl(formData.imageUrl)}
+                            alt={formData.title}
+                        />
+                    ) : formData.background_event_image_url ? (
+                        <img className={styles.eventHeaderImg} src={formData.background_event_image_url} />
+                    ) : (
+                        <img className={styles.eventHeaderImg} src={formData.image_url} />
+                    )}
                     <div className={styles.eventHeaderOverlay} />
                     <div className={styles.eventHeaderContent}>
                         <h2 className={styles.title}>{formData.title}</h2>
                         <p className={styles.eventOrganiser}>
-                            Organised by <span>Spanish Society</span> · University of Kent
+                            Organised by <span>{formData.source === 'ksu' ? "KSU" : "individual"}</span> · University of Kent
                         </p>
                     </div>
                 </div>
@@ -114,13 +79,17 @@ function EventDetails() {
                     <div className={styles.centerInfo}>
                         <div className={styles.descriptionWrapper}>
                             <h3>About this event</h3>
-                            <p>{formData.description}</p>
+                            {formData.source === 'ksu' || formData.source === 'kentUni' ? (
+                                <div dangerouslySetInnerHTML={{ __html: formData.description }} />
+                            ) : (
+                                <p>{formData.description}</p>
+                            )}
                         </div>
                         <div className={styles.tags}>
                             <h3>Tags</h3>
-                            <a>Food </a>
-                            <a>Sports </a>
-                            <a>Drinking </a>
+                            {(formData.tags ?? []).map((tag) => (
+                                <a>{tag}</a>
+                            ))}
                         </div>
                         {formData.available_contact ? (
                             <div className={styles.contact}>
@@ -133,11 +102,15 @@ function EventDetails() {
                             <div className={styles.otherEventsScroller}>
                                 {otherEvents.map((event) => (
                                     <div key={event.id} className={styles.eventCard} onClick={() => eventDetail(event.id)}>
+                                        {event.source === 'ksu' || event.source === 'kentUni' ? (
+                                            <img className={styles.eventImage} src={event.image_url}></img>
+                                        ) : (
                                         <img
                                             className={styles.eventImage}
                                             src={getEventImageUrl(event.imageUrl)}
                                             alt={event.title}
                                         />
+                                        )}
                                         <div className={styles.overlay} />
                                         <h4 className={styles.eventTitle}>{event.title}</h4>
                                     </div>
@@ -174,35 +147,41 @@ function EventDetails() {
                                 <p className={styles.dtl_value}>{formData.location}</p>
                             </div>
                         </div>
-                        <div className={styles.spotsBar}>
-                            <div className={styles.barTrack}>
-                                <div className={styles.barFill} style={{ width: "74%" }}></div>
+                        {formData.ticket_url ? (
+                            <>
+                            <div className={styles.spotsBar}>
+                                <div className={styles.barTrack}>
+                                    <div className={styles.barFill} style={{ width: "74%" }}></div>
+                                </div>
+                                <div className={styles.spotsText}>
+                                    <p>178 registered</p>
+                                    <p>62 spots left</p>
+                                </div>
                             </div>
-                            <div className={styles.spotsText}>
-                                <p>178 registered</p>
-                                <p>62 spots left</p>
-                            </div>
-                        </div>
 
-                        <div className={styles.ticketType}>
-                            <p className={styles.ticketTypeHeader}>Select Ticket Type</p>
-                            <div
-                                className={`${styles.ticketCard} ${selected === "student" ? styles.selected : ""}`}
-                                onClick={() => setSelected("student")}
-                            >
-                                <p className={styles.ticketTitle}>University of Kent students</p>
-                                <p className={styles.ticketPrice}>£3</p>
+                            <div className={styles.ticketType}>
+                                <p className={styles.ticketTypeHeader}>Select Ticket Type</p>
+                                <div
+                                    className={`${styles.ticketCard} ${selected === "student" ? styles.selected : ""}`}
+                                    onClick={() => setSelected("student")}
+                                >
+                                    <p className={styles.ticketTitle}>University of Kent students</p>
+                                    <p className={styles.ticketPrice}>£3</p>
+                                </div>
+                                <div
+                                    className={`${styles.ticketCard} ${selected === "member" ? styles.selected : ""}`}
+                                    onClick={() => setSelected("member")}
+                                >
+                                    <p className={styles.ticketTitle}>Society Members</p>
+                                    <p className={styles.ticketPrice}>Free</p>
+                                </div>
+                                <button className={styles.register}>Register Now →</button>
+                                <button className={styles.save}>Save event</button>
                             </div>
-                            <div
-                                className={`${styles.ticketCard} ${selected === "member" ? styles.selected : ""}`}
-                                onClick={() => setSelected("member")}
-                            >
-                                <p className={styles.ticketTitle}>Society Members</p>
-                                <p className={styles.ticketPrice}>Free</p>
-                            </div>
-                            <button className={styles.register}>Register Now →</button>
-                            <button className={styles.save}>Save event</button>
-                        </div>
+                            </>
+                        ) : (
+                            <></>
+                        )}
                         
                         <div className={styles.shareEvent}>
                             <p className={styles.shareLabel}>Share Event</p>
