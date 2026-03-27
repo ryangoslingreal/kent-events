@@ -157,7 +157,7 @@ router.get("/get-all-events", async(req, res) => {
         //This sends the image url to the frontend
         const events = result.map((event) => ({
             ...event,
-            imageUrl: `${event.id}/image`, 
+            internalImageUrl: `${event.id}/image`, 
             image: undefined             //done to reduce how much is being sent back
         }))
 
