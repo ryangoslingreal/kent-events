@@ -51,3 +51,15 @@ if (require.main === module) {
     console.log(`Server listening on http://0.0.0.0:${port}`);
   });
 }
+
+(async () => {
+    try {
+        console.log('Initial scrape KSU starting...');
+        const ksuEvents = await scrapeKSU();
+        await eventsRepo.saveKSUEvents(ksuEvents);
+        console.log(`Initial scrape done - saved ${ksuEvents.length} events`);
+    } catch (err) {
+        console.error('Initial scrape failed:', err.message);
+    }
+})();
+

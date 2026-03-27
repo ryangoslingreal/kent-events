@@ -92,7 +92,12 @@ async function scrape() {
 
             const background_event_image_url = document.querySelector('.w-100.border.rounded.ku-aspect-16-9.shadow.mb-3')?.getAttribute('src'); 
 
-            return { description, location, background_event_image_url };
+            const tags = Array.from(document.querySelectorAll('#eventCategories .badge'))    //grabs all tags and turns them into an array
+                .map(el => el.innerText.trim());
+
+            const ticket_url = document.querySelector('.btn.ku-btn-green.p-4.mb-3')?.getAttribute('href') || null;
+
+            return { description, location, background_event_image_url, tags, ticket_url };
         });
 
         fullEvents.push({
