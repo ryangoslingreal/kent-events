@@ -19,9 +19,50 @@ function EventDetails() {
         async function getEventData() {
             const eventData = await getEvent(id);
 
+<<<<<<< HEAD:client/src/pages/Events/EventDetails.jsx
             if (eventData.error) {
                 setFormData({});
                 return;
+=======
+            setFormData(eventData)
+        }
+        getEventData()
+
+        //Get other events section
+        const getOtherEvents = async() => {
+            const data = await getAllEvents()
+            let events = []
+            let otherEventLen = 5
+            if (5 > data.length){
+                otherEventLen = data.length
+            } 
+
+            for (let i=0; i<otherEventLen; i++){
+                let event = data[i]
+                if (String(event.id) === String(id)){
+                    continue
+                }
+                //formatting date and time
+                const formattedDate = new Intl.DateTimeFormat("en-GB", {
+                    weekday: "short",
+                    month: "short",
+                    day: "numeric",
+                }).format(new Date(data[i].event_date));
+                
+                const [h, m] = data[i].event_time.split(":").map(Number);
+                const d = new Date();
+                d.setHours(h, m, 0, 0);
+                const formattedTime = new Intl.DateTimeFormat("en-US", {
+                    hour: "numeric",    
+                    minute: "2-digit",
+                    hour12: true,
+                }).format(d);
+
+                event.event_time = formattedTime
+                event.event_date = formattedDate
+
+                events.push(event)
+>>>>>>> 3e9df8e (feat: removing console logs):client/src/pages/EventDetails/EventDetails.jsx
             }
 
             setFormData(mapEventToDetails(eventData));
