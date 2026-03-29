@@ -8,12 +8,12 @@ function defaultEventPayload(overrides = {}) {
         subtitle: "Test Subtitle",
         description: "Test Description",
         image_mime: "image/png",
-        event_date: "2077-01-01",
-        event_time: "11:35",
-        location: "Canterbury",
+        event_date: "2077-05-01",
+        event_time: "12:00",
+        location: "Test Location",
         tags: "vitest",
         price: "0",
-        repeat_event: "false",
+        repeat_event: "never",
         available_contact: "true",
         ...overrides
     }
@@ -36,18 +36,18 @@ async function sendMultipart(req, payload = {}, image = null) {
     return { res };
 }
 
-async function createTestEvent(app, payload = {}, image = null) {
+async function createTestEvent(agent, payload = {}, image = null) {
     return sendMultipart(
-        request(app)
+        agent
             .post("/api/events/create-event"), 
         defaultEventPayload(payload), 
         image
     );
 }
 
-async function updateTestEvent(app, eventId, payload = {}, image = null) {
+async function updateTestEvent(agent, eventId, payload = {}, image = null) {
     return sendMultipart(
-        request(app)
+        agent
             .put("/api/events/update-event")
             .query({ eventId }),
         defaultEventPayload(payload),
@@ -55,24 +55,24 @@ async function updateTestEvent(app, eventId, payload = {}, image = null) {
     );
 }
 
-async function deleteTestEvent(app, eventId) {
-    const res = await request(app)
+async function deleteTestEvent(agent, eventId) {
+    const res = await agent
         .delete("/api/events/delete-event")
         .query({ eventId });
 
     return { res };
 }
 
-async function getEvent(app, eventId) {
-    const res = await request(app)
+async function getEvent(agent, eventId) {
+    const res = await agent
         .get("/api/events/get-event")
         .query({ eventId });
 
     return { res };
 }
 
-async function getUserMadeEvents(app) {
-    const res = await request(app)
+async function getUserMadeEvents(agent) {
+    const res = await agent
         .get("/api/events/get-user-made-events");
 
     return { res };

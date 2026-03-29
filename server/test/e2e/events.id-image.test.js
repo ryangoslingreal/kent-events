@@ -4,10 +4,10 @@ const { cleanupTestUsers, cleanupTestEvents } = require("../helpers/dbTestingUti
 const { } = require("../helpers/authTestingUtils.js");
 const { } = require("../helpers/eventsTestingUtils.js");
 
-describe.sequential("api/events/update-event", () => {
+describe.sequential("api/events/:id/image", () => {
     let app;
     let agent;
-
+        
     // Import app before each test
     beforeEach( async () => {
         app = (await import("../../src/app.js")).default;
@@ -20,31 +20,15 @@ describe.sequential("api/events/update-event", () => {
         await cleanupTestEvents();
     });
 
-    it.todo("returns 200 and updates existing event", async () => {
+    it.todo("returns 200 with image for valid `eventId`", async () => {
         
     });
 
-    it.todo("returns 200 and updates event without an image", async () => {
+    it.todo("returns 404 when event does not exist", async () => {
         
     });
 
-    it.todo("returns 200 and updates event with a new image", async () => {
-        
-    });
-
-    it.todo("returns 400 when missing or invalid `eventId` is provided", async () => {
-        
-    });
-
-    it.todo("returns 401 when user is not authenticated", async () => {
-        
-    });
-
-    it.todo("returns 403 for unauthorized update by a different user", async () => {
-        
-    });
-
-    it.todo("returns 404 for non-existent event", async () => {
+    it.todo("returns 404 when event has no image", async () => {
         
     });
 });

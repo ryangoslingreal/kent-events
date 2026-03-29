@@ -1,10 +1,5 @@
-const request = require("supertest");
 const crypto = require("crypto");
 const inbox = require("./emailInbox.js");
-
-function createTestAgent(app) {
-    return request.agent(app);
-}
 
 const TEST_PREFIX = process.env.TEST_PREFIX;
 const TEST_DOMAIN = process.env.TEST_DOMAIN;
@@ -68,7 +63,6 @@ async function logoutTestUser(agent) {
 }
 
 module.exports = {
-    createTestAgent,
     makeTestEmail,
     registerTestUser,
     verifyTestUser,
