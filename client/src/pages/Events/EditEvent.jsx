@@ -1,8 +1,11 @@
-import { useState } from "react";
-import Header from "../../components/layout/Header";
-import styles from "./CreateEvent.module.css";
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from 'react-router-dom';
+import { getEvent, deleteEvent, updateEvent } from "../../api";
+
 import searchicon from "../../assets/searchIcon.png";
-import { createEvent } from "../../api";
+import Header from "../../components/layout/Header.jsx";
+import styles from "./EditEvent.module.css";
+import toast, { Toaster } from "react-hot-toast";
 
 function Field({ label, htmlFor, children }) {
     return (
@@ -13,7 +16,9 @@ function Field({ label, htmlFor, children }) {
     );
 }
 
-function CreateEvent() {
+function EditEvent(){
+    const { id } = useParams();
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         title: "",
         subtitle: "",
@@ -26,12 +31,12 @@ function CreateEvent() {
         tags: [],
         price: "",
         repeat_event: "never",
-        available_contact: false,
+        available_contact: false
     });
+    const [selectedFile, setSelectedFile] = useState();
 
     const handleInputChange = ({ target }) => {
-        const { name, value, type, checked } = target;
-
+        const { name, value, type, checked, files } = target;
         let nextValue = type === "checkbox" ? checked : value;
 
         if (name === "price") {
@@ -39,68 +44,100 @@ function CreateEvent() {
         }
 
         if (name === "image"){
-            console.log(target.files[0].type)
-            
+            const selectedFile = files?.[0] ?? null;
+
             setFormData(prev => ({
                 ...prev,
-                image: target.files[0],
-                image_mime: target.files[0].type
+                image: selectedFile,
+                image_mime: selectedFile?.type ?? prev.image_mime
             }));
 
+            setSelectedFile(selectedFile);
             return;
         }
         
         if (name === "tags") {
             setFormData(prev => ({
                 ...prev,
-                // tags: [...prev.tags, value],
                 tags: value
             }));
+
             return;
         }
 
         setFormData(prev => ({
             ...prev,
-            [name]: nextValue,  
+            [name]: nextValue
         }));
     };
 
     const handleSubmit = async(e) => {
         e.preventDefault();
-        // const result = await createEvent(formData.title, formData.subtitle, formData.description, formData.date, formData.time, formData.location, formData.tag, formData.price, formData.repeat, formData.contactInfo)
-        const result = await createEvent(formData);
+
+        const payload = {...formData};
+        
+        if (selectedFile) {
+            payload.image = selectedFile;
+        } else {
+            delete payload.image;
+            delete payload.image_mime;
+        }
+        
+        const result = await updateEvent(id, payload);
 
         if (result.error){
-            alert(result.error)
-        } else{
-            alert(result.message)
+            toast.error(result.error, {style: {background: "#05345C", color: "white"}});
+            return;
         }
-        console.log("Form data:", formData);
+        
+        toast.success(result.message, {style: {background: "#05345C", color: "white"}});
     };
 
-    const handleReset = () => {
-        const initialForm = {
-            title: "",
-            subtitle: "",
-            description: "",
-            image: null,
-            image_mime: null,
-            event_date: "",
-            event_time: "",
-            location: "",
-            tags: [],
-            price: "",
-            repeat_event: "never",
-            available_contact: false,
-        }
-        setFormData(initialForm);
+    const handleDeleteEvent = async(e) => {
+        const result = await deleteEvent(id);
 
-        alert("Page reset")
-    }
+        if (result.error){
+            toast.error(result.error, {style: {background: "#05345C", color: "white"}});
+            return;
+        }
+        
+        toast.success(result.message, {style: {background: "#05345C", color: "white"}});
+        setTimeout(() => navigate("/"), 1000);
+    };
+
+    useEffect(() => {
+        async function getEventData() {
+            const data = await getEvent(id);
+
+            if (data.error) {
+                toast.error(data.error, {style: {background: "#05345C", color: "white"}});
+                return;
+            }
+
+            const normalizedEvent = {
+                ...data,
+                event_time: data.event_time.toString().slice(0, 5),
+                event_date: data.event_date.slice(0, 10),
+                available_contact: data.available_contact == 1
+            };
+
+            setFormData(normalizedEvent);
+        }
+
+        getEventData();
+    }, [id]);
 
     return (
         <>
             <Header />
+            <Toaster 
+                position="bottom-right"
+                toastOptions={{
+                    style: {
+                        fontFamily: "Overpass, Helvetica, Arial, sans-serif",
+                    }
+                }}
+            />
             <div className={styles.page}>
                 <div className={styles.card}>
                     <form className={styles.form} onSubmit={handleSubmit}>
@@ -140,10 +177,21 @@ function CreateEvent() {
                                 />
                             </Field>
 
-                            <Field label={<>Select an image</>} htmlFor="image">
-                                <input type="file" accept="image/jpeg, image/png" name="image" onChange={handleInputChange} />
+                            <Field label="Select an image" htmlFor="image">
+                                <label htmlFor="image" className={styles.image}>
+                                    {selectedFile ? selectedFile.name : formData.image ? "Choose new image" : "Select Image"}
+                                </label>
+                                <div>
+                                    <input
+                                        id="image"
+                                        type="file"
+                                        accept="image/jpeg, image/png"
+                                        name="image"
+                                        onChange={handleInputChange}
+                                        hidden // This is hidden due to me wanting to change the text next to the input image box
+                                    />
+                                </div>
                             </Field>
-
                         </section>
 
                         <section className={styles.section}>
@@ -196,11 +244,7 @@ function CreateEvent() {
                                         onChange={handleInputChange}
                                         aria-label="Search tags"
                                     />
-                                    <img
-                                        className={styles.searchIcon}
-                                        src={searchicon}
-                                        alt="Search"
-                                    />
+                                    <img className={styles.searchIcon} src={searchicon} alt="Search" />
                                 </div>
                             </Field>
 
@@ -229,8 +273,8 @@ function CreateEvent() {
                                     required
                                 >
                                     <option value="never">Never</option>
+                                    <option value="daily">Every day</option>
                                     <option value="weekly">Weekly</option>
-                                    <option value="monthly">Monthly</option>
                                 </select>
                             </Field>
 
@@ -250,11 +294,11 @@ function CreateEvent() {
                         </section>
 
                         <div className={styles.formButton}>
-                            <button type="button" className={styles.saveForm} onClick={() => handleReset()}>
-                                Delete
+                            <button type="button" className={styles.saveForm} onClick={handleDeleteEvent}>
+                                Delete Event
                             </button>
                             <button type="submit" className={styles.createForm}>
-                                Create Event
+                                Update Event
                             </button>
                         </div>
                     </form>
@@ -264,4 +308,4 @@ function CreateEvent() {
     );
 }
 
-export default CreateEvent; 
+export default EditEvent;

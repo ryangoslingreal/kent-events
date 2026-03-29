@@ -1,12 +1,38 @@
 require("./env");
 const express = require("express");
 const cors = require("cors");
+const session = require("express-session");
+const MySQLStore = require("express-mysql-session")(session);
 
 const { registerRoutes } = require("./routes");
 
 const app = express();
 app.use(express.json());
-app.use(cors({ origin: process.env.CORS_ORIGIN ?? "http://localhost:9000" }));
+app.use(cors({ 
+  origin: process.env.CORS_ORIGIN ?? "http://localhost:9000",
+  credentials: true
+}));
+
+// Session config
+const sessionStore = new MySQLStore({
+  host: process.env.DB_HOST,
+  port: Number(process.env.DB_PORT || 3306),
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME
+});
+
+app.use(session({
+  secret: process.env.SESSION_SECRET || "test-secret",
+  store: sessionStore,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: false, // ! Set to TRUE in prod
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
+}))
 
 // Health check
 app.get("/api/health", (req, res) => {

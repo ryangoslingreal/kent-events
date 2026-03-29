@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
-import { useParams, useNavigate } from 'react-router-dom';
-import { getEvent, deleteEvent, updateEvent } from "../../api";
+import { useState, useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
+import { createEvent, getMe } from "../../api";
 
+import Header from "../../components/layout/Header";
+import styles from "./CreateEvent.module.css";
 import searchicon from "../../assets/searchIcon.png";
-import Header from "../../components/layout/Header.jsx";
-import styles from "./EditEvent.module.css";
-
+import toast, { Toaster } from "react-hot-toast";
 
 function Field({ label, htmlFor, children }) {
     return (
@@ -16,15 +16,39 @@ function Field({ label, htmlFor, children }) {
     );
 }
 
-function EditEvent(){
-    const { id } = useParams();
-    const navigate = useNavigate();
-    const [formData, setFormData] = useState({});
-    const [selectedFile, setSelectedFile] = useState();
+const initialForm = {
+    title: "",
+    subtitle: "",
+    description: "",
+    image: null,
+    image_mime: null,
+    event_date: "",
+    event_time: "",
+    location: "",
+    tags: [],
+    price: "",
+    repeat_event: "never",
+    available_contact: false
+}
 
+function CreateEvent() {
+    const navigate = useNavigate();
+    const [formData, setFormData] = useState(initialForm);
+
+    useEffect(() => {
+        async function checkUserAuthentication() {
+            const authenticated = await getMe();
+            
+            if (authenticated.error){
+                toast.error("Please sign in to use this feature")
+                setTimeout(() => navigate("/"), 1000);
+            }
+        };
+        checkUserAuthentication()
+    }, [navigate])
 
     const handleInputChange = ({ target }) => {
-        const { name, value, type, checked } = target;
+        const { name, value, type, checked, files } = target;
         let nextValue = type === "checkbox" ? checked : value;
 
         if (name === "price") {
@@ -32,99 +56,61 @@ function EditEvent(){
         }
 
         if (name === "image"){
+            const selectedFile = files?.[0] ?? null;
+            
             setFormData(prev => ({
                 ...prev,
-                image: target.files[0]
+                image: selectedFile,
+                image_mime: selectedFile?.type ?? null
             }));
 
-            setSelectedFile(target.files[0] ?? null)
             return;
         }
         
         if (name === "tags") {
             setFormData(prev => ({
                 ...prev,
-                // tags: [...prev.tags, value],
                 tags: value
             }));
+
             return;
         }
 
         setFormData(prev => ({
             ...prev,
-            [name]: nextValue,  
+            [name]: nextValue
         }));
     };
 
     const handleSubmit = async(e) => {
         e.preventDefault();
-        // const result = await createEvent(formData.title, formData.subtitle, formData.description, formData.date, formData.time, formData.location, formData.tag, formData.price, formData.repeat, formData.contactInfo)
-        const payload = {...formData};
-        
-        if (selectedFile) {
-            payload.image = selectedFile;
-        } else {
-            delete payload.image;
-            delete payload.image_mime;
-        }
-        
-        const result = await updateEvent(id, payload);
+
+        const result = await createEvent(formData);
 
         if (result.error){
-            alert(result.error)
-        } else{
-            alert(result.message)
+            toast.error(result.error, {style: {background: "#05345C", color: "white"}});
+            return;
         }
-        console.log("Form data:", formData);
+
+        toast.success(result.message, {style: {background: "#05345C", color: "white"}});
     };
 
-    const handleDeleteEvent = async(e) => {
-        const result = await deleteEvent(id);
+    const handleReset = () => {
+        setFormData(initialForm);
+        toast.success("Event form reset", {style: {background: "#05345C", color: "white"}});
+    };
 
-        if (result.error){
-            alert(result.error);
-        } else {
-            alert("event deleted")
-            navigate("/");
-        }
-    }
-
-
-
-    //grabbing event data
-    useEffect(() => {
-        const getEventData = async() => {
-            
-            const data = await getEvent(id);
-            let eventData = data[0];
-
-            //changing event date, time and contact info to conform with the HTML format
-            eventData.event_time = eventData.event_time.toString().slice(0, 5);
-            eventData.event_date = eventData.event_date.slice(0, 10);
-            if (eventData.available_contact == 1){
-                eventData.available_contact = true
-            }  else {
-                eventData.available_contact = false
-            }
-
-            setFormData(eventData);
-
-
-
-            if (data.error) {
-                alert(data.error)
-            }  else{
-                console.log(data);
-            }
-        
-        }
-        getEventData()
-        
-    }, [])
-
-    return(
+    return (
         <>
             <Header />
+            <Toaster 
+                position="bottom-right"
+                toastOptions={{
+                    style: {
+                        fontFamily: "Overpass, Helvetica, Arial, sans-serif",
+                    }
+                }}
+            />
             <div className={styles.page}>
                 <div className={styles.card}>
                     <form className={styles.form} onSubmit={handleSubmit}>
@@ -164,16 +150,14 @@ function EditEvent(){
                                 />
                             </Field>
 
-                            <Field label={<>Select an image</>}>
-                                <label htmlFor="image" className={styles.image} value={formData.image}>
-                                    {selectedFile ? selectedFile.name : formData.image ? "Choose new image" : "Select Image"}
-                                </label>
-                                {/* This is hidden due to me wanting to change the text next to the input image box ^  */}
-                                <div>
-                                    <input id="image" type="file" accept="image/jpeg, image/png" name="image" onChange={handleInputChange} hidden/>
-                                </div>
+                            <Field label={<>Select an image</>} htmlFor="image">
+                                <input
+                                    type="file"
+                                    accept="image/jpeg, image/png"
+                                    name="image"
+                                    onChange={handleInputChange} 
+                                />
                             </Field>
-
                         </section>
 
                         <section className={styles.section}>
@@ -226,11 +210,7 @@ function EditEvent(){
                                         onChange={handleInputChange}
                                         aria-label="Search tags"
                                     />
-                                    <img
-                                        className={styles.searchIcon}
-                                        src={searchicon}
-                                        alt="Search"
-                                    />
+                                    <img className={styles.searchIcon} src={searchicon} alt="Search" />
                                 </div>
                             </Field>
 
@@ -259,8 +239,8 @@ function EditEvent(){
                                     required
                                 >
                                     <option value="never">Never</option>
-                                    <option value="daily">Every day</option>
                                     <option value="weekly">Weekly</option>
+                                    <option value="monthly">Monthly</option>
                                 </select>
                             </Field>
 
@@ -280,18 +260,18 @@ function EditEvent(){
                         </section>
 
                         <div className={styles.formButton}>
-                            <button type="button" className={styles.saveForm} onClick={() => handleDeleteEvent()}>
-                                Delete Event
+                            <button type="button" className={styles.saveForm} onClick={() => handleReset()}>
+                                Delete
                             </button>
                             <button type="submit" className={styles.createForm}>
-                                Update Event
+                                Create Event
                             </button>
                         </div>
                     </form>
                 </div>
             </div>
         </>
-    )
+    );
 }
 
-export default EditEvent;
+export default CreateEvent; 

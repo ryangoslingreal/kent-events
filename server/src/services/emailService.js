@@ -2,12 +2,12 @@ const nodemailer = require('nodemailer');
 
 function createTransporter() {
     return nodemailer.createTransport({
-        host: process.env.EMAIL_SMTP_HOST,
-        port: Number(process.env.EMAIL_SMTP_PORT || 587),
+        host: process.env.SMTP_HOST,
+        port: Number(process.env.SMTP_PORT || 587),
         secure: false,
         auth: {
-            user: process.env.EMAIL_SMTP_USER,
-            pass: process.env.EMAIL_SMTP_PASS,
+            user: process.env.SMTP_USER,
+            pass: process.env.SMTP_PASSWORD,
         },
     });
 }
@@ -26,7 +26,7 @@ function createTransporter() {
 async function sendVerificationEmail(to, token) {
     const transporter = createTransporter();
 
-    const verifyUrl = `${process.env.VITE_API_TARGET}/api/auth/verify?token=${token}`;
+    const verifyUrl = `${process.env.CORS_ORIGIN}/api/auth/verify/${token}`;
 
     const from = process.env.EMAIL_FROM;
     const subject = "Verify your email address";

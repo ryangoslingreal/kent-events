@@ -1,14 +1,15 @@
 const crypto = require('crypto');
+const bcrypt = require("bcrypt");
 const authRepo = require("../repos/authRepo");
 const emailService = require("./emailService");
 
 const VERIFY_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 /**
- * Authenticates a user with the provided email and password hash.
+ * Authenticates a user with the provided email and password.
  *
  * @param {string} email - The user's email address
- * @param {string} password_hash - The hashed password to verify
+ * @param {string} password - The plaintext password to verify
  * 
  * @returns {Promise<{status: string, user?: object} | undefined>} 
  *   Returns an object with status "VERIFIED" and user data if authentication succeeds,
@@ -17,10 +18,12 @@ const VERIFY_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
  * 
  * @throws {Error} Throws an error if the database query fails
  */
-async function login(email, password_hash) {
-    const user = await authRepo.login(email, password_hash);
+async function login(email, password) {
+    const user = await authRepo.findUser(email);
 
     if (!user) return undefined;
+
+    if (!await verifyPassword(password, user.password_hash)) return undefined;
 
     if (!user.email_verified_at) {
         return { status: "UNVERIFIED" };
@@ -34,18 +37,18 @@ async function login(email, password_hash) {
  * Registers a new user with the provided email and password hash.
  * 
  * @param {string} email - The email address of the user to register
- * @param {string} password_hash - The hashed password for the user
+ * @param {string} password - The plaintext password for the user
  * 
  * @returns {Promise<Object>} The newly created user object
  * 
  * @throws {Error} Throws an error with code 'DUPLICATE_USER' if a user with the email already exists
  * @throws {Error} Throws any other database or unexpected errors
  */
-async function register(email, password_hash) {
+async function register(email, password) {
     const { token, tokenHash, expiresAt } = makeVerifyToken();
         
     try {
-        const user = await authRepo.register(email, password_hash, tokenHash, expiresAt);
+        const user = await authRepo.register(email, await hashPassword(password), tokenHash, expiresAt);
 
         await emailService.sendVerificationEmail(email, token);
 
@@ -99,7 +102,7 @@ async function verifyEmail(token) {
  * @returns {Promise<void>} Resolves when verification email is sent
  */
 async function resendVerification(email) {
-    const user = await authRepo.findByEmail(email);
+    const user = await authRepo.findUser(email);
     if (!user) return;
 
     if (user.email_verified_at) return;
@@ -108,6 +111,28 @@ async function resendVerification(email) {
     await authRepo.setVerificationToken(user.id, tokenHash, expiresAt);
 
     await emailService.sendVerificationEmail(user.email, token);
+}
+
+/**
+ * Hashes a plaintext password using bcrypt.
+ *
+ * @param {string} password - The plaintext password to hash
+ * @returns {Promise<string>} The bcrypt hash of the password
+ */
+async function hashPassword(password) {
+    return await bcrypt.hash(password, 10);
+}
+
+/**
+ * Compares a plaintext password to a password hash.
+ * 
+ * @param {string} password - The plaintext password to verify
+ * @param {string} hash - The bcrypt hash to compare against
+ * 
+ * @return {Promise<boolean>} True if the password matches the hash, false otherwise
+ */
+async function verifyPassword(password, hash) {
+    return await bcrypt.compare(password, hash);
 }
 
 /**

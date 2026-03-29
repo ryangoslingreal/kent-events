@@ -1,18 +1,20 @@
 const db = require('../db/pool');
 
 /**
- * Authenticates a user by verifying their email and password hash.
+ * Retrieves a user record by email address.
+ * * NOTE: User record contains the user's password hash. Ensure it is not accidentally leaked.
  * 
- * @param {string} email - The user's email address
- * @param {string} password_hash - The hashed password to verify
+ * @param {string} email - The user's email address to search for
  * 
- * @returns {Promise<Object | undefined>} The user object if authentication is successful, or undefined if no user is found
+ * @returns {Promise<Object | undefined>} 
+ *   The user object containing id, email, password_hash, and email_verified_at, 
+ *   or undefined if no user is found
  * 
  * @throws {Error} Throws an error if the database query fails
  */
-async function login(email, password_hash) {
-    const query = 'SELECT id, email, email_verified_at FROM users WHERE email = ? AND password_hash = ? LIMIT 1';
-    const values = [email, password_hash];
+async function findUser(email) {
+    const query = 'SELECT id, email, password_hash, email_verified_at FROM users WHERE email = ? LIMIT 1';
+    const values = [email];
 
     const [rows] = await db.query(query, values);
 
@@ -41,27 +43,6 @@ async function register(email, password_hash, token_hash, expires_at) {
     const [result] = await db.query(query, values);
 
     const [rows] = await db.query('SELECT id, email, email_verified_at FROM users WHERE id = ? LIMIT 1', [result.insertId]);
-
-    return rows[0];
-}
-
-
-/**
- * Retrieves a user record by email address.
- * 
- * Needed for email verification resend.
- * 
- * @param {string} email - The email address to search for
- * 
- * @returns {Promise<Object | undefined>} A user object containing id, email, and email_verified_at properties, or undefined if not found
- * 
- * @throws {Error} If the database query fails
- */
-async function findByEmail(email) {
-    const query = 'SELECT id, email, email_verified_at FROM users WHERE email = ? LIMIT 1';
-    const values = [email];
-
-    const [rows] = await db.query(query, values);
 
     return rows[0];
 }
@@ -109,9 +90,8 @@ async function verifyEmail(token_hash) {
 }
 
 module.exports = { 
-    login, 
-    register, 
-    findByEmail, 
-    setVerificationToken, 
+    findUser,
+    register,
+    setVerificationToken,
     verifyEmail
 };

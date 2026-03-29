@@ -2,15 +2,14 @@
 
 const db = require('../db/pool');
 
-async function createEvent(title, subtitle, description, image, image_mime, date, time, location, tags, price, repeat, contactInfo) {
+async function createEvent(title, subtitle, description, image, image_mime, date, time, location, tags, price, repeat, contactInfo, user_id) {
     const query = 'INSERT INTO events (title, user_id ,subtitle, description, image, image_mime, event_date, event_time, location, tags, price, repeat_event, available_contact) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
-    const values = [title, 1 ,subtitle, description, image?.buffer ?? null, image_mime, date, time, location, JSON.stringify(tags), price, repeat, contactInfo]; // ! user_id needs to be changed
+    const values = [title, user_id ,subtitle, description, image?.buffer ?? null, image_mime, date, time, location, JSON.stringify(tags), price, repeat, contactInfo];
 
     await db.query(query, values);
 }
 
-async function getUserMadeEvents() {
-    const user_id = 1;  // ! Change to user signed in
+async function getUserMadeEvents(user_id) {
     const query = `
         SELECT id, title, event_date
         FROM events
@@ -68,10 +67,21 @@ async function updateEvent(eventId, title, subtitle, description, image, image_m
     // ? SHOULD i JUST UPDATE ALL COLUMNS with teh sepcific event, or only changed ones?
 }
 
+async function getAllEvents(){
+    const query = `
+                    SELECT *
+                    FROM events
+                    WHERE event_date >= CURDATE()
+    `
+    const [rows] = await db.execute(query)
+    return rows
+}
+
 module.exports = { 
     createEvent,
     getUserMadeEvents,
     getEvent,
     deleteEvent,
-    updateEvent
+    updateEvent,
+    getAllEvents,
 };

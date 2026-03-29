@@ -1,0 +1,212 @@
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from 'react-router-dom';
+import { getEvent, getAllEvents, getEventImageUrl } from "../../api";
+
+import styles from "./EventDetails.module.css";
+import Header from "../../components/layout/Header"
+import toast, { Toaster } from "react-hot-toast";
+
+function EventDetails() {
+    const [otherEvents, setOtherEvents] = useState([])
+    const [selected, setSelected] = useState(null);
+    const [formData, setFormData] = useState({});
+    const navigate = useNavigate();
+    const { id } = useParams();
+
+    useEffect(() => {
+        async function getEventData() {
+            const eventData = await getEvent(id);
+
+            if (eventData.error) {
+                setFormData({});
+                return;
+            }
+
+            const date = new Date(eventData.event_date);
+            const [hours, minutes] = eventData.event_time.split(':');
+
+            setFormData({
+                ...eventData,
+                event_date: date.toLocaleDateString("en-GB", {
+                    weekday: "long",
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric"
+                }),
+                event_time: `${hours}:${minutes}`
+            });
+        }
+
+        async function getOtherEvents() {
+            const data = await getAllEvents();
+
+            if (data.error) {
+                setOtherEvents([]);
+                return;
+            }
+
+            const events = data
+                .filter((event) => String(event.id) !== String(id))
+                .slice(0, 5)
+                .map((event) => {
+                    const formattedDate = new Intl.DateTimeFormat("en-GB", {
+                        weekday: "short",
+                        month: "short",
+                        day: "numeric"
+                    }).format(new Date(event.event_date));
+                    
+                    const [h, m] = event.event_time.split(":").map(Number);
+
+                    const formattedTime = new Intl.DateTimeFormat("en-US", {
+                        hour: "numeric",    
+                        minute: "2-digit",
+                        hour12: true
+                    }).format(new Date().setHours(h, m, 0, 0));
+
+                    return {
+                        ...event,
+                        event_time: formattedTime,
+                        event_date: formattedDate
+                    };
+                });
+
+            setOtherEvents(events)
+        }
+
+        getEventData();
+        getOtherEvents();
+    }, [id]);
+
+    const eventDetail = (eventId) => {
+        navigate(`/events/detail/${eventId}`);
+    }
+
+    return (
+        <>
+            <Header /> 
+            <div className={styles.page}>
+                <Toaster 
+                    position="bottom-right"
+                    toastOptions={{
+                        style: {
+                            fontFamily: "Overpass, Helvetica, Arial, sans-serif",
+                        }
+                    }}
+                />
+                <div className={styles.eventHeader}>
+                    <img
+                        className={styles.eventHeaderImg}
+                        src={getEventImageUrl(formData.imageUrl)}
+                        alt={formData.title}
+                    />
+                    <div className={styles.eventHeaderOverlay} />
+                    <div className={styles.eventHeaderContent}>
+                        <h2 className={styles.title}>{formData.title}</h2>
+                        <p className={styles.eventOrganiser}>Organised by <span>Spanish Society</span> · University of Kent</p>
+                    </div>
+                </div>
+                <div className={styles.informationWrapper}>
+                    <div className={styles.centerInfo}>
+                        <div className={styles.descriptionWrapper}>
+                            <h3>About this event</h3>
+                            <p>{formData.description}</p>
+                        </div>
+                        <div className={styles.tags}>
+                            <h3>Tags</h3>
+                            <span>Food </span>
+                            <span>Sports </span>
+                            <span>Drinking </span>
+                        </div>
+                        {formData.available_contact ? (
+                            <div className={styles.contact}>
+                                <h3>Who to contact</h3>
+                                <p>example@email.co.uk</p>
+                            </div>
+                        ) : (
+                           null
+                        )}
+                        <div className={styles.otherEvents}>
+                            <h3>Other events you may like</h3>
+                            <div className={styles.otherEventsScroller}>
+                                {otherEvents.map((event) => (
+                                    <div key={event.id} className={styles.eventCard} onClick={() => eventDetail(event.id)}>
+                                        <img
+                                            className={styles.eventImage}
+                                            src={getEventImageUrl(event.imageUrl)}
+                                            alt={event.title}
+                                        />
+                                        <div className={styles.overlay} />
+                                        <h4 className={styles.eventTitle}>{event.title}</h4>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                        
+                    </div>
+                    
+                    <div className={styles.ticketInformation}>
+                        <div className={styles.infoHeader}>
+                            <p className={styles.startingFrom}>starting from</p>
+                            <p className={styles.price}>Free</p>
+                            <h6> For UoK students</h6>
+                        </div>
+                        <div className={styles.dateTimeLocation}>
+                            <div className={styles.dtl_icon}>📅</div>
+                            <div className={styles.dlt_text}>
+                                <p className={styles.dtl_label}>Date</p>
+                                <p className={styles.dtl_value}>{formData.event_date}</p>
+                            </div>  
+                        </div>
+                        <div className={styles.dateTimeLocation}>
+                            <div className={styles.dtl_icon}>🕘</div>
+                            <div className={styles.dlt_text}>
+                                <p className={styles.dtl_label}>Time</p>    
+                                <p className={styles.dtl_value}>{formData.event_time}</p>
+                            </div>
+                        </div>
+                        <div className={styles.dateTimeLocation}>
+                            <div className={styles.dtl_icon}>📍</div>
+                            <div className={styles.dlt_text}>
+                                <p className={styles.dtl_label}>Location</p>
+                                <p className={styles.dtl_value}>{formData.location}</p>
+                            </div>
+                        </div>
+                        <div className={styles.spotsBar}>
+                            <div className={styles.barTrack}>
+                                <div className={styles.barFill} style={{ width: '74%' }}></div>
+                            </div>
+                            <div className={styles.spotsText}>
+                                <p>178 registered</p>
+                                <p>62 spots left</p>
+                            </div>
+                        </div>
+
+                        <div className={styles.ticketType}>
+                            <p className={styles.ticketTypeHeader}>Select Ticket type</p>
+                            <div className={`${styles.ticketCard} ${selected === 'student' ? styles.selected : ''}`} onClick={() => setSelected('student')}>
+                                <p className={styles.ticketTitle}>University of Kent students</p>
+                                <p className={styles.ticketPrice}>£3</p>
+                            </div>
+                            <div className={`${styles.ticketCard} ${selected === 'member' ? styles.selected : ''}`} onClick={() => setSelected('member')}>
+                                <p className={styles.ticketTitle}>Society Members</p>
+                                <p className={styles.ticketPrice}>Free</p>
+                            </div>
+                            <button className={styles.register}>Register Now →</button>
+                            <button className={styles.save}>Save event</button>
+                        </div>
+                        
+                        <div className={styles.shareEvent}>
+                            <p className={styles.shareLabel}>Share Event</p>
+                            <button className={styles.shareButton} onClick={() => {
+                                navigator.clipboard.writeText(window.location.href)
+                                toast.success('Link Copied!', {style: {background: '#05345C', color: 'white'}})
+                            }}>Copy Link</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </>
+    )
+}
+
+export default EventDetails;
