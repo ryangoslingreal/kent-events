@@ -17,31 +17,8 @@ function Home(){
     const navigate = useNavigate();
 
     useEffect (() => {
-<<<<<<< HEAD
         async function getHomeEvents() {
             const data = await getAllEvents();
-=======
-        const getHomeEvents = async() => {
-            let events = []
-            const data = await getAllEvents()
-            
-            for (let i=0; i<data.length; i++){
-                //formatting date and time
-                const formattedDate = new Intl.DateTimeFormat("en-GB", {
-                    weekday: "short",
-                    month: "short",
-                    day: "numeric",
-                }).format(new Date(data[i].event_date));
-                
-                const [h, m] = data[i].event_time.split(":").map(Number);
-                const d = new Date();
-                d.setHours(h, m, 0, 0);
-                const formattedTime = new Intl.DateTimeFormat("en-US", {
-                    hour: "numeric",
-                    minute: "2-digit",
-                    hour12: true,
-                }).format(d);
->>>>>>> 3e9df8e (feat: removing console logs)
 
             if (data.error) {
                 setAllEvents([]);
@@ -84,23 +61,9 @@ function Home(){
         weekendEnd.setDate(weekendStart.getDate() + 1);
         weekendEnd.setHours(23, 59, 59, 999);
 
-<<<<<<< HEAD
         const filteredEvents = rawEvents.filter((event) => {
             const eventDate = new Date(event.event_date);
             const isFree = Number(event.price) === 0;
-=======
- 
-        let filtered = rawEvents.filter((event) => {
-            const event_date = new Date(event.event_date)
-            if (filters.filterDate === "week" && event_date > endOfWeek){return false;} 
-            if (filters.filterDate === "month" && event_date > monthFromNow) {return false;}
-            if (filters.filterDate === "weekend" && !(event_date <= weekendEnd && event_date >= weekendStart)){return false;}
-            if (filters.filterPrice === "free" && event.price !== '0.00'){return false;}
-            if (filters.filterPrice === "paid" && event.price === '0.00'){return false;}
-            return true
-        })
-        setAllEvents(filtered);
->>>>>>> 3e9df8e (feat: removing console logs)
 
             const matchesDate = 
                 filters.filterDate === "week"
@@ -232,11 +195,15 @@ function Home(){
                                 {allEvents.map((event) => (
                                     <div key={event.id} className={styles.eventCard} onClick={() => eventDetail(event.id)}>
                                         <div className={styles.imageWrapper}>
-                                            <img 
-                                                className={styles.eventImage}
-                                                src={getEventImageUrl(event.imageUrl)}
-                                                alt={event.title}
-                                            />
+                                            {event.source === 'ksu' || event.source === 'kentUni' ? (
+                                                <img className={styles.eventImage} src={event.image_url}></img>
+                                            ) : (
+                                                <img 
+                                                    className={styles.eventImage}
+                                                    src={getEventImageUrl(event.imageUrl)}
+                                                    alt={event.title}
+                                                />
+                                            )}
                                             {event.id === allEvents[0].id && (
                                                 <span className={styles.badge}>featured</span>
                                             )}
@@ -249,7 +216,7 @@ function Home(){
                                             <h4 className={styles.eventTitle}>{event.title}</h4>
                                             <p className={styles.location_tag}>
                                                 {event.location}
-                                                {event.tags && <span className={styles.tag}>{event.tags}</span>}
+                                                {event.tags && <span className={styles.tag}>{event.tags[0]}</span>}
                                             </p>
                                         </div>
                                     </div>
