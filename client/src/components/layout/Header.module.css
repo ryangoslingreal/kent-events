@@ -220,7 +220,6 @@
     object-fit: contain;
     flex-shrink: 0;
     opacity: 90%;
-  }
 }
 @media (max-width: 449px) {
  .header{

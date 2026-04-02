@@ -1,4 +1,3 @@
-@media (min-width: 450px) {
 .wrapper{
     
     width: 100%;
@@ -308,9 +307,6 @@
 .gold {
     color: #af892e
 }
-
-}
-
 
 @media (max-width: 449px) {
 .wrapper{
