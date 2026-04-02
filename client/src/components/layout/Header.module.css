@@ -1,4 +1,3 @@
-@media (min-width: 450px) {
   .header{
     display: flex;
     flex-direction: row;
@@ -220,77 +219,22 @@
     object-fit: contain;
     flex-shrink: 0;
     opacity: 90%;
-}
-@media (max-width: 449px) {
- .header{
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    margin: 0;
-    border-bottom: 2px solid #cccccca8;
-    min-height: 42px;
-    max-height: 55px;
-    background-color: #002F70;
-    color: #ffffff;
-    z-index: 100;   /*make header highest in oder */
-    position: relative;
-  }   
-
-  .logoTitle{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: row;
-    flex: 0 0 auto;  
-    /*gap: 0.75rem; */
-    margin :0;
   }
+@media (max-width: 449px) {
+ 
 
   .logo{
-    /*width: 90px;*/
-    display: flex;
-    justify-content: center;
-    align-items: center;
     min-height: 32px;
     max-height: 45px;
     height: 35px;
-    object-fit: contain;
     margin-left: 1rem;
   }
 
-  .title{
-    font-family: Overpass, Helvetica, Arial, sans-serif;
-    font-style: normal;
-    font-size: 1.3rem;
-    font-weight: 600;
-    margin: 0;
-  }
-
-  .homeLink{
-    text-decoration: none;
-    color: inherit;
-    margin: 0;
-  }
-
   .searchBar {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-
     max-width: 170px;
     flex: 1;
     padding: 0.5rem 0.75rem;
     padding-right: 0.2rem;
-
-    border: 1px solid #ccc;
-    border-radius: 15px;
-
-    margin-top: 5px;
-    margin-bottom: 5px;
-    margin-left: 2%;
-    margin-right: 0;
-    background-color: #eeeeee;
-    font-family: roboto;
     font-size: 16px;
   }
 
@@ -324,126 +268,5 @@
   .action {
     padding: 1px 1px;
     border-radius: 10px;
-    cursor: pointer;
-    text-decoration: none;
-    color: white;
-  }
-  .action:hover {
-    background-color: rgba(188, 187, 187, 0.332);
-  }
-
-  .userAvatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: #937227;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.75rem;
-    font-weight: 600;
-    cursor: pointer;
-    font-family: Overpass, Helvetica, Arial, sans-serif;
-    transition: background 0.18s;
-    flex-shrink: 0;
-  }
-
-  .userAvatar:hover {
-    background: #c4a04a;
-  }
-
-  /*Drop down section*/
-
-  .eventDropdown {
-    position: relative;
-    display: inline-block;
-  }
-
-  .eventDropdownContent {
-    display: none;
-    position: absolute;
-    background-color: #ffffff;
-    min-width: 220px;
-    right: 0;
-    border-radius: 12px;
-    border: 1px solid #e5dfd5;
-    box-shadow: 0 8px 24px rgba(5,52,92,0.15);
-    overflow: hidden;
-    padding: 0.4rem 0;
-    z-index: 200;
-  }
-
-  .dropdownHeader {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.9rem 1rem;
-    border-bottom: 1px solid #e5dfd5;
-    margin-bottom: 0.3rem;
-  }
-
-  .dropdownAvatar {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: #937227;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.75rem;
-    font-weight: 600;
-    flex-shrink: 0;
-  }
-
-  .dropdownEmail {
-    margin: 0;
-    font-size: 0.75rem;
-    color: #2c2d2e;
-  }
-
-  .eventDropdownContent a,
-  .eventDropdownContent button {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    width: 100%;
-    padding: 0.65rem 1rem;
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: #374151;   
-    text-decoration: none;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    text-align: left;
-    font-family: Overpass, Helvetica, Arial, sans-serif;
-    transition: background 0.15s;
-    box-sizing: border-box;
-    border-radius: 8px; 
-    margin: 0 0.4rem;
-    width: calc(100% - 0.8rem); 
-  }
-
-  .eventDropdownContent a:hover,
-  .eventDropdownContent button:hover {
-    background: #f0f4ff;
-    color: #05345C;
-  }
-  .eventDropdown:hover .eventDropdownContent {display: block;}
-
-  .dropdownDivider {
-    height: 1px;
-    background: #e5dfd5;
-    margin: 0.3rem 0;
-  }
-
-  .dropdownIcon {
-    width: 16px;
-    height: 16px;
-    object-fit: contain;
-    flex-shrink: 0;
-    opacity: 90%;
   }
 }
