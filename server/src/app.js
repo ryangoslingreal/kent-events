@@ -3,6 +3,10 @@ const express = require("express");
 const cors = require("cors");
 const session = require("express-session");
 const MySQLStore = require("express-mysql-session")(session);
+const cron = require('node-cron');
+const { scrape: scrapeKSU } = require('./scrapers/scrapeKSU.js');
+const { scrape: scrapeUniEvents} = require('./scrapers/scrapeUniEvents.js')
+const eventsRepo = require('./repos/eventsRepo');
 
 const { registerRoutes } = require("./routes");
 
@@ -52,14 +56,34 @@ if (require.main === module) {
   });
 }
 
+
+//scraping 
+const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+let lastScrape
 (async () => {
-    try {
-        console.log('Initial scrape KSU starting...');
-        const ksuEvents = await scrapeKSU();
-        await eventsRepo.saveKSUEvents(ksuEvents);
-        console.log(`Initial scrape done - saved ${ksuEvents.length} events`);
-    } catch (err) {
-        console.error('Initial scrape failed:', err.message);
-    }
+  lastScrape = await eventsRepo.lastScrapeTime()
+
+  if (!lastScrape || lastScrape < oneDayAgo){
+
+        try {
+            console.log('Initial scrape Kent Uni starting...');
+            const uniEvents = await scrapeUniEvents();
+            await eventsRepo.saveKSUEvents(uniEvents);
+            console.log(`Initial scrape done - saved ${uniEvents.length} events`);
+        } catch (err) {
+            console.error('Initial scrape failed:', err.message);
+        }
+
+        try {
+            console.log('Initial scrape KSU starting...');
+            const ksuEvents = await scrapeKSU();
+            await eventsRepo.saveKSUEvents(ksuEvents);
+            console.log(`Initial scrape done - saved ${ksuEvents.length} events`);
+        } catch (err) {
+            console.error('Initial scrape failed:', err.message);
+        }
+  } else {
+    console.log('Scrape skipped - ran recently')
+  }
 })();
 

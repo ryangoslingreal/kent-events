@@ -90,6 +90,17 @@ async function getAllEvents(){
     return rows
 }
 
+async function lastScrapeTime(){
+    const query = `
+        SELECT updated_at
+        FROM events
+        WHERE source = 'ksu' OR source = 'kentUni'
+        LIMIT 1
+    `
+    const [result] = await db.execute(query)
+    return result
+}
+
 module.exports = { 
     createEvent,
     getUserMadeEvents,
@@ -97,5 +108,6 @@ module.exports = {
     deleteEvent,
     updateEvent,
     getAllEvents,
-    saveKSUEvents
+    saveKSUEvents,
+    lastScrapeTime
 };
