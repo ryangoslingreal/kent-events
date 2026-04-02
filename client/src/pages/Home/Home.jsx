@@ -221,7 +221,9 @@ function Home(){
                                             <h4 className={styles.eventTitle}>{event.title}</h4>
                                             <p className={styles.location_tag}>
                                                 {event.location}
-                                                {event.tags && <span className={styles.tag}>{event.tags[0]}</span>}
+                                                {event.tags.length != 0 && (
+                                                    <span className={styles.tag}>{event.tags[0]}</span>
+                                                )}
                                             </p>
                                         </div>
                                     </div>
