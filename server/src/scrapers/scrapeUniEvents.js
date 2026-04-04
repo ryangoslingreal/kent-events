@@ -7,13 +7,6 @@ async function scrape() {
         headless: true,
         args: ['--no-sandbox', '--disable-setuid-sandbox'] // needed for Docker
     });
-    //----- all events list page -------
-    // const page = await browser.newPage();
-    // await page.goto(URL, { waitUntil: 'networkidle2' });
-
-     
-
-    
 
     const page = await browser.newPage();
 
@@ -120,6 +113,7 @@ async function scrape() {
                 price = 0
             }
 
+            //turning into correct date and time formatted for db
             const dateTime = getValueAfterHeading('Dates and times')
             const dateAndTimes = dateTime.split(" ");
             const date = dateAndTimes[0];
