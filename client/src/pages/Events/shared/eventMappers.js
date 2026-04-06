@@ -16,6 +16,9 @@ function formatDateLong(dateValue) {
 }
 
 function formatTime(timeValue) {
+    if (timeValue == null){
+        return null
+    }
     const [h, m] = timeValue.split(":").map(Number);
     const date = new Date().setHours(h, m, 0, 0);
 
