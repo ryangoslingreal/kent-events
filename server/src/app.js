@@ -3,8 +3,8 @@ const express = require("express");
 const cors = require("cors");
 const session = require("express-session");
 const MySQLStore = require("express-mysql-session")(session);
-
 const { registerRoutes } = require("./routes");
+const { runScrape } = require("./scrapers/index.js");
 
 const app = express();
 app.use(express.json());
@@ -51,3 +51,9 @@ if (require.main === module) {
     console.log(`Server listening on http://0.0.0.0:${port}`);
   });
 }
+
+// Run scrapers
+runScrape()
+
+
+

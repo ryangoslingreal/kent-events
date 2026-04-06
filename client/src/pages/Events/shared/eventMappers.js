@@ -16,6 +16,9 @@ function formatDateLong(dateValue) {
 }
 
 function formatTime(timeValue) {
+    if (timeValue == null){
+        return null
+    }
     const [h, m] = timeValue.split(":").map(Number);
     const date = new Date().setHours(h, m, 0, 0);
 
@@ -30,14 +33,16 @@ export function mapEventToCard(item) {
     return { 
         id: item.id,
         image: item.image, 
-        imageUrl: item.imageUrl, 
+        internalImageUrl: item.internalImageUrl, 
         time: formatTime(item.event_time),
         date: formatDateShort(item.event_date),
         event_date: item.event_date,
         location: item.location,
         price: item.price,
         title: item.title,
-        tags: item.tags
+        tags: item.tags,
+        image_url: item.image_url,
+        source: item.source
     };
 }
 

@@ -7,9 +7,10 @@ import { getAllEvents, getEventImageUrl } from "../../api"
 import { mapEventToCard } from "../Events/shared/eventMappers";
 
 function Home(){
-    const [activeFilter, setActiveFilter] = useState("All");
-    const [allEvents, setAllEvents] = useState([]);
-    const [rawEvents, setRawEvents] = useState([]);
+    const [activeFilter, setActiveFilter] = useState("All")
+    const [allEvents, setAllEvents] = useState([])
+    const [rawEvents, setRawEvents] = useState([])
+    const [featuredUrl, setFeaturedUrl] = useState([])
     const [filters, setFilters] = useState({
         filterDate: "any",
         filterPrice: "any"
@@ -19,6 +20,11 @@ function Home(){
     useEffect (() => {
         async function getHomeEvents() {
             const data = await getAllEvents();
+
+            const url = data[0].source === 'ksu' || data[0].source === 'kentUni'
+                ? data[0].image_url
+                : `${API_BASE}/api/events/${allEvents[0].internalImageUrl}`
+            setFeaturedUrl(url)
 
             if (data.error) {
                 setAllEvents([]);
@@ -144,8 +150,7 @@ function Home(){
                                             rgba(0,0,0,0.2) 70%,
                                             transparent 100%
                                         ),
-                                        url(${getEventImageUrl(allEvents[0].imageUrl)})
-                                        `,
+                                        url(${featuredUrl})`,
                                         backgroundSize: "cover",
                                         backgroundPosition: "center"
                                     }}
@@ -195,11 +200,15 @@ function Home(){
                                 {allEvents.map((event) => (
                                     <div key={event.id} className={styles.eventCard} onClick={() => eventDetail(event.id)}>
                                         <div className={styles.imageWrapper}>
-                                            <img 
-                                                className={styles.eventImage}
-                                                src={getEventImageUrl(event.imageUrl)}
-                                                alt={event.title}
-                                            />
+                                            {event.source === 'ksu' || event.source === 'kentUni' ? (
+                                                <img className={styles.eventImage} src={event.image_url}></img>
+                                            ) : (
+                                                <img 
+                                                    className={styles.eventImage}
+                                                    src={getEventImageUrl(event.imageUrl)}
+                                                    alt={event.title}
+                                                />
+                                            )}
                                             {event.id === allEvents[0].id && (
                                                 <span className={styles.badge}>featured</span>
                                             )}
@@ -212,7 +221,9 @@ function Home(){
                                             <h4 className={styles.eventTitle}>{event.title}</h4>
                                             <p className={styles.location_tag}>
                                                 {event.location}
-                                                {event.tags && <span className={styles.tag}>{event.tags}</span>}
+                                                {event.tags.length != 0 && (
+                                                    <span className={styles.tag}>{event.tags[0]}</span>
+                                                )}
                                             </p>
                                         </div>
                                     </div>
