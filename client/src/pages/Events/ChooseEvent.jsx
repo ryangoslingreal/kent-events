@@ -1,11 +1,12 @@
 // ChooseEventPage.jsx
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getUserMadeEvents } from "../../api";
-
 import Header from "../../components/layout/Header.jsx"
 import styles from "./ChooseEvent.module.css";
 import toast from "react-hot-toast";
+
+import { getUserMadeEvents } from "../../api";
+import { mapEventToChoiceRow, splitEventsByArchiveDate } from "./shared/eventMappers.js";
 
 function ChooseEvent() {    
     const [selectedId, setSelectedId] = useState(null);
@@ -27,30 +28,11 @@ function ChooseEvent() {
                 return;
             }
 
-            const today = new Date().toISOString().split("T")[0];
-            let userEvents = [];
-            let oldEvents = [];
+            const mappedEvents = data.map(mapEventToChoiceRow);
+            const { upcomingEvents, archivedEvents } = splitEventsByArchiveDate(mappedEvents);
 
-            for (let i = 0; i < data.length; i++){
-                const formattedDate = data[i].event_date.split("T")[0];
-                let event = {
-                    id: data[i].id,
-                    name: data[i].title,
-                    date: formattedDate,
-                    dateCheck: data[i].event_date
-                };
-
-                if (today > formattedDate) {
-                    oldEvents.push(event);
-                } else{
-                    userEvents.push(event);
-                }
-            }
-
-            userEvents.reverse();
-            oldEvents.reverse();
-            setEvents(userEvents);
-            setArchivedEvents(oldEvents);
+            setEvents(upcomingEvents);
+            setArchivedEvents(archivedEvents);
         }
 
         getUsersEvents();

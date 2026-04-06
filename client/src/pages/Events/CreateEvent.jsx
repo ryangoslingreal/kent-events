@@ -1,39 +1,21 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
-import { createEvent, getMe } from "../../api";
-
 import Header from "../../components/layout/Header";
 import styles from "./CreateEvent.module.css";
 import searchicon from "../../assets/searchIcon.png";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 
-function Field({ label, htmlFor, children }) {
-    return (
-        <div className={styles.fieldGroup}>
-            <label htmlFor={htmlFor}>{label}</label>
-            {children}
-        </div>
-    );
-}
-
-const initialForm = {
-    title: "",
-    subtitle: "",
-    description: "",
-    image: null,
-    image_mime: null,
-    event_date: "",
-    event_time: "",
-    location: "",
-    tags: [],
-    price: "",
-    repeat_event: "never",
-    available_contact: false
-}
+import { createEvent, getMe } from "../../api";
+import {
+    Field,
+    createInitialEventForm,
+    applyEventInputChange,
+    EVENT_TOAST_STYLE
+} from "./shared/eventFormShared.jsx";
 
 function CreateEvent() {
     const navigate = useNavigate();
-    const [formData, setFormData] = useState(initialForm);
+    const [formData, setFormData] = useState(createInitialEventForm());
 
     useEffect(() => {
         async function checkUserAuthentication() {
@@ -47,40 +29,7 @@ function CreateEvent() {
         checkUserAuthentication()
     }, [navigate])
 
-    const handleInputChange = ({ target }) => {
-        const { name, value, type, checked, files } = target;
-        let nextValue = type === "checkbox" ? checked : value;
-
-        if (name === "price") {
-            nextValue = Math.max(0, Number(nextValue || 0));
-        }
-
-        if (name === "image"){
-            const selectedFile = files?.[0] ?? null;
-            
-            setFormData(prev => ({
-                ...prev,
-                image: selectedFile,
-                image_mime: selectedFile?.type ?? null
-            }));
-
-            return;
-        }
-        
-        if (name === "tags") {
-            setFormData(prev => ({
-                ...prev,
-                tags: value
-            }));
-
-            return;
-        }
-
-        setFormData(prev => ({
-            ...prev,
-            [name]: nextValue
-        }));
-    };
+    const handleInputChange = applyEventInputChange(setFormData);
 
     const handleSubmit = async(e) => {
         e.preventDefault();
@@ -88,29 +37,21 @@ function CreateEvent() {
         const result = await createEvent(formData);
 
         if (result.error){
-            toast.error(result.error, {style: {background: "#05345C", color: "white"}});
+            toast.error(result.error, { style: EVENT_TOAST_STYLE });
             return;
         }
 
-        toast.success(result.message, {style: {background: "#05345C", color: "white"}});
+        toast.success(result.message, { style: EVENT_TOAST_STYLE });
     };
 
     const handleReset = () => {
-        setFormData(initialForm);
-        toast.success("Event form reset", {style: {background: "#05345C", color: "white"}});
+        setFormData(createInitialEventForm());
+        toast.success("Event form reset", { style: EVENT_TOAST_STYLE });
     };
 
     return (
         <>
             <Header />
-            <Toaster 
-                position="bottom-right"
-                toastOptions={{
-                    style: {
-                        fontFamily: "Overpass, Helvetica, Arial, sans-serif",
-                    }
-                }}
-            />
             <div className={styles.page}>
                 <div className={styles.card}>
                     <form className={styles.form} onSubmit={handleSubmit}>
@@ -120,7 +61,11 @@ function CreateEvent() {
                         <section className={styles.section}>
                             <h3 className={styles.sectionHeader}>Details</h3>
 
-                            <Field label={<>Title <span className={styles.required}>*</span></>} htmlFor="title">
+                            <Field
+                                styles={styles}
+                                label={<>Title <span className={styles.required}>*</span></>}
+                                htmlFor="title"
+                            >
                                 <input
                                     id="title"
                                     name="title"
@@ -130,7 +75,11 @@ function CreateEvent() {
                                 />
                             </Field>
 
-                            <Field label="Subtitle" htmlFor="subtitle">
+                            <Field
+                                styles={styles}
+                                label="Subtitle"
+                                htmlFor="subtitle"
+                            >
                                 <input
                                     id="subtitle"
                                     name="subtitle"
@@ -139,7 +88,11 @@ function CreateEvent() {
                                 />
                             </Field>
 
-                            <Field label={<>Description <span className={styles.required}>*</span></>} htmlFor="description">
+                            <Field
+                                styles={styles}
+                                label={<>Description <span className={styles.required}>*</span></>}
+                                htmlFor="description"
+                            >
                                 <textarea
                                     id="description"
                                     name="description"
@@ -150,7 +103,11 @@ function CreateEvent() {
                                 />
                             </Field>
 
-                            <Field label={<>Select an image</>} htmlFor="image">
+                            <Field
+                                styles={styles}
+                                label={<>Select an image</>}
+                                htmlFor="image"
+                            >
                                 <input
                                     type="file"
                                     accept="image/jpeg, image/png"
@@ -164,7 +121,11 @@ function CreateEvent() {
                             <h3 className={styles.sectionHeader}>When & Where</h3>
 
                             <div className={styles.dateTime}>
-                                <Field label={<>Choose a date <span className={styles.required}>*</span></>} htmlFor="event_date">
+                                <Field
+                                    styles={styles}
+                                    label={<>Choose a date <span className={styles.required}>*</span></>}
+                                    htmlFor="event_date"
+                                >
                                     <input
                                         type="date"
                                         id="event_date"
@@ -175,7 +136,11 @@ function CreateEvent() {
                                     />
                                 </Field>
 
-                                <Field label={<>Time <span className={styles.required}>*</span></>} htmlFor="event_time">
+                                <Field
+                                    styles={styles}
+                                    label={<>Time <span className={styles.required}>*</span></>}
+                                    htmlFor="event_time"
+                                >
                                     <input
                                         type="time"
                                         id="event_time"
@@ -187,7 +152,11 @@ function CreateEvent() {
                                 </Field>
                             </div>
 
-                            <Field label={<>Location <span className={styles.required}>*</span></>} htmlFor="location">
+                            <Field
+                                styles={styles}
+                                label={<>Location <span className={styles.required}>*</span></>}
+                                htmlFor="location"
+                            >
                                 <input
                                     id="location"
                                     name="location"
@@ -201,7 +170,11 @@ function CreateEvent() {
                         <section className={styles.section}>
                             <h3 className={styles.sectionHeader}>Tags & Pricing</h3>
 
-                            <Field label="Choose tags" htmlFor="tags">
+                            <Field
+                                styles={styles}
+                                label="Choose tags"
+                                htmlFor="tags"
+                            >
                                 <div className={styles.searchBar}>
                                     <input
                                         id="tags"
@@ -214,7 +187,11 @@ function CreateEvent() {
                                 </div>
                             </Field>
 
-                            <Field label={<>Price <span className={styles.required}>*</span></>} htmlFor="price">
+                            <Field
+                                styles={styles}
+                                label={<>Price <span className={styles.required}>*</span></>}
+                                htmlFor="price"
+                            >
                                 <div className={styles.price}>
                                     £
                                     <input
@@ -230,7 +207,11 @@ function CreateEvent() {
                                 </div>
                             </Field>
 
-                            <Field label={<>Repeat? <span className={styles.required}>*</span></>} htmlFor="repeat_event">
+                            <Field
+                                styles={styles}
+                                label={<>Repeat? <span className={styles.required}>*</span></>}
+                                htmlFor="repeat_event"
+                            >
                                 <select
                                     id="repeat_event"
                                     name="repeat_event"
@@ -260,7 +241,7 @@ function CreateEvent() {
                         </section>
 
                         <div className={styles.formButton}>
-                            <button type="button" className={styles.saveForm} onClick={() => handleReset()}>
+                            <button type="button" className={styles.saveForm} onClick={handleReset}>
                                 Delete
                             </button>
                             <button type="submit" className={styles.createForm}>
