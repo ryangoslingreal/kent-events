@@ -87,9 +87,9 @@ async function updateEvent(eventId, title, subtitle, description, image, image_m
     return { message: "Event updated" };
 }
 
-    async function getAllEvents(){
+async function getAllEvents(limit, offset){
         try{
-            const result =  await eventsRepo.getAllEvents();
+        const result =  await eventsRepo.getAllEvents(limit, offset);
             
             return result
             

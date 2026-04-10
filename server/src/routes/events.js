@@ -147,8 +147,11 @@ router.put("/update-event", upload.single("image"), async(req, res) => {
 })
 
 router.get("/get-all-events", async(req, res) => {
+    let limit = parseInt(req.query.limit) || 15;
+    let offset = parseInt(req.query.offset) || 0;
+
     try{
-        const result = await eventService.getAllEvents();
+        const result = await eventService.getAllEvents(limit, offset);
 
         if (!result || result.length === 0){
             return res.status(404).json({ message: "No events found" })

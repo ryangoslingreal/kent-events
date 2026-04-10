@@ -235,9 +235,9 @@ export async function getUserMadeEvents() {
 	);
 }
 
-export async function getAllEvents() {
+export async function getAllEvents(limit, offset) {
 	return requestJson(
-		"/api/events/get-all-events",
+		"/api/events/get-all-events?limit=" + encodeURIComponent(limit) + "&offset=" + encodeURIComponent(offset),
 		{},
 		"Network error: Failed to get all events"
 	);
