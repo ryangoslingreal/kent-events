@@ -28,7 +28,7 @@ function EventDetails() {
         }
 
         async function getOtherEvents() {
-            const data = await getAllEvents();
+            const data = await getAllEvents(5, 0);  //5 events offset of 0
 
             if (data.error) {
                 setOtherEvents([]);
