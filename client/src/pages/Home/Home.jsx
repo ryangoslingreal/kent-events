@@ -40,6 +40,7 @@ function Home(){
             const events = data.map(mapEventToCard);
             setAllEvents(events);
             setRawEvents(events);
+            setOffset(PAGE_SIZE)
         }
         
         getHomeEvents();
@@ -250,6 +251,7 @@ function Home(){
                                 )}
                             </div>
                         </div>
+                        
                     </div>
                 </div>
             </div>
