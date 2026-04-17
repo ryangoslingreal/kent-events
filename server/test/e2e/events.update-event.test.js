@@ -65,15 +65,18 @@ describe.sequential("api/events/update-event", () => {
 
         const { res: getRes1 } = await getEvent(agent, createRes.body.eventId);
         expect(getRes1.body.image).toBeTruthy();
-        const originalImage = getRes1.body.image;
+
+        const originalImage = Buffer.from(getRes1.body.image);
 
         // Update event without providing new image
         const { res: updateRes } = await updateTestEvent(agent, createRes.body.eventId);
+        expect(updateRes.status).toBe(200);
 
         // Verify image unchanged
-        expect(updateRes.status).toBe(200);
         const { res: getRes2 } = await getEvent(agent, createRes.body.eventId);
-        expect(getRes2.body.image).toBe(originalImage);
+        const preservedImage = Buffer.from(getRes2.body.image);
+
+        expect(preservedImage.equals(originalImage)).toBe(true);
     });
 
     it("returns 200 and replaces existing image when updating with a new one", async () => {
@@ -88,6 +91,7 @@ describe.sequential("api/events/update-event", () => {
 
         const { res: getRes1 } = await getEvent(agent, createRes.body.eventId);
         expect(getRes1.body.image).toBeTruthy();
+        const beforeUpdate = Buffer.from(getRes1.body.image);
 
         // Update event with new image
         const { res: updateRes } = await updateTestEvent(
@@ -96,16 +100,19 @@ describe.sequential("api/events/update-event", () => {
             {},
             updatedImage
         );
+        expect(updateRes.status).toBe(200);
 
         // Verify image replaced
-        expect(updateRes.status).toBe(200);
         const { res: getRes2 } = await getEvent(agent, createRes.body.eventId);
         expect(getRes2.body.image).toBeTruthy();
-        expect(getRes2.body.image).not.toBe(getRes1.body.image); // Ensure image has changed
+        const afterUpdate = Buffer.from(getRes2.body.image);
+        
+        expect(afterUpdate.equals(beforeUpdate)).toBe(false);
+        expect(afterUpdate.equals(afterUpdate)).toBe(true);
     });
 
     it("returns 400 when missing or invalid `eventId` is provided", async () => {
-        // Create authenticated user
+        // Create user
         await registerAndLoginTestUser(agent, makeTestEmail(), "testpassword");
 
         // Missing `eventId`
@@ -116,7 +123,7 @@ describe.sequential("api/events/update-event", () => {
         );
         expect(missingRes.status).toBe(400);
 
-        // Invalid `eventId` (non-numeric)
+        // Invalid `eventId`
         const { res: invalidRes } = await updateTestEvent(
             agent,
             "not-a-number",
@@ -144,7 +151,7 @@ describe.sequential("api/events/update-event", () => {
         expect(createRes.status).toBe(201);
         const eventId = createRes.body.eventId;
 
-        // Logout User 1 and log in as User 2
+        // Log out User 1 and log in as User 2
         await logoutTestUser(agent);
         await registerAndLoginTestUser(agent, makeTestEmail(), "testpassword");
 
@@ -160,7 +167,7 @@ describe.sequential("api/events/update-event", () => {
         const { res: updateRes } = await updateTestEvent(
             agent,
             -1, // Non-existent ID
-            { description: "This event shouldnt exist" }
+            { description: "This event shouldn't exist" }
         );
         expect(updateRes.status).toBe(404);
     });
