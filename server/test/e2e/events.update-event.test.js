@@ -5,8 +5,6 @@ const { cleanupTestUsers, cleanupTestEvents } = require("../helpers/dbTestingUti
 const { makeTestEmail, registerAndLoginTestUser, logoutTestUser } = require("../helpers/authTestingUtils.js");
 const { createTestEvent, updateTestEvent, getEvent } = require("../helpers/eventsTestingUtils.js");
 
-const TEST_PREFIX = process.env.TEST_PREFIX;
-
 describe.sequential("api/events/update-event", () => {
     let app;
     let agent;
@@ -31,25 +29,26 @@ describe.sequential("api/events/update-event", () => {
     it("returns 200 and updates event details", async () => {
         // Create user and event
         await registerAndLoginTestUser(agent, makeTestEmail(), "testpassword");
-        const title = `${TEST_PREFIX} update-event`;
+
         const originalDescription = "Created from the update-event test";
         const updatedDescription = "Updated from the update-event test";
 
         const { res: createRes } = await createTestEvent(
             agent,
-            { title, description: originalDescription }
+            { description: originalDescription }
         );
+        eventId = createRes.body.eventId;
         expect(createRes.status).toBe(201);
 
         // Update event
         const { res: updateRes } = await updateTestEvent(
             agent,
-            createRes.body.eventId,
+            eventId,
             { description: updatedDescription }
         );
-
-        // Verify update succeeded and persisted
         expect(updateRes.status).toBe(200);
+
+        // Verify event is updated
         const { res: getRes } = await getEvent(agent, createRes.body.eventId);
         expect(getRes.body.description).toBe(updatedDescription);
     });
@@ -57,16 +56,15 @@ describe.sequential("api/events/update-event", () => {
     it("returns 200 and preserves image when updating without a new one", async () => {
         // Create user and event with image
         await registerAndLoginTestUser(agent, makeTestEmail(), "testpassword");
-        const title = `${TEST_PREFIX} update-event no-replace image`;
+
         const image = Buffer.from("fake-image-bytes");
 
-        const { res: createRes } = await createTestEvent(agent, { title }, image);
+        const { res: createRes } = await createTestEvent(agent, { }, image);
         expect(createRes.status).toBe(201);
 
         const { res: getRes1 } = await getEvent(agent, createRes.body.eventId);
+        expect(getRes1.status).toBe(200);
         expect(getRes1.body.image).toBeTruthy();
-
-        const originalImage = Buffer.from(getRes1.body.image);
 
         // Update event without providing new image
         const { res: updateRes } = await updateTestEvent(agent, createRes.body.eventId);
@@ -74,99 +72,131 @@ describe.sequential("api/events/update-event", () => {
 
         // Verify image unchanged
         const { res: getRes2 } = await getEvent(agent, createRes.body.eventId);
+        expect(getRes2.status).toBe(200);
+        expect(getRes2.body.image).toBeTruthy();
+        
+        const originalImage = Buffer.from(getRes1.body.image);
         const preservedImage = Buffer.from(getRes2.body.image);
-
         expect(preservedImage.equals(originalImage)).toBe(true);
     });
 
-    it("returns 200 and replaces existing image when updating with a new one", async () => {
+    it("returns 200 and replaces image when updating with a new one", async () => {
         // Create user and event with image
         await registerAndLoginTestUser(agent, makeTestEmail(), "testpassword");
-        const title = `${TEST_PREFIX} update-event replace image`;
-        const originalImage = Buffer.from("original-image-bytes");
-        const updatedImage = Buffer.from("updated-image-bytes");
 
-        const { res: createRes } = await createTestEvent(agent, { title }, originalImage);
+        const image1 = Buffer.from("original-image-bytes");
+        const image2 = Buffer.from("updated-image-bytes");
+
+        const { res: createRes } = await createTestEvent(agent, { }, image1);
         expect(createRes.status).toBe(201);
+        const eventId = createRes.body.eventId;
 
-        const { res: getRes1 } = await getEvent(agent, createRes.body.eventId);
+        const { res: getRes1 } = await getEvent(agent, eventId);
+        expect(getRes1.status).toBe(200);
         expect(getRes1.body.image).toBeTruthy();
-        const beforeUpdate = Buffer.from(getRes1.body.image);
 
         // Update event with new image
         const { res: updateRes } = await updateTestEvent(
             agent, 
-            createRes.body.eventId, 
+            eventId, 
             {},
-            updatedImage
+            image2
         );
         expect(updateRes.status).toBe(200);
 
         // Verify image replaced
-        const { res: getRes2 } = await getEvent(agent, createRes.body.eventId);
+        const { res: getRes2 } = await getEvent(agent, eventId);
         expect(getRes2.body.image).toBeTruthy();
+
+        const beforeUpdate = Buffer.from(getRes1.body.image);
         const afterUpdate = Buffer.from(getRes2.body.image);
-        
         expect(afterUpdate.equals(beforeUpdate)).toBe(false);
         expect(afterUpdate.equals(afterUpdate)).toBe(true);
     });
 
     it("returns 400 when missing or invalid `eventId` is provided", async () => {
-        // Create user
         await registerAndLoginTestUser(agent, makeTestEmail(), "testpassword");
 
-        // Missing `eventId`
         const { res: missingRes } = await updateTestEvent(
             agent,
             undefined,
-            { description: "New description" }
+            { description: "Missing eventId" }
         );
         expect(missingRes.status).toBe(400);
 
-        // Invalid `eventId`
         const { res: invalidRes } = await updateTestEvent(
             agent,
             "not-a-number",
-            { description: "New description" }
+            { description: "Invalid eventId" }
         );
         expect(invalidRes.status).toBe(400);
     });
 
     it("returns 401 when user is not authenticated", async () => {
-        // Create event as authenticated user
+        // Create user and event
         await registerAndLoginTestUser(agent, makeTestEmail(), "testpassword");
-        const { res: createRes } = await createTestEvent(agent);
+        
+        const originalDescription = "Created from the update-event test";
+        const updatedDescription = "Unauthenticated update attempt";
+
+        const { res: createRes } = await createTestEvent(
+            agent,
+            { description: originalDescription }
+        );
         expect(createRes.status).toBe(201);
+        const eventId = createRes.body.eventId;
         
         // Logout and attempt update
         await logoutTestUser(agent);
-        const { res: updateRes } = await updateTestEvent(agent, createRes.body.eventId);
+        const { res: updateRes } = await updateTestEvent(
+            agent,
+            eventId,
+            { description: updatedDescription }
+        );
         expect(updateRes.status).toBe(401);
+
+        // Verify no update occurred
+        const { res: getRes } = await getEvent(agent, eventId);
+        expect(getRes.status).toBe(200);
+        expect(getRes.body.description).toBe(originalDescription);
     });
 
     it("returns 403 for unauthorized update by a different user", async () => {
         // User 1 creates event
         await registerAndLoginTestUser(agent, makeTestEmail(), "testpassword");
-        const { res: createRes } = await createTestEvent(agent);
+
+        const originalDescription = "Created from the update-event test";
+        const updatedDescription = "Unauthorized update attempt";
+
+        const { res: createRes } = await createTestEvent(
+            agent, 
+            { description: originalDescription }
+        );
         expect(createRes.status).toBe(201);
         const eventId = createRes.body.eventId;
 
-        // Log out User 1 and log in as User 2
+        // Log out User 1 and attempt update as User 2
         await logoutTestUser(agent);
         await registerAndLoginTestUser(agent, makeTestEmail(), "testpassword");
-
-        // User 2 attempts to update User 1's event
-        const { res: updateRes } = await updateTestEvent(agent, eventId);
+        const { res: updateRes } = await updateTestEvent(
+            agent,
+            eventId,
+            { description: updatedDescription }
+        );
         expect(updateRes.status).toBe(403);
+
+        // Verify no update occurred
+        const { res: getRes } = await getEvent(agent, eventId);
+        expect(getRes.status).toBe(200);
+        expect(getRes.body.description).toBe(originalDescription);
     });
 
     it("returns 404 for non-existent event", async () => {
         // Create user and attempt to update non-existent event
         await registerAndLoginTestUser(agent, makeTestEmail(), "testpassword");
-
         const { res: updateRes } = await updateTestEvent(
             agent,
-            -1, // Non-existent ID
+            -1,
             { description: "This event shouldn't exist" }
         );
         expect(updateRes.status).toBe(404);

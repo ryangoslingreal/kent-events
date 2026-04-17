@@ -28,13 +28,9 @@ describe.sequential("api/events/delete-event", () => {
 
     it("returns 200 and deletes existing event", async () => {
         // Create user and event
-        const { res: loginRes, email } = await registerAndLoginTestUser(agent, makeTestEmail(), "testpassword");
-        const title = "Created from the delete-event test";
+        await registerAndLoginTestUser(agent, makeTestEmail(), "testpassword");
 
-        const { res: createRes } = await createTestEvent(
-            agent,
-            { title }
-        );
+        const { res: createRes } = await createTestEvent(agent);
         expect(createRes.status).toBe(201);
         const eventId = createRes.body.eventId;
 
@@ -48,14 +44,11 @@ describe.sequential("api/events/delete-event", () => {
     });
 
     it("returns 400 when missing or invalid `eventId` is provided", async () => {
-        // Create user
         await registerAndLoginTestUser(agent, makeTestEmail(), "testpassword");
 
-        // Missing `eventId`
         const { res: missingRes } = await deleteTestEvent(agent, undefined);
         expect(missingRes.status).toBe(400);
 
-        // Invalid `eventId`
         const { res: invalidRes } = await deleteTestEvent(agent, "invalid-id");
         expect(invalidRes.status).toBe(400);
     });
@@ -63,12 +56,7 @@ describe.sequential("api/events/delete-event", () => {
     it("returns 401 when user is not authenticated", async () => {
         // Create user and event
         await registerAndLoginTestUser(agent, makeTestEmail(), "testpassword");
-        const title = "Created from the delete-event test";
-
-        const { res: createRes } = await createTestEvent(
-            agent,
-            { title }
-        );
+        const { res: createRes } = await createTestEvent(agent);
         expect(createRes.status).toBe(201);
         const eventId = createRes.body.eventId;
 
@@ -76,17 +64,18 @@ describe.sequential("api/events/delete-event", () => {
         await logoutTestUser(agent);
         const { res: deleteRes } = await deleteTestEvent(agent, eventId);
         expect(deleteRes.status).toBe(401);
+
+        // Verify event still exists
+        const { res: getRes } = await getEvent(agent, eventId);
+        expect(getRes.status).toBe(200);
+        expect(getRes.body.id).toBe(eventId);
     });
 
     it("returns 403 for unauthorized delete by a different user", async () => {
         // User 1 creates event
         await registerAndLoginTestUser(agent, makeTestEmail(), "testpassword");
-        const title = "Created from the delete-event test";
 
-        const { res: createRes } = await createTestEvent(
-            agent,
-            { title }
-        );
+        const { res: createRes } = await createTestEvent(agent);
         expect(createRes.status).toBe(201);
         const eventId = createRes.body.eventId;
 
@@ -97,17 +86,17 @@ describe.sequential("api/events/delete-event", () => {
         // User 2 attempts to delete User 1's event
         const { res: deleteRes } = await deleteTestEvent(agent, eventId);
         expect(deleteRes.status).toBe(403);
+
+        // Verify event still exists
+        const { res: getRes } = await getEvent(agent, eventId);
+        expect(getRes.status).toBe(200);
+        expect(getRes.body.id).toBe(eventId);
     });
 
     it("returns 404 for non-existent event", async () => {
-        // Create user and attempt to delete non-existent event
         await registerAndLoginTestUser(agent, makeTestEmail(), "testpassword");
 
-        const { res: deleteRes } = await deleteTestEvent(
-            agent,
-            -1, // Non-existent ID
-            { description: "This event shouldn't exist" }
-        );
+        const { res: deleteRes } = await deleteTestEvent(agent, -1);
         expect(deleteRes.status).toBe(404);
     });
 });

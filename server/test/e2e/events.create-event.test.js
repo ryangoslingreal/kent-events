@@ -5,8 +5,6 @@ const { cleanupTestUsers, cleanupTestEvents } = require("../helpers/dbTestingUti
 const { makeTestEmail, registerAndLoginTestUser } = require("../helpers/authTestingUtils.js");
 const { createTestEvent, getUserMadeEvents, getEvent } = require("../helpers/eventsTestingUtils.js");
 
-const TEST_PREFIX = process.env.TEST_PREFIX;
-
 describe.sequential("api/events/create-event", () => {
     let app;
     let agent;
@@ -28,108 +26,77 @@ describe.sequential("api/events/create-event", () => {
         await cleanupTestUsers();
     });
 
-    it("returns 201 and successfully creates event with required fields", async () => {
+    it("returns 201 and successfully creates event with all fields", async () => {
+        // Create user and event
         const { res: loginRes } = await registerAndLoginTestUser(agent, makeTestEmail(), "testpassword");
         const userId = loginRes.body.user.id;
 
-        const title = `${TEST_PREFIX} create-event with image`;
-        const description = "Created from the create-event test";
+        const description = "Custom description";
         const image = Buffer.from("fake-image-bytes");
 
-        const { res } = await createTestEvent(
+        const { res: createRes } = await createTestEvent(
             agent,
-            {
-                title,
-                description
-            },
+            { description },
             image
         );
+        expect(createRes.status).toBe(201);
 
-        expect(res.status).toBe(201);
-
-        const { res: listRes } = await getUserMadeEvents(agent);
-        expect(listRes.status).toBe(200);
-        expect(listRes.body).toHaveLength(1);
-        expect(listRes.body[0].title).toBe(title);
-
-        const eventId = listRes.body[0].id;
-        expect(eventId).toBeTruthy();
-
-        const { res: eventRes } = await getEvent(agent, eventId);
-        expect(eventRes.status).toBe(200);
-        expect(eventRes.body).toEqual(
+        // Verify event is created correctly
+        const eventId = createRes.body.eventId;
+        const { res: getRes } = await getEvent(agent, eventId);
+        expect(getRes.status).toBe(200);
+        expect(getRes.body).toEqual(
             expect.objectContaining({
                 id: eventId,
                 user_id: userId,
-                title,
                 description,
                 imageUrl: `${eventId}/image`
             })
         );
-        expect(eventRes.body.image).toBeTruthy();
+        expect(Buffer.from(getRes.body.image).equals(image)).toBe(true);
     });
 
     it("returns 201 and successfully creates event without an image", async () => {
+        // Create user and event with no image
         await registerAndLoginTestUser(agent, makeTestEmail(), "testpassword");
 
-        const title = `${TEST_PREFIX} create-event without image`;
-        const description = "Created from the create-event test";
+        const { res: createRes } = await createTestEvent(agent, { }, null);
+        expect(createRes.status).toBe(201);
 
-        const { res } = await createTestEvent(
-            agent,
-            {
-                title,
-                description,
-                image_mime: undefined
-            },
-            null
-        );
-
-        expect(res.status).toBe(201);
-
-        const { res: listRes } = await getUserMadeEvents(agent);
-        expect(listRes.status).toBe(200);
-        expect(listRes.body).toHaveLength(1);
-        expect(listRes.body[0].title).toBe(title);
-
-        const eventId = listRes.body[0].id;
-        expect(eventId).toBeTruthy();
-
-        const { res: eventRes } = await getEvent(agent, eventId);
-        expect(eventRes.status).toBe(200);
-        expect(eventRes.body).toEqual(
-            expect.objectContaining({
-                id: eventId,
-                title,
-                description,
-                imageUrl: `${eventId}/image`
-            })
-        );
-        expect(eventRes.body.image ?? null).toBeNull();
-        expect(eventRes.body.image_mime ?? null).toBeNull();
+        // Verify event is created with no image
+        const eventId = createRes.body.eventId;
+        const { res: getRes } = await getEvent(agent, eventId);
+        expect(getRes.status).toBe(200);
+        expect(getRes.body.image ?? null).toBeNull();
+        expect(getRes.body.image_mime ?? null).toBeNull();
     });
 
     it("returns 400 when missing or invalid fields are provided", async () => {
         await registerAndLoginTestUser(agent, makeTestEmail(), "testpassword");
 
-        const { res: res1 } = await createTestEvent(agent, { title: undefined }, null); // Missing title
+        const { res: res1 } = await createTestEvent(agent, { title: undefined }); // Missing title
         expect(res1.status).toBe(400);
 
-        const { res: res2 } = await createTestEvent(agent, { description: "" }, null); // Invalid description
+        const { res: res2 } = await createTestEvent(agent, { description: "" }); // Invalid description
         expect(res2.status).toBe(400);
 
-        const { res: res3 } = await createTestEvent(agent, { available_contact: undefined }, null); // Other missing field
+        const { res: res3 } = await createTestEvent(agent, { available_contact: undefined }); // Other missing field
         expect(res3.status).toBe(400);
 
+        // Verify no events were created
         const { res: listRes } = await getUserMadeEvents(agent);
         expect(listRes.status).toBe(200);
-        expect(listRes.body).toHaveLength(0); // Ensure no events were created
+        expect(listRes.body).toHaveLength(0);
     });
 
     it("returns 401 when user is not authenticated", async () => {
-        const title = `${TEST_PREFIX} create-event unauthenticated`;
-        const { res } = await createTestEvent(agent, { title }, null);
+        // Attempt to create event without logging in
+        const { res: createRes } = await createTestEvent(agent);
+        expect(createRes.status).toBe(401);
 
-        expect(res.status).toBe(401);
+        // Verify no event is created
+        const eventId = createRes.body.eventId;
+        const { res: getRes } = await getEvent(agent, eventId);
+        expect(getRes.status).toBe(404);
     });
 });
