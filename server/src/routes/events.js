@@ -18,7 +18,6 @@ router.post("/create-event", upload.single("image"), async (req, res) => {
         return res.status(401).json({ message: "You are not authenticated, please sign in to use this feature." });
     }
 
-
     const { 
         title, 
         subtitle, description, 
@@ -39,8 +38,9 @@ router.post("/create-event", upload.single("image"), async (req, res) => {
     // As FormData is now being used, contactinfo (bool) is turned into a string (unlike in json), so this needs to be automatically set now
     let intContactInfo = (available_contact === "true") ? 1 : 0;
     
+    let result;
     try {
-        await eventService.createEvent(
+        result = await eventService.createEvent(
             title, 
             subtitle, description, 
             req.file ?? null, 
@@ -58,7 +58,7 @@ router.post("/create-event", upload.single("image"), async (req, res) => {
         return res.status(500).json({ message: "Server error.", error: error.message, code: error.code });
     }
 
-    return res.status(201).json({ message: "Created event successfully." });
+    return res.status(201).json({ message: "Created event successfully.", eventId: result.insertId });
 });
 
 router.get("/get-user-made-events", async(req, res) => {

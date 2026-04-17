@@ -30,10 +30,6 @@ describe.sequential("api/events/create-event", () => {
 
     it("returns 201 and successfully creates event with required fields", async () => {
         const { res: loginRes } = await registerAndLoginTestUser(agent, makeTestEmail(), "testpassword");
-        // * NOTE: This relies on loginRes containing the user id
-        // * as part of the respose body, which may change in the future.
-        // * If it does, we will need to use the session to track the
-        // * logged in user.
         const userId = loginRes.body.user.id;
 
         const title = `${TEST_PREFIX} create-event with image`;
@@ -116,18 +112,18 @@ describe.sequential("api/events/create-event", () => {
     it("returns 400 when missing or invalid fields are provided", async () => {
         await registerAndLoginTestUser(agent, makeTestEmail(), "testpassword");
 
-        const { res: res1 } = await createTestEvent(agent, { title: undefined }, null);
+        const { res: res1 } = await createTestEvent(agent, { title: undefined }, null); // Missing title
         expect(res1.status).toBe(400);
 
-        const { res: res2 } = await createTestEvent(agent, { description: "" }, null);
+        const { res: res2 } = await createTestEvent(agent, { description: "" }, null); // Invalid description
         expect(res2.status).toBe(400);
 
-        const { res: res3 } = await createTestEvent(agent, { available_contact: undefined }, null);
+        const { res: res3 } = await createTestEvent(agent, { available_contact: undefined }, null); // Other missing field
         expect(res3.status).toBe(400);
 
         const { res: listRes } = await getUserMadeEvents(agent);
         expect(listRes.status).toBe(200);
-        expect(listRes.body).toHaveLength(0);
+        expect(listRes.body).toHaveLength(0); // Ensure no events were created
     });
 
     it("returns 401 when user is not authenticated", async () => {
