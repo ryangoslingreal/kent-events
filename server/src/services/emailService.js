@@ -26,7 +26,7 @@ function createTransporter() {
 async function sendVerificationEmail(to, token) {
     const transporter = createTransporter();
 
-    const verifyUrl = `${process.env.CORS_ORIGIN}/api/auth/verify/${token}`;
+    const verifyUrl = `${process.env.CORS_ORIGIN}/api/auth/verify?token=${token}`;
 
     const from = process.env.EMAIL_FROM;
     const subject = "Verify your email address";
