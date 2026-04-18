@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getAllEvents, getEventImageUrl } from "../../api"
-
 import Header from "../../components/layout/Header"
 import styles from "./Home.module.css"
 
+import { getAllEvents, getEventImageUrl } from "../../api"
+import { mapEventToCard } from "../Events/shared/eventMappers";
+
 function Home(){
-    const [activeFilter, setActiveFilter] = useState("All");
-    const [allEvents, setAllEvents] = useState([]);
-    const [rawEvents, setRawEvents] = useState([]);
+    const [activeFilter, setActiveFilter] = useState("All")
+    const [allEvents, setAllEvents] = useState([])
+    const [rawEvents, setRawEvents] = useState([])
+    const [featuredUrl, setFeaturedUrl] = useState([])
     const [filters, setFilters] = useState({
         filterDate: "any",
         filterPrice: "any"
@@ -19,41 +21,18 @@ function Home(){
         async function getHomeEvents() {
             const data = await getAllEvents();
 
+            const url = data[0].source === 'ksu' || data[0].source === 'kentUni'
+                ? data[0].image_url
+                : `${API_BASE}/api/events/${allEvents[0].internalImageUrl}`
+            setFeaturedUrl(url)
+
             if (data.error) {
                 setAllEvents([]);
                 setRawEvents([]);
                 return;
             }
             
-            const events = data.map((item) => {
-                const formattedDate = new Intl.DateTimeFormat("en-GB", {
-                    weekday: "short",
-                    month: "short",
-                    day: "numeric"
-                }).format(new Date(item.event_date));
-                
-                const [h, m] = item.event_time.split(":").map(Number);
-
-                const formattedTime = new Intl.DateTimeFormat("en-US", {
-                    hour: "numeric",
-                    minute: "2-digit",
-                    hour12: true
-                }).format(new Date().setHours(h, m, 0, 0));
-
-                return { 
-                    id: item.id,
-                    image: item.image, 
-                    imageUrl: item.imageUrl, 
-                    time: formattedTime,
-                    date: formattedDate,
-                    event_date: item.event_date,
-                    location: item.location,
-                    price: item.price,
-                    title: item.title,
-                    tags: item.tags,
-                };
-            });
-
+            const events = data.map(mapEventToCard);
             setAllEvents(events);
             setRawEvents(events);
         }
@@ -126,8 +105,12 @@ function Home(){
                     <div className={styles.recommendedWrapper}>
                         <div className={styles.recommended}>
                             <div className={styles.discoverEvent}>
-                                <h2>Discover <span className = {styles.gold}>events</span> on campus for you</h2>
-                                <h4 className={styles.filterSubtitle}>Browse events, save you favourites, and share plans</h4>
+                                <h2>
+                                    Discover <span className = {styles.gold}>events</span> on campus for you
+                                </h2>
+                                <h4 className={styles.filterSubtitle}>
+                                    Browse events, save you favourites, and share plans
+                                </h4>
                                 <div className={styles.filterParent} >
                                     <a
                                         className={`${styles.eventFilter} ${activeFilter === "All" ? styles.active : ""}`}
@@ -156,7 +139,7 @@ function Home(){
                                 </div>
                             </div>
                             
-                            { allEvents[0] ? (
+                            {allEvents[0] ? (
                                 <div className={styles.featuredEvent}
                                     style={{ // Fades background image at the bottom
                                     backgroundImage: `
@@ -167,20 +150,21 @@ function Home(){
                                             rgba(0,0,0,0.2) 70%,
                                             transparent 100%
                                         ),
-                                        url(${getEventImageUrl(allEvents[0].imageUrl)})
-                                        `,
+                                        url(${featuredUrl})`,
                                         backgroundSize: "cover",
                                         backgroundPosition: "center"
                                     }}
                                 >
                                     <h3>{allEvents[0].title}</h3>
-                                    <p>{allEvents[0].date} - {allEvents[0].time} - {allEvents[0].location} - £{allEvents[0].price}</p>
+                                    <p>
+                                        {allEvents[0].date} - {allEvents[0].time} - {allEvents[0].location} - £{allEvents[0].price}
+                                    </p>
 
                                     <button onClick={() => navigate(`/events/detail/${allEvents[0].id}`)}>
                                         View Details
                                     </button>
                                 </div>
-                                ) : (
+                            ) : (
                                 <div className={styles.featuredEvent}>
                                     <p style={{ padding: 20 }}>Loading featured event…</p>
                                 </div>
@@ -213,14 +197,18 @@ function Home(){
                         <div className={styles.events}>
                             <h3>Popular events</h3>
                             <div className={styles.eventList}>
-                                { allEvents.map((event) => (
+                                {allEvents.map((event) => (
                                     <div key={event.id} className={styles.eventCard} onClick={() => eventDetail(event.id)}>
                                         <div className={styles.imageWrapper}>
-                                            <img 
-                                                className={styles.eventImage}
-                                                src={getEventImageUrl(event.imageUrl)}
-                                                alt={event.title}
-                                            />
+                                            {event.source === 'ksu' || event.source === 'kentUni' ? (
+                                                <img className={styles.eventImage} src={event.image_url}></img>
+                                            ) : (
+                                                <img 
+                                                    className={styles.eventImage}
+                                                    src={getEventImageUrl(event.imageUrl)}
+                                                    alt={event.title}
+                                                />
+                                            )}
                                             {event.id === allEvents[0].id && (
                                                 <span className={styles.badge}>featured</span>
                                             )}
@@ -233,8 +221,8 @@ function Home(){
                                             <h4 className={styles.eventTitle}>{event.title}</h4>
                                             <p className={styles.location_tag}>
                                                 {event.location}
-                                                {event.tags && (
-                                                    <span className={styles.tag}>{event.tags}</span>
+                                                {event.tags.length != 0 && (
+                                                    <span className={styles.tag}>{event.tags[0]}</span>
                                                 )}
                                             </p>
                                         </div>

@@ -1,107 +1,59 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from 'react-router-dom';
-import { getEvent, deleteEvent, updateEvent } from "../../api";
-
 import searchicon from "../../assets/searchIcon.png";
 import Header from "../../components/layout/Header.jsx";
 import styles from "./EditEvent.module.css";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 
-function Field({ label, htmlFor, children }) {
-    return (
-        <div className={styles.fieldGroup}>
-            <label htmlFor={htmlFor}>{label}</label>
-            {children}
-        </div>
-    );
-}
+import { getEvent, deleteEvent, updateEvent } from "../../api";
+import {
+    Field,
+    createInitialEventForm,
+    applyEventInputChange,
+    mapEventToEditForm,
+    buildEventUpdatePayload,
+    EVENT_TOAST_STYLE
+} from "./shared/eventFormShared.jsx";
 
 function EditEvent(){
     const { id } = useParams();
     const navigate = useNavigate();
-    const [formData, setFormData] = useState({
-        title: "",
-        subtitle: "",
-        description: "",
-        image: null,
-        image_mime: null,
-        event_date: "",
-        event_time: "",
-        location: "",
-        tags: [],
-        price: "",
-        repeat_event: "never",
-        available_contact: false
-    });
+    const [formData, setFormData] = useState(createInitialEventForm());
     const [selectedFile, setSelectedFile] = useState();
 
-    const handleInputChange = ({ target }) => {
-        const { name, value, type, checked, files } = target;
-        let nextValue = type === "checkbox" ? checked : value;
+    const baseHandleInputChange = applyEventInputChange(setFormData);
 
-        if (name === "price") {
-            nextValue = Math.max(0, Number(nextValue || 0));
+    const handleInputChange = (event) => {
+        const selectedImage = baseHandleInputChange(event);
+
+        if (event.target.name === "image") {
+            setSelectedFile(selectedImage);
         }
-
-        if (name === "image"){
-            const selectedFile = files?.[0] ?? null;
-
-            setFormData(prev => ({
-                ...prev,
-                image: selectedFile,
-                image_mime: selectedFile?.type ?? prev.image_mime
-            }));
-
-            setSelectedFile(selectedFile);
-            return;
-        }
-        
-        if (name === "tags") {
-            setFormData(prev => ({
-                ...prev,
-                tags: value
-            }));
-
-            return;
-        }
-
-        setFormData(prev => ({
-            ...prev,
-            [name]: nextValue
-        }));
     };
 
     const handleSubmit = async(e) => {
         e.preventDefault();
 
-        const payload = {...formData};
-        
-        if (selectedFile) {
-            payload.image = selectedFile;
-        } else {
-            delete payload.image;
-            delete payload.image_mime;
-        }
-        
+        const payload = buildEventUpdatePayload(formData, selectedFile);
         const result = await updateEvent(id, payload);
 
         if (result.error){
-            toast.error(result.error, {style: {background: "#05345C", color: "white"}});
+            toast.error(result.error, { style: EVENT_TOAST_STYLE });
             return;
         }
         
-        toast.success(result.message, {style: {background: "#05345C", color: "white"}});
+        toast.success(result.message, { style: EVENT_TOAST_STYLE });
     };
 
     const handleDeleteEvent = async(e) => {
         const result = await deleteEvent(id);
 
         if (result.error){
-            toast.error(result.error, {style: {background: "#05345C", color: "white"}});
+            toast.error(result.error, { style: EVENT_TOAST_STYLE });
             return;
         }
         
-        toast.success(result.message, {style: {background: "#05345C", color: "white"}});
+        toast.success(result.message, { style: EVENT_TOAST_STYLE });
         setTimeout(() => navigate("/"), 1000);
     };
 
@@ -110,18 +62,11 @@ function EditEvent(){
             const data = await getEvent(id);
 
             if (data.error) {
-                toast.error(data.error, {style: {background: "#05345C", color: "white"}});
+                toast.error(data.error, { style: EVENT_TOAST_STYLE });
                 return;
             }
 
-            const normalizedEvent = {
-                ...data,
-                event_time: data.event_time.toString().slice(0, 5),
-                event_date: data.event_date.slice(0, 10),
-                available_contact: data.available_contact == 1
-            };
-
-            setFormData(normalizedEvent);
+            setFormData(mapEventToEditForm(data));
         }
 
         getEventData();
@@ -130,14 +75,6 @@ function EditEvent(){
     return (
         <>
             <Header />
-            <Toaster 
-                position="bottom-right"
-                toastOptions={{
-                    style: {
-                        fontFamily: "Overpass, Helvetica, Arial, sans-serif",
-                    }
-                }}
-            />
             <div className={styles.page}>
                 <div className={styles.card}>
                     <form className={styles.form} onSubmit={handleSubmit}>
@@ -147,7 +84,11 @@ function EditEvent(){
                         <section className={styles.section}>
                             <h3 className={styles.sectionHeader}>Details</h3>
 
-                            <Field label={<>Title <span className={styles.required}>*</span></>} htmlFor="title">
+                            <Field
+                                styles={styles}
+                                label={<>Title <span className={styles.required}>*</span></>}
+                                htmlFor="title"
+                            >
                                 <input
                                     id="title"
                                     name="title"
@@ -157,7 +98,11 @@ function EditEvent(){
                                 />
                             </Field>
 
-                            <Field label="Subtitle" htmlFor="subtitle">
+                            <Field
+                                styles={styles}
+                                label="Subtitle"
+                                htmlFor="subtitle"
+                            >
                                 <input
                                     id="subtitle"
                                     name="subtitle"
@@ -166,7 +111,11 @@ function EditEvent(){
                                 />
                             </Field>
 
-                            <Field label={<>Description <span className={styles.required}>*</span></>} htmlFor="description">
+                            <Field
+                                styles={styles}
+                                label={<>Description <span className={styles.required}>*</span></>}
+                                htmlFor="description"
+                            >
                                 <textarea
                                     id="description"
                                     name="description"
@@ -177,7 +126,11 @@ function EditEvent(){
                                 />
                             </Field>
 
-                            <Field label="Select an image" htmlFor="image">
+                            <Field
+                                styles={styles}
+                                label="Select an image"
+                                htmlFor="image"
+                            >
                                 <label htmlFor="image" className={styles.image}>
                                     {selectedFile ? selectedFile.name : formData.image ? "Choose new image" : "Select Image"}
                                 </label>
@@ -198,7 +151,11 @@ function EditEvent(){
                             <h3 className={styles.sectionHeader}>When & Where</h3>
 
                             <div className={styles.dateTime}>
-                                <Field label={<>Choose a date <span className={styles.required}>*</span></>} htmlFor="event_date">
+                                <Field
+                                    styles={styles}
+                                    label={<>Choose a date <span className={styles.required}>*</span></>}
+                                    htmlFor="event_date"
+                                >
                                     <input
                                         type="date"
                                         id="event_date"
@@ -209,7 +166,11 @@ function EditEvent(){
                                     />
                                 </Field>
 
-                                <Field label={<>Time <span className={styles.required}>*</span></>} htmlFor="event_time">
+                                <Field
+                                    styles={styles}
+                                    label={<>Time <span className={styles.required}>*</span></>}
+                                    htmlFor="event_time"
+                                >
                                     <input
                                         type="time"
                                         id="event_time"
@@ -221,7 +182,11 @@ function EditEvent(){
                                 </Field>
                             </div>
 
-                            <Field label={<>Location <span className={styles.required}>*</span></>} htmlFor="location">
+                            <Field
+                                styles={styles}
+                                label={<>Location <span className={styles.required}>*</span></>}
+                                htmlFor="location"
+                            >
                                 <input
                                     id="location"
                                     name="location"
@@ -235,7 +200,11 @@ function EditEvent(){
                         <section className={styles.section}>
                             <h3 className={styles.sectionHeader}>Tags & Pricing</h3>
 
-                            <Field label="Choose tags" htmlFor="tags">
+                            <Field
+                                styles={styles}
+                                label="Choose tags"
+                                htmlFor="tags"
+                            >
                                 <div className={styles.searchBar}>
                                     <input
                                         id="tags"
@@ -248,7 +217,11 @@ function EditEvent(){
                                 </div>
                             </Field>
 
-                            <Field label={<>Price <span className={styles.required}>*</span></>} htmlFor="price">
+                            <Field
+                                styles={styles}
+                                label={<>Price <span className={styles.required}>*</span></>}
+                                htmlFor="price"
+                            >
                                 <div className={styles.price}>
                                     £
                                     <input
@@ -264,7 +237,11 @@ function EditEvent(){
                                 </div>
                             </Field>
 
-                            <Field label={<>Repeat? <span className={styles.required}>*</span></>} htmlFor="repeat_event">
+                            <Field
+                                styles={styles}
+                                label={<>Repeat? <span className={styles.required}>*</span></>}
+                                htmlFor="repeat_event"
+                            >
                                 <select
                                     id="repeat_event"
                                     name="repeat_event"

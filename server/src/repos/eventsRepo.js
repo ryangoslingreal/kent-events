@@ -9,6 +9,19 @@ async function createEvent(title, subtitle, description, image, image_mime, date
     await db.query(query, values);
 }
 
+async function saveKSUEvents(events) {
+    for (const event of events){
+        if (!event.title || !event.description) {
+            continue; 
+        }
+        const query = `INSERT INTO events (title, user_id, description, image, image_mime, event_date, event_time, location, tags, price, repeat_event, available_contact, image_url, background_event_image_url, source, external_url, end_event_time, ticket_url) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON DUPLICATE KEY UPDATE external_url = external_url`;
+        const values = [event.title, 1, event.description, null, null, event.date, event.time, event.location, JSON.stringify(event.tags), 0, "never", 0, event.image_url, event.background_event_image_url, event.source, event.external_url, event.end_event_time, event.ticket_url]   //Made the user_id 1 as default
+        await db.query(query, values);
+    }
+}
+
 async function getUserMadeEvents(user_id) {
     const query = `
         SELECT id, title, event_date
@@ -77,6 +90,17 @@ async function getAllEvents(){
     return rows
 }
 
+async function lastScrapeTime(){
+    const query = `
+        SELECT updated_at
+        FROM events
+        WHERE source = 'ksu' OR source = 'kentUni'
+        LIMIT 1
+    `
+    const [result] = await db.execute(query)
+    return result
+}
+
 module.exports = { 
     createEvent,
     getUserMadeEvents,
@@ -84,4 +108,6 @@ module.exports = {
     deleteEvent,
     updateEvent,
     getAllEvents,
+    saveKSUEvents,
+    lastScrapeTime
 };
