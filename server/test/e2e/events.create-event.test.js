@@ -3,7 +3,9 @@ const inbox = require("../helpers/emailInbox.js");
 const { createTestAgent } = require("../helpers/testingUtils.js");
 const { cleanupTestUsers, cleanupTestEvents } = require("../helpers/dbTestingUtils.js");
 const { makeTestEmail, registerAndLoginTestUser } = require("../helpers/authTestingUtils.js");
-const { createTestEvent, getUserMadeEvents, getEvent } = require("../helpers/eventsTestingUtils.js");
+const { normaliseEvent, createTestEvent, getUserMadeEvents, getEvent } = require("../helpers/eventsTestingUtils.js");
+
+const TEST_PREFIX = process.env.TEST_PREFIX;
 
 describe.sequential("api/events/create-event", () => {
     let app;
@@ -31,26 +33,55 @@ describe.sequential("api/events/create-event", () => {
         const { res: loginRes } = await registerAndLoginTestUser(agent, makeTestEmail(), "testpassword");
         const userId = loginRes.body.user.id;
 
+        const title = `${TEST_PREFIX} Custom title`; // Need prefix for db cleanup
+        const subtitle = "Custom subtitle";
         const description = "Custom description";
+        const event_date = "2033-01-01";
+        const event_time = "00:00";
+        const location = "Custom location";
+        const tags = ["custom", "tags"];
+        const price = "10";
+        const repeat_event = "weekly";
+        const available_contact = false;
         const image = Buffer.from("fake-image-bytes");
 
         const { res: createRes } = await createTestEvent(
             agent,
-            { description },
+            {
+                title,
+                subtitle,
+                description,
+                event_date,
+                event_time,
+                location,
+                tags,
+                price,
+                repeat_event,
+                available_contact
+            },
             image
         );
+        const eventId = createRes.body.eventId;
         expect(createRes.status).toBe(201);
 
         // Verify event is created correctly
-        const eventId = createRes.body.eventId;
         const { res: getRes } = await getEvent(agent, eventId);
         expect(getRes.status).toBe(200);
-        expect(getRes.body).toEqual(
+        expect(normaliseEvent(getRes.body)).toEqual(
             expect.objectContaining({
                 id: eventId,
                 user_id: userId,
+                title,
+                subtitle,
                 description,
-                imageUrl: `${eventId}/image`
+                event_date,
+                event_time,
+                location,
+                tags,
+                price,
+                repeat_event,
+                available_contact,
+                image_mime: "image/png"
             })
         );
         expect(Buffer.from(getRes.body.image).equals(image)).toBe(true);
@@ -61,10 +92,10 @@ describe.sequential("api/events/create-event", () => {
         await registerAndLoginTestUser(agent, makeTestEmail(), "testpassword");
 
         const { res: createRes } = await createTestEvent(agent, { }, null);
+        const eventId = createRes.body.eventId;
         expect(createRes.status).toBe(201);
 
         // Verify event is created with no image
-        const eventId = createRes.body.eventId;
         const { res: getRes } = await getEvent(agent, eventId);
         expect(getRes.status).toBe(200);
         expect(getRes.body.image ?? null).toBeNull();

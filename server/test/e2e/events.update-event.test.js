@@ -3,7 +3,9 @@ const inbox = require("../helpers/emailInbox.js");
 const { createTestAgent } = require("../helpers/testingUtils.js");
 const { cleanupTestUsers, cleanupTestEvents } = require("../helpers/dbTestingUtils.js");
 const { makeTestEmail, registerAndLoginTestUser, logoutTestUser } = require("../helpers/authTestingUtils.js");
-const { createTestEvent, updateTestEvent, getEvent } = require("../helpers/eventsTestingUtils.js");
+const { normaliseEvent, createTestEvent, updateTestEvent, getEvent } = require("../helpers/eventsTestingUtils.js");
+
+const TEST_PREFIX = process.env.TEST_PREFIX;
 
 describe.sequential("api/events/update-event", () => {
     let app;
@@ -30,27 +32,57 @@ describe.sequential("api/events/update-event", () => {
         // Create user and event
         await registerAndLoginTestUser(agent, makeTestEmail(), "testpassword");
 
-        const originalDescription = "Created from the update-event test";
-        const updatedDescription = "Updated from the update-event test";
-
-        const { res: createRes } = await createTestEvent(
-            agent,
-            { description: originalDescription }
-        );
-        eventId = createRes.body.eventId;
+        const { res: createRes } = await createTestEvent(agent);
+        const eventId = createRes.body.eventId;
         expect(createRes.status).toBe(201);
 
         // Update event
+        const title = `${TEST_PREFIX} New title`; // Need prefix for db cleanup
+        const subtitle = "New subtitle";
+        const description = "New description";
+        const event_date = "2033-01-01";
+        const event_time = "00:00";
+        const location = "New location";
+        const tags = ["new", "tags"];
+        const price = "10";
+        const repeat_event = "weekly";
+        const available_contact = false;
+
         const { res: updateRes } = await updateTestEvent(
             agent,
             eventId,
-            { description: updatedDescription }
+            {
+                title,
+                subtitle,
+                description,
+                event_date,
+                event_time,
+                location,
+                tags,
+                price,
+                repeat_event,
+                available_contact
+            }
         );
         expect(updateRes.status).toBe(200);
 
         // Verify event is updated
-        const { res: getRes } = await getEvent(agent, createRes.body.eventId);
-        expect(getRes.body.description).toBe(updatedDescription);
+        const { res: getRes } = await getEvent(agent, eventId);
+        expect(getRes.status).toBe(200);
+        expect(normaliseEvent(getRes.body)).toEqual(
+            expect.objectContaining({
+                title,
+                subtitle,
+                description,
+                event_date,
+                event_time,
+                location,
+                tags,
+                price,
+                repeat_event,
+                available_contact
+            })
+        );
     });
 
     it("returns 200 and preserves image when updating without a new one", async () => {
@@ -67,7 +99,7 @@ describe.sequential("api/events/update-event", () => {
         expect(getRes1.body.image).toBeTruthy();
 
         // Update event without providing new image
-        const { res: updateRes } = await updateTestEvent(agent, createRes.body.eventId);
+        const { res: updateRes } = await updateTestEvent(agent, createRes.body.eventId, { description: "Updated description" });
         expect(updateRes.status).toBe(200);
 
         // Verify image unchanged
@@ -99,7 +131,7 @@ describe.sequential("api/events/update-event", () => {
         const { res: updateRes } = await updateTestEvent(
             agent, 
             eventId, 
-            {},
+            { description: "New image" },
             image2
         );
         expect(updateRes.status).toBe(200);
