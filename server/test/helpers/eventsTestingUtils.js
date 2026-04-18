@@ -11,7 +11,7 @@ function defaultEventPayload(overrides = {}) {
         event_date: "2077-05-01",
         event_time: "12:00",
         location: "Test Location",
-        tags: "vitest",
+        tags: ["vitest"],
         price: "0",
         repeat_event: "never",
         available_contact: "true",
@@ -22,7 +22,11 @@ function defaultEventPayload(overrides = {}) {
 async function sendMultipart(req, payload = {}, image = null) {
     Object.entries(payload).forEach(([k, v]) => {
         if (v === undefined || v === null) return;
-        req.field(k, String(v));
+        if (Array.isArray(v)) {
+            req.field(k, JSON.stringify(v));
+        } else {
+            req.field(k, String(v));
+        }
     });
 
     if (image != null) {
