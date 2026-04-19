@@ -96,11 +96,19 @@ async function getUserMadeEvents(agent) {
     return { res };
 }
 
+async function getAllEvents(agent) {
+    const res = await agent
+        .get("/api/events/get-all-events");
+
+    return { res };
+}
+
 module.exports = {
     normaliseEvent,
     createTestEvent,
     updateTestEvent,
     deleteTestEvent,
     getEvent,
-    getUserMadeEvents
+    getUserMadeEvents,
+    getAllEvents
 }
