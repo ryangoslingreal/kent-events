@@ -18,16 +18,15 @@ router.post("/create-event", upload.single("image"), async (req, res) => {
         return res.status(401).json({ message: "You are not authenticated, please sign in to use this feature." });
     }
 
-
-    const { 
-        title, 
-        subtitle, description, 
-        image_mime, 
-        event_date, event_time, 
-        location, 
-        tags, 
-        price, 
-        repeat_event, 
+    const {
+        title,
+        subtitle, description,
+        image_mime,
+        event_date, event_time,
+        location,
+        tags,
+        price,
+        repeat_event,
         available_contact
     } = req.body;
 
@@ -39,17 +38,18 @@ router.post("/create-event", upload.single("image"), async (req, res) => {
     // As FormData is now being used, contactinfo (bool) is turned into a string (unlike in json), so this needs to be automatically set now
     let intContactInfo = (available_contact === "true") ? 1 : 0;
     
+    let result;
     try {
-        await eventService.createEvent(
-            title, 
-            subtitle, description, 
-            req.file ?? null, 
-            image_mime, 
-            event_date, event_time, 
-            location, 
-            tags, 
-            price, 
-            repeat_event, 
+        result = await eventService.createEvent(
+            title,
+            subtitle, description,
+            req.file ?? null,
+            image_mime,
+            event_date, event_time,
+            location,
+            tags,
+            price,
+            repeat_event,
             intContactInfo,
             req.session.user.id
         );
@@ -58,7 +58,7 @@ router.post("/create-event", upload.single("image"), async (req, res) => {
         return res.status(500).json({ message: "Server error.", error: error.message, code: error.code });
     }
 
-    return res.status(201).json({ message: "Created event successfully." });
+    return res.status(201).json({ message: "Created event successfully.", eventId: result.insertId });
 });
 
 router.get("/get-user-made-events", async(req, res) => {
@@ -68,7 +68,7 @@ router.get("/get-user-made-events", async(req, res) => {
     
     let events;
     try {
-        events = await eventService.getUserMadeEvents(req.session.user.id)     
+        events = await eventService.getUserMadeEvents(req.session.user.id)
     } catch (error) {
         console.error("get-user-made-events error:", error);
         return res.status(500).json({ message: "Server error.", error: error.message, code: error.code });
@@ -83,10 +83,8 @@ router.get("/get-event", async(req, res) => {
         let eventId = req.query.eventId;
 
         const result = await eventService.getEvent(eventId);
-        let event = result[0]
-
-        //This sends the image url to the frontend
-        event.imageUrl = `${event.id}/image`; 
+        let event = result[0];
+        event.imageUrl = `${event.id}/image`;
 
         return res.status(200).json(event);
 
@@ -157,8 +155,8 @@ router.get("/get-all-events", async(req, res) => {
         //This sends the image url to the frontend
         const events = result.map((event) => ({
             ...event,
-            internalImageUrl: `${event.id}/image`, 
-            image: undefined             //done to reduce how much is being sent back
+            imageUrl: `${event.id}/image`,
+            image: undefined //done to reduce how much is being sent back
         }))
 
         return res.status(200).json(events);

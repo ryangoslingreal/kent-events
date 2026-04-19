@@ -3,6 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const session = require("express-session");
 const MySQLStore = require("express-mysql-session")(session);
+
 const { registerRoutes } = require("./routes");
 const { runScrape } = require("./scrapers/index.js");
 
@@ -53,7 +54,4 @@ if (require.main === module) {
 }
 
 // Run scrapers
-runScrape()
-
-
-
+runScrape();

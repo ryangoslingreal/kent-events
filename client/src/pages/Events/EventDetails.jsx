@@ -105,11 +105,11 @@ function EventDetails() {
                                         {event.source === 'ksu' || event.source === 'kentUni' ? (
                                             <img className={styles.eventImage} src={event.image_url}></img>
                                         ) : (
-                                        <img
-                                            className={styles.eventImage}
-                                            src={getEventImageUrl(event.imageUrl)}
-                                            alt={event.title}
-                                        />
+                                            <img
+                                                className={styles.eventImage}
+                                                src={getEventImageUrl(event.imageUrl)}
+                                                alt={event.title}
+                                            />
                                         )}
                                         <div className={styles.overlay} />
                                         <h4 className={styles.eventTitle}>{event.title}</h4>

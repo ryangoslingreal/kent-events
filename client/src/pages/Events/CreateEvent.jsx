@@ -13,6 +13,21 @@ import {
     EVENT_TOAST_STYLE
 } from "./shared/eventFormShared.jsx";
 
+const initialForm = {
+    title: "",
+    subtitle: "",
+    description: "",
+    image: null,
+    image_mime: null,
+    event_date: "",
+    event_time: "",
+    location: "",
+    tags: [],
+    price: "",
+    repeat_event: "never",
+    available_contact: false
+}
+
 function CreateEvent() {
     const navigate = useNavigate();
     const [formData, setFormData] = useState(createInitialEventForm());
@@ -52,6 +67,14 @@ function CreateEvent() {
     return (
         <>
             <Header />
+            <Toaster 
+                position="bottom-right"
+                toastOptions={{
+                    style: {
+                        fontFamily: "Overpass, Helvetica, Arial, sans-serif",
+                    }
+                }}
+            />
             <div className={styles.page}>
                 <div className={styles.card}>
                     <form className={styles.form} onSubmit={handleSubmit}>

@@ -48,7 +48,7 @@ function EditEvent(){
     const handleDeleteEvent = async(e) => {
         const result = await deleteEvent(id);
 
-        if (result.error){
+        if (result.error) {
             toast.error(result.error, { style: EVENT_TOAST_STYLE });
             return;
         }
@@ -75,6 +75,14 @@ function EditEvent(){
     return (
         <>
             <Header />
+            <Toaster 
+                position="bottom-right"
+                toastOptions={{
+                    style: {
+                        fontFamily: "Overpass, Helvetica, Arial, sans-serif",
+                    }
+                }}
+            />
             <div className={styles.page}>
                 <div className={styles.card}>
                     <form className={styles.form} onSubmit={handleSubmit}>
@@ -125,7 +133,7 @@ function EditEvent(){
                                     required
                                 />
                             </Field>
-
+                            
                             <Field
                                 styles={styles}
                                 label="Select an image"

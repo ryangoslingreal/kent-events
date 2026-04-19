@@ -24,7 +24,7 @@ function Home(){
             const url = data[0].source === 'ksu' || data[0].source === 'kentUni'
                 ? data[0].image_url
                 : `${API_BASE}/api/events/${allEvents[0].internalImageUrl}`
-            setFeaturedUrl(url)
+            setFeaturedUrl(url);
 
             if (data.error) {
                 setAllEvents([]);
@@ -139,7 +139,7 @@ function Home(){
                                 </div>
                             </div>
                             
-                            {allEvents[0] ? (
+                            { allEvents[0] ? (
                                 <div className={styles.featuredEvent}
                                     style={{ // Fades background image at the bottom
                                     backgroundImage: `
@@ -200,7 +200,7 @@ function Home(){
                                 {allEvents.map((event) => (
                                     <div key={event.id} className={styles.eventCard} onClick={() => eventDetail(event.id)}>
                                         <div className={styles.imageWrapper}>
-                                            {event.source === 'ksu' || event.source === 'kentUni' ? (
+                                            { event.source === 'ksu' || event.source === 'kentUni' ? (
                                                 <img className={styles.eventImage} src={event.image_url}></img>
                                             ) : (
                                                 <img 
@@ -209,7 +209,7 @@ function Home(){
                                                     alt={event.title}
                                                 />
                                             )}
-                                            {event.id === allEvents[0].id && (
+                                            { event.id === allEvents[0].id && (
                                                 <span className={styles.badge}>featured</span>
                                             )}
                                         </div>
@@ -221,7 +221,7 @@ function Home(){
                                             <h4 className={styles.eventTitle}>{event.title}</h4>
                                             <p className={styles.location_tag}>
                                                 {event.location}
-                                                {event.tags.length != 0 && (
+                                                { event.tags.length != 0 && (
                                                     <span className={styles.tag}>{event.tags[0]}</span>
                                                 )}
                                             </p>

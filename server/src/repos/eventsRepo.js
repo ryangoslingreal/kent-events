@@ -6,7 +6,8 @@ async function createEvent(title, subtitle, description, image, image_mime, date
     const query = 'INSERT INTO events (title, user_id ,subtitle, description, image, image_mime, event_date, event_time, location, tags, price, repeat_event, available_contact) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
     const values = [title, user_id ,subtitle, description, image?.buffer ?? null, image_mime, date, time, location, JSON.stringify(tags), price, repeat, contactInfo];
 
-    await db.query(query, values);
+    const [result] = await db.query(query, values);
+    return result;
 }
 
 async function saveKSUEvents(events) {

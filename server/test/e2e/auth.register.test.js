@@ -1,5 +1,6 @@
 import { beforeEach, describe, it, expect, afterEach } from "vitest";
 const inbox = require("../helpers/emailInbox.js");
+const { createTestAgent } = require("../helpers/testingUtils.js");
 const { cleanupTestUsers } = require("../helpers/dbTestingUtils.js");
 const { createTestAgent, makeTestEmail, registerTestUser } = require("../helpers/authTestingUtils.js");
 
