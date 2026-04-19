@@ -1,45 +1,55 @@
 # Kent Events
 
+## Overview
+Kent Events is an event management application built with React and Node.js, backed by MySQL and containerized using Docker Compose.
+
 ## Tech Stack
-- Docker & Docker Compose
-- React & Node.js
-- MySQL
-- Vitest & Supertest
+- Frontend: React
+- Backend: Node.js
+- Database: MySQL
+- Testing: Vitest & Supertest
+- Containerization: Docker & Docker Compose
 
-## Documents
-- **Technical Report:** https://docs.google.com/document/d/1CGVLdbOW_-rIPZs84L8Uq1hVenXK73U6aaddA-_L-TE/edit?tab=t.0
-- **Testing Report:** https://docs.google.com/document/d/1TjcMOh88t4Z80yA6RCgkCoSDmjAs7lqegykTRR6xX5A/edit?tab=t.0
-
-## Setup & Run
-
-This project is containerised using Docker Compose.
-
+## Quick Start
 ### Prerequisites
 - Docker
 - Docker Compose
 
-Check Docker is installed:
+### Verify Docker
 ```bash
 docker --version
 docker compose version
 ```
 
-### Running the application
+### Start the application
 ```bash
 docker compose up
 ```
-- Could also use
-```bash
-docker compose up -v
-```
 
-### Rebuilding after changes:
+### Rebuild after changes
 ```bash
 docker compose up --build
 ```
 
-### Stopping the application
+### Stop the application
 ```bash
 docker compose down
 ```
 
+## Testing
+Server tests run from the `server` directory.
+
+```bash
+cd server
+npm test
+```
+
+To run a subset of tests, use a pattern:
+
+```bash
+npm test -- "^auth"
+```
+
+## Documentation
+- **Technical Report:** https://docs.google.com/document/d/1CGVLdbOW_-rIPZs84L8Uq1hVenXK73U6aaddA-_L-TE/edit?tab=t.0
+- **Testing Report:** https://docs.google.com/document/d/1TjcMOh88t4Z80yA6RCgkCoSDmjAs7lqegykTRR6xX5A/edit?tab=t.0
