@@ -103,6 +103,13 @@ async function getAllEvents(agent) {
     return { res };
 }
 
+async function getEventImage(agent, eventId) {
+    const res = await agent
+        .get(`/api/events/${eventId}/image`);
+
+    return { res };
+}
+
 module.exports = {
     normaliseEvent,
     createTestEvent,
@@ -110,5 +117,6 @@ module.exports = {
     deleteTestEvent,
     getEvent,
     getUserMadeEvents,
-    getAllEvents
+    getAllEvents,
+    getEventImage
 }
