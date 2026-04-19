@@ -36,7 +36,6 @@ describe.sequential("api/events/get-event", () => {
 
         // Get and verify the event
         const { res: getRes } = await getEvent(agent, eventId);
-        console.log(getRes);
         expect(getRes.status).toBe(200);
         expect(getRes.body.id).toBe(eventId);
         expect(getRes.body.imageUrl).toBe(`${eventId}/image`);

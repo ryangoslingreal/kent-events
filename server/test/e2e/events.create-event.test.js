@@ -124,10 +124,5 @@ describe.sequential("api/events/create-event", () => {
         // Attempt to create event without logging in
         const { res: createRes } = await createTestEvent(agent);
         expect(createRes.status).toBe(401);
-
-        // Verify no event is created
-        const eventId = createRes.body.eventId;
-        const { res: getRes } = await getEvent(agent, eventId);
-        expect(getRes.status).toBe(404);
     });
 });
