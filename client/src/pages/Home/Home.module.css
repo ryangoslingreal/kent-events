@@ -301,6 +301,39 @@
   backdrop-filter: blur(6px);
 }
 
+.loadMoreWrapper{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.loadMoreBtn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 28px;
+    margin: 20px 0;
+    background: transparent;
+    color: #002f70;
+    border: 1px solid #002f70;
+    border-radius: 12px;
+    font-family: Overpass, Helvetica, Arial, sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.18s ease, color 0.18s ease, transform 0.12s ease;
+    min-width: 160px;
+    justify-content: center;
+}
+
+.loadMoreBtn:hover {
+    background: #002f70;
+    color: white;
+}
+
+.loadMoreBtn:active {
+    transform: scale(0.97);
+}
 
 
 

@@ -81,14 +81,15 @@ async function updateEvent(eventId, title, subtitle, description, image, image_m
     // ? SHOULD i JUST UPDATE ALL COLUMNS with teh sepcific event, or only changed ones?
 }
 
-async function getAllEvents(){
+async function getAllEvents(limit, offset){
     const query = `
                     SELECT *
                     FROM events
                     WHERE event_date >= CURDATE()
+                    LIMIT ? OFFSET ?
     `
-    const [rows] = await db.execute(query)
-    return rows
+    const [rows] = await db.query(query, [limit, offset]);
+    return rows;
 }
 
 async function lastScrapeTime(){

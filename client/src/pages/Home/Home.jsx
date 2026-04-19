@@ -15,11 +15,16 @@ function Home(){
         filterDate: "any",
         filterPrice: "any"
     });
+    const [offset, setOffset] = useState(0);
+    const [hasMore, setHasMore] = useState(true);
     const navigate = useNavigate();
+    const PAGE_SIZE = 15;
+
 
     useEffect (() => {
         async function getHomeEvents() {
-            const data = await getAllEvents();
+            const data = await getAllEvents(PAGE_SIZE, 0);
+            
 
             const url = data[0].source === 'ksu' || data[0].source === 'kentUni'
                 ? data[0].image_url
@@ -35,10 +40,21 @@ function Home(){
             const events = data.map(mapEventToCard);
             setAllEvents(events);
             setRawEvents(events);
+            setOffset(PAGE_SIZE)
         }
         
         getHomeEvents();
     }, []);
+
+    const loadMore = async() => {
+        const newEvents = await getAllEvents(PAGE_SIZE, offset)
+
+        if (newEvents.length < PAGE_SIZE){
+            setHasMore(false)
+        }
+        setAllEvents(prev => [...prev, ...newEvents])
+        setOffset(prev => prev + PAGE_SIZE)
+    }
 
     function handleChange(e){
         const {name, value} = e.target; 
@@ -229,7 +245,13 @@ function Home(){
                                     </div>
                                 ))}
                             </div>
+                            <div className={styles.loadMoreWrapper}>
+                                { hasMore && (
+                                    <button onClick={() => loadMore()} className={styles.loadMoreBtn}>Load More</button>
+                                )}
+                            </div>
                         </div>
+                        
                     </div>
                 </div>
             </div>
