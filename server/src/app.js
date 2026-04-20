@@ -54,4 +54,6 @@ if (require.main === module) {
 }
 
 // Run scrapers
-runScrape();
+if (process.env.NODE_ENV !== "test") {
+  runScrape();
+}

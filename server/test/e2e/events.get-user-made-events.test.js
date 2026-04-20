@@ -2,7 +2,7 @@ import { beforeEach, describe, it, expect, afterEach } from "vitest";
 const inbox = require("../helpers/emailInbox.js");
 const { createTestAgent } = require("../helpers/testingUtils.js");
 const { cleanupTestUsers, cleanupTestEvents } = require("../helpers/dbTestingUtils.js");
-const { makeTestEmail, registerAndLoginTestUser, logoutTestUser } = require("../helpers/authTestingUtils.js");
+const { registerAndLoginTestUser, logoutTestUser } = require("../helpers/authTestingUtils.js");
 const { createTestEvent, getUserMadeEvents } = require("../helpers/eventsTestingUtils.js");
 
 const TEST_PREFIX = process.env.TEST_PREFIX;
@@ -29,8 +29,8 @@ describe.sequential("api/events/get-user-made-events", () => {
     });
 
     it("returns 200 with array of events for authenticated user", async () => {
-        // Create event as User 1
-        await registerAndLoginTestUser(agent, makeTestEmail(), "testpassword");
+        // Create events as User 1
+        await registerAndLoginTestUser(agent);
 
         const user1Titles = [
             `${TEST_PREFIX} User 1's Event 1`, 
@@ -54,7 +54,7 @@ describe.sequential("api/events/get-user-made-events", () => {
 
         // Logout User 1 and create event as User 2
         await logoutTestUser(agent);
-        await registerAndLoginTestUser(agent, makeTestEmail(), "testpassword");
+        await registerAndLoginTestUser(agent);
 
         const user2Titles = [
             `${TEST_PREFIX} User 2's Event 1`, 
@@ -79,7 +79,7 @@ describe.sequential("api/events/get-user-made-events", () => {
     });
 
     it("returns 200 with empty array if user has no events", async () => {
-        await registerAndLoginTestUser(agent, makeTestEmail(), "testpassword");
+        await registerAndLoginTestUser(agent);
 
         const { res: listRes } = await getUserMadeEvents(agent);
         expect(listRes.status).toBe(200);

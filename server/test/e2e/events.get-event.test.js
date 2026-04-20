@@ -1,7 +1,9 @@
+import e from "express";
 import { beforeEach, describe, it, expect, afterEach } from "vitest";
 const inbox = require("../helpers/emailInbox.js");
 const { createTestAgent } = require("../helpers/testingUtils.js");
 const { cleanupTestUsers, cleanupTestEvents } = require("../helpers/dbTestingUtils.js");
+const { createTestUserAndEvent } = require("../helpers/scenarioTestingUtils.js");
 const { makeTestEmail, registerAndLoginTestUser } = require("../helpers/authTestingUtils.js");
 const { getEvent, createTestEvent } = require("../helpers/eventsTestingUtils.js");
 
@@ -28,11 +30,11 @@ describe.sequential("api/events/get-event", () => {
 
     it("returns 200 with event for valid `eventId`", async () => {
         // Create user and event
-        await registerAndLoginTestUser(agent, makeTestEmail(), "testpassword");
-
-        const { res: createRes } = await createTestEvent(agent);
-        expect(createRes.status).toBe(201);
-        const eventId = createRes.body.eventId;
+        const { userRes, eventRes } = await createTestUserAndEvent(agent);
+        expect(userRes.status).toBe(200);
+        expect(eventRes.status).toBe(201);
+        
+        const eventId = eventRes.body.eventId;
 
         // Get and verify the event
         const { res: getRes } = await getEvent(agent, eventId);

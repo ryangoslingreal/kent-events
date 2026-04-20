@@ -2,8 +2,9 @@ import { beforeEach, describe, it, expect, afterEach } from "vitest";
 const inbox = require("../helpers/emailInbox.js");
 const { createTestAgent } = require("../helpers/testingUtils.js");
 const { cleanupTestUsers, cleanupTestEvents } = require("../helpers/dbTestingUtils.js");
-const { makeTestEmail, registerAndLoginTestUser } = require("../helpers/authTestingUtils.js");
-const { normaliseEvent, createTestEvent, getUserMadeEvents, getEvent } = require("../helpers/eventsTestingUtils.js");
+const { createTestUserAndEvent } = require("../helpers/scenarioTestingUtils.js");
+const { registerAndLoginTestUser } = require("../helpers/authTestingUtils.js");
+const { createTestEvent, getUserMadeEvents, getEvent, normaliseEvent } = require("../helpers/eventsTestingUtils.js");
 
 const TEST_PREFIX = process.env.TEST_PREFIX;
 
@@ -30,9 +31,6 @@ describe.sequential("api/events/create-event", () => {
 
     it("returns 201 and successfully creates event with all fields", async () => {
         // Create user and event
-        const { res: loginRes } = await registerAndLoginTestUser(agent, makeTestEmail(), "testpassword");
-        const userId = loginRes.body.user.id;
-
         const title = `${TEST_PREFIX} Custom title`; // Need prefix for db cleanup
         const subtitle = "Custom subtitle";
         const description = "Custom description";
@@ -45,9 +43,8 @@ describe.sequential("api/events/create-event", () => {
         const available_contact = false;
         const image = Buffer.from("fake-image-bytes");
 
-        const { res: createRes } = await createTestEvent(
-            agent,
-            {
+        const { userRes, eventRes } = await createTestUserAndEvent(agent, {
+            eventPayload: {
                 title,
                 subtitle,
                 description,
@@ -58,11 +55,15 @@ describe.sequential("api/events/create-event", () => {
                 price,
                 repeat_event,
                 available_contact
-            },
+            }, 
             image
-        );
-        const eventId = createRes.body.eventId;
-        expect(createRes.status).toBe(201);
+        });
+
+        expect(userRes.status).toBe(200);
+        expect(eventRes.status).toBe(201);
+
+        const userId = userRes.body.user.id;
+        const eventId = eventRes.body.eventId;
 
         // Verify event is created correctly
         const { res: getRes } = await getEvent(agent, eventId);
@@ -89,11 +90,14 @@ describe.sequential("api/events/create-event", () => {
 
     it("returns 201 and successfully creates event without an image", async () => {
         // Create user and event with no image
-        await registerAndLoginTestUser(agent, makeTestEmail(), "testpassword");
+        const { userRes, eventRes } = await createTestUserAndEvent(agent, {
+            image: null
+        });
+        
+        expect(userRes.status).toBe(200);
+        expect(eventRes.status).toBe(201);
 
-        const { res: createRes } = await createTestEvent(agent, { }, null);
-        const eventId = createRes.body.eventId;
-        expect(createRes.status).toBe(201);
+        const eventId = eventRes.body.eventId;
 
         // Verify event is created with no image
         const { res: getRes } = await getEvent(agent, eventId);
@@ -103,7 +107,7 @@ describe.sequential("api/events/create-event", () => {
     });
 
     it("returns 400 when missing or invalid fields are provided", async () => {
-        await registerAndLoginTestUser(agent, makeTestEmail(), "testpassword");
+        await registerAndLoginTestUser(agent);
 
         const { res: res1 } = await createTestEvent(agent, { title: undefined }); // Missing title
         expect(res1.status).toBe(400);

@@ -19,11 +19,13 @@ function defaultEventPayload(overrides = {}) {
 async function sendMultipart(req, payload = {}, image = null) {
     Object.entries(payload).forEach(([k, v]) => {
         if (v === undefined || v === null) return;
+
         if (Array.isArray(v)) {
-            req.field(k, JSON.stringify(v));
-        } else {
-            req.field(k, String(v));
+            v.forEach(item => req.field(k, String(item)));
+            return;
         }
+        
+        req.field(k, String(v));
     });
 
     if (image != null) {

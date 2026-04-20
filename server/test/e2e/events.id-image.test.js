@@ -2,6 +2,7 @@ import { beforeEach, describe, it, expect, afterEach } from "vitest";
 const inbox = require("../helpers/emailInbox.js");
 const { createTestAgent } = require("../helpers/testingUtils.js");
 const { cleanupTestUsers, cleanupTestEvents } = require("../helpers/dbTestingUtils.js");
+const { createTestUserAndEvent } = require("../helpers/scenarioTestingUtils.js");
 const { makeTestEmail, registerAndLoginTestUser } = require("../helpers/authTestingUtils.js");
 const { getEventImage, createTestEvent } = require("../helpers/eventsTestingUtils.js");
 
@@ -28,13 +29,16 @@ describe.sequential("api/events/:id/image", () => {
 
     it("returns 200 with image for valid `eventId`", async () => {
         // Create user and event with image
-        await registerAndLoginTestUser(agent, makeTestEmail(), "testpassword");
-
         const image = Buffer.from("fake-image-bytes");
 
-        const { res: createRes } = await createTestEvent(agent, { }, image);
-        const eventId = createRes.body.eventId;
-        expect(createRes.status).toBe(201);
+        const { userRes, eventRes } = await createTestUserAndEvent(agent, {
+            image
+        });
+
+        expect(userRes.status).toBe(200);
+        expect(eventRes.status).toBe(201);
+
+        const eventId = eventRes.body.eventId;
 
         // Get and verify the image
         const { res: imageRes } = await getEventImage(agent, eventId);
@@ -52,11 +56,14 @@ describe.sequential("api/events/:id/image", () => {
 
     it("returns 404 when event has no image", async () => {
         // Create user and event without image
-        await registerAndLoginTestUser(agent, makeTestEmail(), "testpassword");
+        const { userRes, eventRes } = await createTestUserAndEvent(agent, {
+            image: null
+        });
+        
+        expect(userRes.status).toBe(200);
+        expect(eventRes.status).toBe(201);
 
-        const { res: createRes } = await createTestEvent(agent, { }, null);
-        const eventId = createRes.body.eventId;
-        expect(createRes.status).toBe(201);
+        const eventId = eventRes.body.eventId;
 
         // Attempt to get image
         const { res: imageRes } = await getEventImage(agent, eventId);
