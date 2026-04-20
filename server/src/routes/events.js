@@ -117,11 +117,11 @@ router.delete("/delete-event", async(req, res) => {
         return res.status(500).json({message: "Server error.", error: error.message, code: error.code});
     }
     
-    if (result.status === 'EVENTNOTFOUND') {
+    if (result.status === "EVENTNOTFOUND") {
         return res.status(404).json({ message: "Event not found." });
     }
 
-    if (result.status === 'FORBIDDEN') {
+    if (result.status === "FORBIDDEN") {
         return res.status(403).json({ message: "You are not allowed to delete this event." });
     }
 
@@ -129,15 +129,34 @@ router.delete("/delete-event", async(req, res) => {
 });
 
 router.put("/update-event", upload.single("image"), async(req, res) => {
-    const { title, subtitle, description, image_mime , event_date, event_time, location, tags, price, repeat_event, available_contact } = req.body;
+    if (!req.session.user) {
+        return res.status(401).json({ message: "Please sign in." });
+    }
+
     const eventId = req.query.eventId;
+    if (!isValidID(eventId)) {
+        return res.status(400).json({ message: "A valid event ID is required." });
+    }
+
+    const {
+        title,
+        subtitle, description,
+        image_mime,
+        event_date, event_time,
+        location,
+        tags,
+        price,
+        repeat_event,
+        available_contact
+    } = req.body;
 
     let intContactInfo = (available_contact === "true") ? 1 : 0;
 
     let result;
     try {
         result = await eventService.updateEvent(
-            eventId, title, 
+            Number(eventId), req.session.user.id,
+            title, 
             subtitle, description,
             req.file ?? null, 
             image_mime, 
@@ -149,13 +168,16 @@ router.put("/update-event", upload.single("image"), async(req, res) => {
             intContactInfo
         );
     } catch (error) {
-        console.error("update-event error:", error);
         return res.status(500).json({ message: "Server error.", error: error.message, code: error.code });
     }
 
-    if (result.status === 'EVENTNOTFOUND') {
+    if (result.status === "EVENTNOTFOUND") {
         return res.status(404).json({ message: "Event not found." });
     }
+
+    if (result.status === "FORBIDDEN") {
+        return res.status(403).json({ message: "You are not allowed to update this event." });
+    }    
 
     return res.status(200).json(result);
 });

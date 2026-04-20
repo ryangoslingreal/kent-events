@@ -47,7 +47,6 @@ async function getEvent(eventId) {
 
 async function deleteEvent(eventId, userId) {
     let event;
-
     try {
         event = await eventsRepo.getEvent(eventId);
     } catch (error){
@@ -71,19 +70,34 @@ async function deleteEvent(eventId, userId) {
     return { status: "DELETED", message: "Event deleted" };
 }
 
-async function updateEvent(eventId, title, subtitle, description, image, image_mime, event_date, event_time, location, tag, price, repeat_event, available_contact) {
-    let result;
+async function updateEvent(eventId, userId, title, subtitle, description, image, image_mime, event_date, event_time, location, tags, price, repeat_event, available_contact) {
+    let event;
     try {
-        const tags = Array.isArray(tag)   // turning tags into an array
-            ? tag
-            : [tag].filter(Boolean);
-        result = await eventsRepo.updateEvent(
+        event = await eventsRepo.getEvent(eventId);
+    } catch (error){
+        throw error;
+    }
+
+    if (!event) {
+        return { status: "EVENTNOTFOUND" };
+    }
+
+    if (event.user_id !== userId) { // Check if the user owns the event
+        return { status: "FORBIDDEN" };
+    }
+
+    try {
+        const tagsParsed = Array.isArray(tags) // Turning tags into an array
+            ? tags
+            : [tags].filter(Boolean);
+
+        await eventsRepo.updateEvent(
             eventId, title, 
             subtitle, description, 
             image, image_mime, 
             event_date, event_time, 
             location, 
-            tags, 
+            tagsParsed, 
             price, 
             repeat_event, 
             available_contact
@@ -92,11 +106,7 @@ async function updateEvent(eventId, title, subtitle, description, image, image_m
         throw error;
     }
 
-    if (result.affectedRows === 0) {
-        return{ status: "EVENTNOTFOUND" };
-    }
-
-    return { message: "Event updated" };
+    return { status: "UPDATED", message: "Event updated" };
 }
 
 async function getAllEvents(limit, offset){
