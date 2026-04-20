@@ -75,7 +75,7 @@ router.get("/get-user-made-events", async(req, res) => {
     }
 
     return res.status(200).json(events);
-})
+});
 
 router.get("/get-event", async(req, res) => {
     try {
@@ -100,7 +100,7 @@ router.get("/get-event", async(req, res) => {
     } catch (error) {
         return res.status(500).json({ message: "Server error.", error: error.message, code: error.code });
     }
-})
+});
 
 router.delete("/delete-event", async(req, res) => {
     const eventId = req.query.eventId;
@@ -118,7 +118,7 @@ router.delete("/delete-event", async(req, res) => {
     }
 
     return res.status(200).json(result);
-})
+});
 
 router.put("/update-event", upload.single("image"), async(req, res) => {
     const { title, subtitle, description, image_mime , event_date, event_time, location, tags, price, repeat_event, available_contact } = req.body;
@@ -150,7 +150,7 @@ router.put("/update-event", upload.single("image"), async(req, res) => {
     }
 
     return res.status(200).json(result);
-})
+});
 
 router.get("/get-all-events", async(req, res) => {
     let limit = parseInt(req.query.limit) || 15;
@@ -175,29 +175,33 @@ router.get("/get-all-events", async(req, res) => {
         console.error("get-all-events error:", error);
         return res.status(500).json({message: "Server error", error: error.message, code: error.code,});
     }
-})
+});
 
-//THis creates an image url so that it can be called from the frontend
 router.get("/:id/image", async(req, res) => {
-    try{
-        const event = await eventService.getEvent(req.params.id);
+    try {
+        const eventId = req.params.id;
+
+        if (!isValidID(eventId)) {
+            return res.status(400).json({ message: "A valid event ID is required." });
+        }
+
+        const event = await eventService.getEvent(eventId);
         
-        if (!event[0] || !event[0].image) {
+        if (!event) {
             return res.status(404).send("Event not found");
         }
 
-        const image_type = event[0].image_mime
+        if (!event.image) {
+            return res.status(204).send("Event has no image");
+        }
 
-        res.setHeader("Content-Type", image_type);
-
-        res.setHeader("Cache-Control", "public, max-age=86400");  //caches image for one day (browser will reuse the image till then)
-
-        return res.send(event[0].image)
+        res.setHeader("Content-Type", event.image_mime);
+        res.setHeader("Cache-Control", "public, max-age=86400"); // Cache for 1 day
+        return res.send(event.image);
     } catch (error){
-        console.error("get-event-image error:", error);
         return res.status(500).send({ message: "Server error", error: error.message, code: error.code });
     }
-})
+});
 
 function isValidID(id) {
     return typeof id === "string" && /^-?\d+$/.test(id);

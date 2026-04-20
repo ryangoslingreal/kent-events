@@ -49,12 +49,7 @@ describe.sequential("api/events/:id/image", () => {
         expect(imageRes.headers["cache-control"]).toBe("public, max-age=86400");
     });
 
-    it("returns 404 when event does not exist", async () => {
-        const { res: imageRes } = await getEventImage(agent, -1);
-        expect(imageRes.status).toBe(404);
-    });
-
-    it("returns 404 when event has no image", async () => {
+    it("returns 204 when event has no image", async () => {
         // Create user and event without image
         const { userRes, eventRes } = await createTestUserAndEvent(agent, {
             image: null
@@ -67,6 +62,19 @@ describe.sequential("api/events/:id/image", () => {
 
         // Attempt to get image
         const { res: imageRes } = await getEventImage(agent, eventId);
+        expect(imageRes.status).toBe(204);
+    });
+
+    it("returns 400 when missing or invalid `eventId` is provided", async () => {
+        const { res: missingRes } = await getEventImage(agent, undefined);
+        expect(missingRes.status).toBe(400);
+
+        const { res: invalidRes } = await getEventImage(agent, "invalid-id");
+        expect(invalidRes.status).toBe(400);
+    });
+
+    it("returns 404 when event does not exist", async () => {
+        const { res: imageRes } = await getEventImage(agent, -1);
         expect(imageRes.status).toBe(404);
     });
 });
