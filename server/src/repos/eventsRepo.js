@@ -39,10 +39,11 @@ async function getEvent(eventId) {
         SELECT *
         FROM events
         WHERE id = ?
+        LIMIT 1
     `;
 
     const [rows] = await db.execute(query, [eventId]);
-    return rows ?? null;
+    return rows[0] ?? null;
 }
 
 async function deleteEvent(eventId) {

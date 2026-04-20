@@ -77,19 +77,27 @@ router.get("/get-user-made-events", async(req, res) => {
     return res.status(200).json(events);
 })
 
-//grabbing all data for one event
 router.get("/get-event", async(req, res) => {
     try {
-        let eventId = req.query.eventId;
+        const eventId = req.query.eventId;
 
-        const result = await eventService.getEvent(eventId);
-        let event = result[0];
-        event.imageUrl = `${event.id}/image`;
+        if (!isValidID(eventId)) {
+            return res.status(400).json({ message: "A valid event ID is required." });
+        }
 
-        return res.status(200).json(event);
+        const event = await eventService.getEvent(eventId);
 
+        if (!event) {
+            return res.status(404).json({ message: "Event not found." });
+        }
+
+        return res.status(200).json({
+            ...event,
+            imageUrl: `${event.id}/image` // Attach image URL
+        }
+            
+        );
     } catch (error) {
-        console.error("get-event error:", error);
         return res.status(500).json({ message: "Server error.", error: error.message, code: error.code });
     }
 })
@@ -190,5 +198,9 @@ router.get("/:id/image", async(req, res) => {
         return res.status(500).send({ message: "Server error", error: error.message, code: error.code });
     }
 })
+
+function isValidID(id) {
+    return typeof id === "string" && /^-?\d+$/.test(id);
+}
 
 module.exports = router;
