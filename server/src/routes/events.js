@@ -13,9 +13,8 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 //Passes data onto eventService and does error checks on the data
 router.post("/create-event", upload.single("image"), async (req, res) => {
-    //authentication check
     if (!req.session.user) {
-        return res.status(401).json({ message: "You are not authenticated, please sign in to use this feature." });
+        return res.status(401).json({ message: "Please sign in." });
     }
 
     const {
@@ -80,7 +79,6 @@ router.get("/get-user-made-events", async(req, res) => {
 router.get("/get-event", async(req, res) => {
     try {
         const eventId = req.query.eventId;
-
         if (!isValidID(eventId)) {
             return res.status(400).json({ message: "A valid event ID is required." });
         }
@@ -103,13 +101,19 @@ router.get("/get-event", async(req, res) => {
 });
 
 router.delete("/delete-event", async(req, res) => {
+    if (!req.session.user) {
+        return res.status(401).json({ message: "Please sign in." });
+    }
+
     const eventId = req.query.eventId;
+    if (!isValidID(eventId)) {
+        return res.status(400).json({ message: "A valid event ID is required." });
+    }
     
     let result;
     try {
-        result = await eventService.deleteEvent(eventId);
+        result = await eventService.deleteEvent(eventId, req.session.user.id);
     } catch (error) {
-        console.error("delete-event error:", error);
         return res.status(500).json({message: "Server error.", error: error.message, code: error.code});
     }
     
@@ -117,7 +121,11 @@ router.delete("/delete-event", async(req, res) => {
         return res.status(404).json({ message: "Event not found." });
     }
 
-    return res.status(200).json(result);
+    if (result.status === 'FORBIDDEN') {
+        return res.status(403).json({ message: "You are not allowed to delete this event." });
+    }
+
+    return res.status(200).json({ message: "Event deleted." });
 });
 
 router.put("/update-event", upload.single("image"), async(req, res) => {
@@ -180,7 +188,6 @@ router.get("/get-all-events", async(req, res) => {
 router.get("/:id/image", async(req, res) => {
     try {
         const eventId = req.params.id;
-
         if (!isValidID(eventId)) {
             return res.status(400).json({ message: "A valid event ID is required." });
         }

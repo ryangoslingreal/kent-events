@@ -45,19 +45,30 @@ async function getEvent(eventId) {
     }
 }
 
-async function deleteEvent(eventId) {
-    let result;
+async function deleteEvent(eventId, userId) {
+    let event;
+
     try {
-        result = await eventsRepo.deleteEvent(eventId);
+        event = await eventsRepo.getEvent(eventId);
     } catch (error){
         throw error;
     }
 
-    if (result.affectedRows === 0) {
-        return { status:"EVENTNOTFOUND" };
+    if (!event) {
+        return { status: "EVENTNOTFOUND" };
     }
 
-    return { message: "Event deleted" };
+    if (event.user_id !== userId) { // Check if the user owns the event
+        return { status: "FORBIDDEN" };
+    }
+
+    try {
+        await eventsRepo.deleteEvent(eventId);
+    } catch (error) {
+        throw error;
+    }
+
+    return { status: "DELETED", message: "Event deleted" };
 }
 
 async function updateEvent(eventId, title, subtitle, description, image, image_mime, event_date, event_time, location, tag, price, repeat_event, available_contact) {

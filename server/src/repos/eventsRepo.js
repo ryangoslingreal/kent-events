@@ -48,11 +48,10 @@ async function getEvent(eventId) {
 
 async function deleteEvent(eventId) {
     const query = `
-        DELETE 
-        FROM events
+        DELETE FROM events
         WHERE id = ?
     `;
-
+    
     const [result] = await db.execute(query, [eventId]);
     return result;
 }
