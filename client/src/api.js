@@ -232,9 +232,16 @@ export async function getUserMadeEvents() {
 	);
 }
 
-export async function getAllEvents(limit, offset, filter) {
+export async function getAllEvents(limit, offset, sourceFilter, selectedDate) {
+	const params = new URLSearchParams ({
+		limit,
+        offset,
+        sourceFilter,
+        filterDate: selectedDate ? selectedDate.toLocaleDateString('en-CA') : '',
+	});
+	console.log(params)
 	return requestJson(
-		"/api/events/get-all-events?limit=" + encodeURIComponent(limit) + "&offset=" + encodeURIComponent(offset) + "&filter=" + encodeURIComponent(filter),
+		`/api/events/get-all-events?${params}`,
 		{},
 		"Network error: Failed to get all events"
 	);

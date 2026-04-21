@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import Header from "../../components/layout/Header"
 import styles from "./Home.module.css"
 
@@ -11,10 +13,7 @@ function Home(){
     const [allEvents, setAllEvents] = useState([])
     const [rawEvents, setRawEvents] = useState([])
     const [featuredUrl, setFeaturedUrl] = useState([])
-    const [filters, setFilters] = useState({
-        filterDate: "any",
-        filterPrice: "any"
-    });
+    const [selectedDate, setSelectedDate] = useState(null);
     const [offset, setOffset] = useState(0);
     const [hasMore, setHasMore] = useState(true);
     const navigate = useNavigate();
@@ -23,7 +22,8 @@ function Home(){
 
     useEffect (() => {
         async function getHomeEvents() {
-            const data = await getAllEvents(PAGE_SIZE, 0, activeSourceFilter);
+
+            const data = await getAllEvents(PAGE_SIZE, 0, activeSourceFilter, selectedDate);
 
             const url = data[0].source === 'ksu' || data[0].source === 'kentUni'
                 ? data[0].image_url
@@ -40,13 +40,17 @@ function Home(){
             setAllEvents(events);
             setRawEvents(events);
             setOffset(PAGE_SIZE)
+
+            if (data.length < PAGE_SIZE){
+                setHasMore(false)
+            }
         }
         
         getHomeEvents();
-    }, [activeSourceFilter]);
+    }, [activeSourceFilter, selectedDate]);
 
     const loadMore = async() => {
-        const newEvents = await getAllEvents(PAGE_SIZE, offset, activeSourceFilter)
+        const newEvents = await getAllEvents(PAGE_SIZE, offset, activeSourceFilter, selectedDate)
         console.log(newEvents)
         if (newEvents.length < PAGE_SIZE){
             setHasMore(false)
@@ -56,59 +60,6 @@ function Home(){
         setAllEvents(prev => [...prev, ...events])
         setRawEvents(prev => [...prev, ...events])    //fixing issue of events not being filtered when load more
         setOffset(prev => prev + PAGE_SIZE)
-    }
-
-    function handleChange(e){
-        const {name, value} = e.target; 
-        setFilters((prev) => ({...prev, [name]: value }))
-    }
-
-    function handleSubmit(e){
-        e.preventDefault();
-
-        const now = new Date(); 
-
-        const endOfWeek = new Date(now);
-        endOfWeek.setDate(now.getDate() + (7 - now.getDay()));
-        endOfWeek.setHours(23, 59, 59, 999);
-
-        const endOfMonth = new Date(Date.now())
-        endOfMonth.setMonth(endOfMonth.getMonth() + 1);
-        endOfMonth.setDate(0);
-        endOfMonth.setHours(23, 59, 59, 999)
-
-        const weekendStart = new Date(now);
-        weekendStart.setDate(now.getDate() + ((6 - now.getDay() + 7) % 7)); // 0=Sun, 6=Sat
-        weekendStart.setHours(0, 0, 0, 0);
-
-        const weekendEnd = new Date(weekendStart);
-        weekendEnd.setDate(weekendStart.getDate() + 1);
-        weekendEnd.setHours(23, 59, 59, 999);
-
-        const filteredEvents = rawEvents.filter((event) => {
-            const eventDate = new Date(event.event_date);
-            const isFree = Number(event.price) === 0;
-
-            const matchesDate = 
-                filters.filterDate === "week"
-                    ? eventDate <= endOfWeek
-                    : filters.filterDate === "month"
-                        ? eventDate <= endOfMonth
-                        : filters.filterDate === "weekend"
-                            ? eventDate >= weekendStart && eventDate <= weekendEnd
-                            : true;
-
-            const matchesPrice = 
-                filters.filterPrice === "free"
-                    ? isFree
-                    : filters.filterPrice === "paid"
-                        ? !isFree
-                        : true;
-
-            return matchesDate && matchesPrice;
-        });
-
-        setAllEvents(filteredEvents);
     }
 
     function eventDetail(eventId) {
@@ -191,26 +142,18 @@ function Home(){
                     </div>
 
                     <div className={styles.filter_Events}>
-                        <form onSubmit={handleSubmit} className={styles.filter}>
+                        <div className={styles.filter}>
                             <h3>Filters</h3>
 
                             <label>Date</label>
-                            <select className={styles.select} name="filterDate" onChange={handleChange}>
-                                <option value="any">Anytime</option>
-                                <option value="weekend">This weekend</option>
-                                <option value="week">This week</option>
-                                <option value="month">This month</option>
-                            </select>
-
-                            <label>Price</label>
-                            <select className={styles.select} name="filterPrice" onChange={handleChange}>
-                                <option value="any">Any</option>
-                                <option value="free">Free</option>
-                                <option value="paid">Paid</option>
-                            </select>
-
-                            <button type="submit">Submit</button>
-                        </form>
+                            <DatePicker
+                                selected={selectedDate}
+                                onChange={(date) => setSelectedDate(date)}
+                                placeholderText="Select a date"
+                                dateFormat="dd/MM/yyyy"
+                                isClearable
+                            />
+                        </div>
 
                         <div className={styles.events}>
                             <h3>Popular events</h3>
