@@ -7,7 +7,7 @@ import { getAllEvents, getEventImageUrl } from "../../api"
 import { mapEventToCard } from "../Events/shared/eventMappers";
 
 function Home(){
-    const [activeFilter, setActiveFilter] = useState("All")
+    const [activeSourceFilter, setActiveSourceFilter] = useState("All")
     const [allEvents, setAllEvents] = useState([])
     const [rawEvents, setRawEvents] = useState([])
     const [featuredUrl, setFeaturedUrl] = useState([])
@@ -23,8 +23,7 @@ function Home(){
 
     useEffect (() => {
         async function getHomeEvents() {
-            const data = await getAllEvents(PAGE_SIZE, 0);
-            
+            const data = await getAllEvents(PAGE_SIZE, 0, activeSourceFilter);
 
             const url = data[0].source === 'ksu' || data[0].source === 'kentUni'
                 ? data[0].image_url
@@ -44,15 +43,18 @@ function Home(){
         }
         
         getHomeEvents();
-    }, []);
+    }, [activeSourceFilter]);
 
     const loadMore = async() => {
-        const newEvents = await getAllEvents(PAGE_SIZE, offset)
-
+        const newEvents = await getAllEvents(PAGE_SIZE, offset, activeSourceFilter)
+        console.log(newEvents)
         if (newEvents.length < PAGE_SIZE){
             setHasMore(false)
         }
-        setAllEvents(prev => [...prev, ...newEvents])
+
+        const events = newEvents.map(mapEventToCard);
+        setAllEvents(prev => [...prev, ...events])
+        setRawEvents(prev => [...prev, ...events])    //fixing issue of events not being filtered when load more
         setOffset(prev => prev + PAGE_SIZE)
     }
 
@@ -129,26 +131,26 @@ function Home(){
                                 </h4>
                                 <div className={styles.filterParent} >
                                     <a
-                                        className={`${styles.eventFilter} ${activeFilter === "All" ? styles.active : ""}`}
-                                        onClick={() => setActiveFilter("All")}
+                                        className={`${styles.eventFilter} ${activeSourceFilter === "All" ? styles.active : ""}`}
+                                        onClick={() => setActiveSourceFilter("All")}
                                     >
                                         All
                                     </a>
                                     <a
-                                        className={`${styles.eventFilter} ${activeFilter === "University" ? styles.active : ""}`}
-                                        onClick={() => setActiveFilter("University")}
+                                        className={`${styles.eventFilter} ${activeSourceFilter === "University" ? styles.active : ""}`}
+                                        onClick={() => setActiveSourceFilter("University")}
                                     >
                                         University events
                                     </a>
                                     <a
-                                        className={`${styles.eventFilter} ${activeFilter === "Society" ? styles.active : ""}`}
-                                        onClick={() => setActiveFilter("Society")}
+                                        className={`${styles.eventFilter} ${activeSourceFilter === "Society" ? styles.active : ""}`}
+                                        onClick={() => setActiveSourceFilter("Society")}
                                     >
                                         Society events
                                     </a>
                                     <a
-                                        className={`${styles.eventFilter} ${activeFilter === "Student" ? styles.active : ""}`}
-                                        onClick={() => setActiveFilter("Student")}
+                                        className={`${styles.eventFilter} ${activeSourceFilter === "Student" ? styles.active : ""}`}
+                                        onClick={() => setActiveSourceFilter("Student")}
                                     >
                                         Student ran events
                                     </a>
