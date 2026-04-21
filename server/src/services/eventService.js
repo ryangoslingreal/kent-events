@@ -109,25 +109,21 @@ async function updateEvent(eventId, userId, title, subtitle, description, image,
     return { status: "UPDATED", message: "Event updated" };
 }
 
-async function getAllEvents(limit, offset, sourceFilter, filterDate){
+async function getAllEvents(limit, offset, sourceFilter, dateFilter) {
     const sourceMap = {
         "Society": "ksu",
         "University": "kentUni",
         "Student": "student",
         "All": null
-    }
-    try{
-        const source = sourceMap[sourceFilter] ?? null
+    };
 
-        const result =  await eventsRepo.getAllEvents(limit, offset, source, filterDate);
-            
-            return result
-            
-        } catch(error) {
-            throw error
-        }
-    }
-
+    return await eventsRepo.getAllEvents(
+        limit,
+        offset,
+        sourceMap[sourceFilter] ?? null,
+        dateFilter ?? null
+    );
+}
 
 module.exports = { 
     createEvent,

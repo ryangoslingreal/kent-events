@@ -81,30 +81,30 @@ async function updateEvent(eventId, title, subtitle, description, image, image_m
     // ? SHOULD i JUST UPDATE ALL COLUMNS with teh sepcific event, or only changed ones?
 }
 
-async function getAllEvents(limit, offset, source, filterDate){
+async function getAllEvents(limit, offset, sourceFilter, dateFilter) {
     let query = `
-                    SELECT *
-                    FROM events
-                    WHERE event_date >= CURDATE()
-                    
-    `
-    params = []
-    // Date filter
-    if (filterDate){
-        query += `AND DATE(event_date) = DATE(?)`;
-        params.push(filterDate);
+        SELECT id, title, subtitle, description, image_mime, event_date, event_time, location, tags, price, repeat_event, available_contact, source
+        FROM events
+        WHERE event_date >= CURDATE()
+    `;
+
+    const params = [];
+
+    if (dateFilter){
+        query += ` AND DATE(event_date) = DATE(?)`;
+        params.push(dateFilter);
     }
     
-    //check source
-    if (source !== null){
-        query += `AND source = ?`;
-        params.push(source);
+    if (sourceFilter != null){
+        query += ` AND source = ?`;
+        params.push(sourceFilter);
     }
 
     query += `
-            ORDER BY event_date ASC, event_time ASC 
+        ORDER BY event_date ASC, event_time ASC 
         LIMIT ? OFFSET ?
     `;
+
     params.push(limit, offset);
 
     const [rows] = await db.query(query, params);
@@ -115,11 +115,13 @@ async function lastScrapeTime(){
     const query = `
         SELECT updated_at
         FROM events
-        WHERE source = 'ksu' OR source = 'kentUni'
+        WHERE source IN ("ksu", "kentUni")
+        ORDER BY updated_at DESC
         LIMIT 1
-    `
-    const [result] = await db.execute(query)
-    return result
+    `;
+
+    const [result] = await db.execute(query);
+    return result;
 }
 
 module.exports = { 

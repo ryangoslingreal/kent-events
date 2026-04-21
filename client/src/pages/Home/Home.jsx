@@ -9,16 +9,16 @@ import { getAllEvents, getEventImageUrl } from "../../api"
 import { mapEventToCard } from "../Events/shared/eventMappers";
 
 function Home(){
-    const [activeSourceFilter, setActiveSourceFilter] = useState("All")
-    const [allEvents, setAllEvents] = useState([])
-    const [rawEvents, setRawEvents] = useState([])
-    const [featuredUrl, setFeaturedUrl] = useState([])
+    const [activeSourceFilter, setActiveSourceFilter] = useState("All");
+    const [allEvents, setAllEvents] = useState([]);
+    const [rawEvents, setRawEvents] = useState([]);
+    const [featuredUrl, setFeaturedUrl] = useState([]);
     const [selectedDate, setSelectedDate] = useState(null);
     const [offset, setOffset] = useState(0);
     const [hasMore, setHasMore] = useState(true);
     const navigate = useNavigate();
-    const PAGE_SIZE = 15;
 
+    const PAGE_SIZE = 15;
 
     useEffect (() => {
         async function getHomeEvents() {
@@ -27,7 +27,7 @@ function Home(){
 
             const url = data[0].source === 'ksu' || data[0].source === 'kentUni'
                 ? data[0].image_url
-                : `${API_BASE}/api/events/${allEvents[0].internalImageUrl}`
+                : `${API_BASE}/api/events/${allEvents[0].internalImageUrl}` // !
             setFeaturedUrl(url);
 
             if (data.error) {
@@ -196,7 +196,6 @@ function Home(){
                                 )}
                             </div>
                         </div>
-                        
                     </div>
                 </div>
             </div>

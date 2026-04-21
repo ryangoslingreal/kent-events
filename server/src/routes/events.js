@@ -29,10 +29,10 @@ router.post("/create-event", upload.single("image"), async (req, res) => {
         available_contact
     } = req.body;
 
-    //Basic validation 
     if (!title || !description || !event_date || !event_time || !location || !available_contact) {
         return res.status(400).json({ message: "Form input requirement is missing." });
     }
+
     //deconstructing contactInfo
     // As FormData is now being used, contactinfo (bool) is turned into a string (unlike in json), so this needs to be automatically set now
     let intContactInfo = (available_contact === "true") ? 1 : 0;
@@ -53,8 +53,11 @@ router.post("/create-event", upload.single("image"), async (req, res) => {
             req.session.user.id
         );
     } catch (error) {
-        console.error("CREATE EVENT FAILED:", error);
-        return res.status(500).json({ message: "Server error.", error: error.message, code: error.code });
+        return res.status(500).send({
+            message: "Server error",
+            error: error.message,
+            code: error.code 
+        });
     }
 
     return res.status(201).json({ message: "Created event successfully.", eventId: result.insertId });
@@ -62,15 +65,18 @@ router.post("/create-event", upload.single("image"), async (req, res) => {
 
 router.get("/get-user-made-events", async(req, res) => {
     if (!req.session.user) {
-        return res.status(401).json({ message: "You are not authenticated, please sign in to use this feature." });
+        return res.status(401).json({ message: "Please sign in." });
     }
     
     let events;
     try {
         events = await eventService.getUserMadeEvents(req.session.user.id)
     } catch (error) {
-        console.error("get-user-made-events error:", error);
-        return res.status(500).json({ message: "Server error.", error: error.message, code: error.code });
+        return res.status(500).send({
+            message: "Server error",
+            error: error.message,
+            code: error.code 
+        });
     }
 
     return res.status(200).json(events);
@@ -96,7 +102,11 @@ router.get("/get-event", async(req, res) => {
             
         );
     } catch (error) {
-        return res.status(500).json({ message: "Server error.", error: error.message, code: error.code });
+        return res.status(500).send({
+            message: "Server error",
+            error: error.message,
+            code: error.code 
+        });
     }
 });
 
@@ -114,7 +124,11 @@ router.delete("/delete-event", async(req, res) => {
     try {
         result = await eventService.deleteEvent(eventId, req.session.user.id);
     } catch (error) {
-        return res.status(500).json({message: "Server error.", error: error.message, code: error.code});
+        return res.status(500).send({
+            message: "Server error",
+            error: error.message,
+            code: error.code 
+        });
     }
     
     if (result.status === "EVENTNOTFOUND") {
@@ -168,7 +182,11 @@ router.put("/update-event", upload.single("image"), async(req, res) => {
             intContactInfo
         );
     } catch (error) {
-        return res.status(500).json({ message: "Server error.", error: error.message, code: error.code });
+        return res.status(500).send({
+            message: "Server error",
+            error: error.message,
+            code: error.code 
+        });
     }
 
     if (result.status === "EVENTNOTFOUND") {
@@ -183,27 +201,29 @@ router.put("/update-event", upload.single("image"), async(req, res) => {
 });
 
 router.get("/get-all-events", async(req, res) => {
-    let limit = parseInt(req.query.limit) || 15;
-    let offset = parseInt(req.query.offset) || 0;
-    let sourceFilter = req.query.sourceFilter;
-    let filterDate = req.query.filterDate;
-    try{
-        const result = await eventService.getAllEvents(limit, offset, sourceFilter, filterDate);
-        if (!result || result.length === 0){
-            return res.status(404).json({ message: "No events found" })
-        }
+    const rawLimit = Number.parseInt(req.query.limit, 10);
+    const rawOffset = Number.parseInt(req.query.offset, 10);
 
-        //This sends the image url to the frontend
+    const limit = Number.isInteger(rawLimit) && rawLimit > 0 ? rawLimit : 15; // Default 15
+    const offset = Number.isInteger(rawOffset) && rawOffset >= 0 ? rawOffset : 0; // Default 0
+    const sourceFilter = req.query.sourceFilter;
+    const dateFilter = req.query.dateFilter;
+
+    try{
+        const result = await eventService.getAllEvents(limit, offset, sourceFilter, dateFilter);
+
         const events = result.map((event) => ({
             ...event,
-            imageUrl: `${event.id}/image`,
-            image: undefined //done to reduce how much is being sent back
-        }))
+            imageUrl: `${event.id}/image` // Send image url
+        }));
 
         return res.status(200).json(events);
     } catch (error){
-        console.error("get-all-events error:", error);
-        return res.status(500).json({message: "Server error", error: error.message, code: error.code,});
+        return res.status(500).send({
+            message: "Server error",
+            error: error.message,
+            code: error.code 
+        });
     }
 });
 
@@ -228,7 +248,11 @@ router.get("/:id/image", async(req, res) => {
         res.setHeader("Cache-Control", "public, max-age=86400"); // Cache for 1 day
         return res.send(event.image);
     } catch (error){
-        return res.status(500).send({ message: "Server error", error: error.message, code: error.code });
+        return res.status(500).send({
+            message: "Server error",
+            error: error.message,
+            code: error.code 
+        });
     }
 });
 

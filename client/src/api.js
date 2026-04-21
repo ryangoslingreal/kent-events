@@ -232,16 +232,22 @@ export async function getUserMadeEvents() {
 	);
 }
 
-export async function getAllEvents(limit, offset, sourceFilter, selectedDate) {
-	const params = new URLSearchParams ({
-		limit,
-        offset,
-        sourceFilter,
-        filterDate: selectedDate ? selectedDate.toLocaleDateString('en-CA') : '',
-	});
-	console.log(params)
+export async function getAllEvents(limit, offset, sourceFilter, dateFilter) {
+	const params = new URLSearchParams();
+	
+	params.append("limit", String(limit));
+	params.append("offset", String(offset));
+
+	if (sourceFilter) {
+		params.append("sourceFilter", sourceFilter);
+	}
+
+	if (dateFilter) {
+		params.append("dateFilter", dateFilter.toLocaleDateString("en-CA"));
+	}
+
 	return requestJson(
-		`/api/events/get-all-events?${params}`,
+		`/api/events/get-all-events?${params.toString()}`,
 		{},
 		"Network error: Failed to get all events"
 	);
