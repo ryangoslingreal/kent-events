@@ -81,14 +81,23 @@ async function updateEvent(eventId, title, subtitle, description, image, image_m
     // ? SHOULD i JUST UPDATE ALL COLUMNS with teh sepcific event, or only changed ones?
 }
 
-async function getAllEvents(limit, offset){
+async function getAllEvents(limit, offset, source){
     const query = `
                     SELECT *
                     FROM events
                     WHERE event_date >= CURDATE()
-                    LIMIT ? OFFSET ?
+                    
     `
-    const [rows] = await db.query(query, [limit, offset]);
+    const [rows] = source !== null 
+        ? await db.query(query + `
+            AND source = ? 
+            ORDER BY event_date ASC, event_time ASC 
+            LIMIT ? OFFSET ?`
+        , [source, limit, offset])   /*#####two commits here did filtering change, and then ordering of events change*/
+        : await db.query(query + `
+            ORDER BY event_date ASC, event_time ASC 
+            LIMIT ? OFFSET ?`
+        , [limit, offset])
     return rows;
 }
 

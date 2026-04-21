@@ -109,9 +109,17 @@ async function updateEvent(eventId, userId, title, subtitle, description, image,
     return { status: "UPDATED", message: "Event updated" };
 }
 
-async function getAllEvents(limit, offset){
-        try{
-        const result =  await eventsRepo.getAllEvents(limit, offset);
+async function getAllEvents(limit, offset, filter){
+    const sourceMap = {
+        "Society": "ksu",
+        "University": "kentUni",
+        "Student": "student",
+        "All": null
+    }
+    try{
+        const source = sourceMap[sourceFilter] ?? null
+
+        const result =  await eventsRepo.getAllEvents(limit, offset, source);
             
             return result
             
