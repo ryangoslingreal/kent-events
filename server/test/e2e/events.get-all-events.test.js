@@ -2,6 +2,7 @@ import { beforeEach, describe, it, expect, afterEach } from "vitest";
 const inbox = require("../helpers/emailInbox.js");
 const { createTestAgent } = require("../helpers/testingUtils.js");
 const { cleanupTestUsers, cleanupTestEvents } = require("../helpers/dbTestingUtils.js");
+const { createTestUserAndEvent } = require("../helpers/scenarioTestingUtils.js");
 const { registerAndLoginTestUser } = require("../helpers/authTestingUtils.js");
 const { getAllEvents, createTestEvent } = require("../helpers/eventsTestingUtils.js");
 
@@ -26,8 +27,8 @@ describe.sequential("api/events/get-all-events", () => {
         await cleanupTestUsers();
     });
 
-    it.todo("returns 200 with upcoming events", async () => { // ! Broken because of filtering
-        // Create user and event
+    it("returns 200 with array of upcoming events", async () => {
+        // Create user and events
         await registerAndLoginTestUser(agent);
 
         const { res: createFutureRes } = await createTestEvent(agent, { event_date: "2077-05-01" });
@@ -55,11 +56,75 @@ describe.sequential("api/events/get-all-events", () => {
                 imageUrl: `${futureEventId}/image`
             })
         );
-
-        expect(futureEvent).not.toHaveProperty("image"); // Image should not be included
     });
 
-    it.skip("returns 404 when no upcoming events exist", async () => {
-        // * NOTE: Skipped the 404 test because the shared DB prevents a reliable empty dataset.
+    it("returns 200 with empty array when no upcoming events match provided filters", async () => {
+        // Create user and past event
+        const { userRes, eventRes } = await createTestUserAndEvent(agent, {
+            eventPayload: { event_date: "2000-01-01" }
+        });
+
+        expect(userRes.status).toBe(200);
+        expect(eventRes.status).toBe(201);
+
+        // Get all events with ridiculous filters
+        const { res: getAllRes } = await getAllEvents(agent, {
+            sourceFilter: "student",
+            dateFilter: "3000-01-01"
+        });
+
+        expect(getAllRes.status).toBe(200);
+        expect(getAllRes.body).toEqual([]); // No events should match filters
+    });
+
+    it("returns 200 with only events matching `sourceFilter`", async () => {
+        // Create user and event
+        const { userRes, eventRes } = await createTestUserAndEvent(agent, {
+            eventPayload: { event_date: "2077-05-01" }
+        });
+
+        expect(userRes.status).toBe(200);
+        expect(eventRes.status).toBe(201);
+
+        const eventId = eventRes.body.eventId;
+
+        // Get all events with source filter
+        const { res: getAllRes } = await getAllEvents(agent, {
+            sourceFilter: "student"
+        });
+
+        expect(getAllRes.status).toBe(200);
+
+        const createdEvent = getAllRes.body.find(e => e.id === eventId);
+        expect(createdEvent).toBeDefined();
+
+        expect(getAllRes.body.every(e => e.source === "student")).toBe(true); // All events should match source filter
+    });
+
+    it("returns 200 with only events matching `dateFilter`", async () => {
+        // Create user and events with different dates
+        await registerAndLoginTestUser(agent);
+
+        const { res: createMatchingRes } = await createTestEvent(agent, { event_date: "2077-05-01" });
+        expect(createMatchingRes.status).toBe(201);
+
+        const { res: createNonMatchingRes } = await createTestEvent(agent, { event_date: "2077-05-02" });
+        expect(createNonMatchingRes.status).toBe(201);
+
+        const matchingEventId = createMatchingRes.body.eventId;
+        const nonMatchingEventId = createNonMatchingRes.body.eventId;
+
+        // Get all events with date filter
+        const { res: getAllRes } = await getAllEvents(agent, {
+            dateFilter: "2077-05-01"
+        });
+
+        expect(getAllRes.status).toBe(200);
+
+        const matchingEvent = getAllRes.body.find(e => e.id === matchingEventId);
+        expect(matchingEvent).toBeDefined();
+
+        const nonMatchingEvent = getAllRes.body.find(e => e.id === nonMatchingEventId);
+        expect(nonMatchingEvent).toBeUndefined(); // Non-matching event should not be included
     });
 });

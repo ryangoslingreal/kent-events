@@ -111,12 +111,12 @@ async function updateEvent(eventId, userId, title, subtitle, description, image,
 
 async function getAllEvents(limit, offset, sourceFilter, dateFilter) {
     const sourceMap = {
-        "Society": "ksu",
-        "University": "kentUni",
-        "Student": "student",
-        "All": null
+        "society": "ksu",
+        "university": "kentUni",
+        "student": "student",
+        "all": null
     };
-
+    
     return await eventsRepo.getAllEvents(
         limit,
         offset,

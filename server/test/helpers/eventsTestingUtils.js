@@ -98,9 +98,17 @@ async function getUserMadeEvents(agent) {
     return { res };
 }
 
-async function getAllEvents(agent) {
+async function getAllEvents(
+    agent,
+    {
+        limit = 100000,
+        offset = 0,
+        sourceFilter,
+        dateFilter
+    } = {}) {
     const res = await agent
-        .get("/api/events/get-all-events");
+        .get("/api/events/get-all-events")
+        .query({ limit, offset, sourceFilter, dateFilter });
 
     return { res };
 }

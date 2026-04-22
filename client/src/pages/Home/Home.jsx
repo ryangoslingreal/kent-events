@@ -82,28 +82,28 @@ function Home(){
                                 </h4>
                                 <div className={styles.filterParent} >
                                     <a
-                                        className={`${styles.eventFilter} ${activeSourceFilter === "All" ? styles.active : ""}`}
-                                        onClick={() => setActiveSourceFilter("All")}
+                                        className={`${styles.eventFilter} ${activeSourceFilter === "all" ? styles.active : ""}`}
+                                        onClick={() => setActiveSourceFilter("all")}
                                     >
                                         All
                                     </a>
                                     <a
-                                        className={`${styles.eventFilter} ${activeSourceFilter === "University" ? styles.active : ""}`}
-                                        onClick={() => setActiveSourceFilter("University")}
+                                        className={`${styles.eventFilter} ${activeSourceFilter === "university" ? styles.active : ""}`}
+                                        onClick={() => setActiveSourceFilter("university")}
                                     >
                                         University events
                                     </a>
                                     <a
-                                        className={`${styles.eventFilter} ${activeSourceFilter === "Society" ? styles.active : ""}`}
-                                        onClick={() => setActiveSourceFilter("Society")}
+                                        className={`${styles.eventFilter} ${activeSourceFilter === "society" ? styles.active : ""}`}
+                                        onClick={() => setActiveSourceFilter("society")}
                                     >
                                         Society events
                                     </a>
                                     <a
-                                        className={`${styles.eventFilter} ${activeSourceFilter === "Student" ? styles.active : ""}`}
-                                        onClick={() => setActiveSourceFilter("Student")}
+                                        className={`${styles.eventFilter} ${activeSourceFilter === "student" ? styles.active : ""}`}
+                                        onClick={() => setActiveSourceFilter("student")}
                                     >
-                                        Student ran events
+                                        Student events
                                     </a>
                                 </div>
                             </div>
