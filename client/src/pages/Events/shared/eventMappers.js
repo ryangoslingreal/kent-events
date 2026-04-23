@@ -29,35 +29,52 @@ function formatTime(timeValue) {
     }).format(date);
 }
 
+function resolveImage(item) {
+    const primary = item?.image?.url ?? null;
+    const background = item?.backgroundImageUrl ?? null;
+
+    return {
+        imageUrl: primary,
+        backgroundImageUrl: background || primary
+    };
+}
+
 export function mapEventToCard(item) {
+    const { imageUrl } = resolveImage(item);
+
     return {
         id: item.id,
-        imageUrl: item.imageUrl,
+        imageUrl,
         time: formatTime(item.event_time),
         date: formatDateShort(item.event_date),
         event_date: item.event_date,
         location: item.location,
         price: item.price,
         title: item.title,
-        tags: item.tags,
-        image_url: item.image_url,
-        source: item.source
+        tags: item.tags
     };
 }
 
 export function mapEventToDetails(item) {
+    const { imageUrl, backgroundImageUrl } = resolveImage(item);
+
     const [h, m] = item.event_time.split(":");
 
     return {
         ...item,
+        imageUrl,
+        backgroundImageUrl,
         event_date: formatDateLong(item.event_date),
         event_time: `${h}:${m}`
     };
 }
 
 export function mapEventToRelatedCard(item) {
+    const { imageUrl } = resolveImage(item);
+
     return {
         ...item,
+        imageUrl,
         event_time: formatTime(item.event_time),
         event_date: formatDateShort(item.event_date)
     };

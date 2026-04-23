@@ -52,7 +52,22 @@ function EditEvent(){
             toast.error(result.error, { style: EVENT_TOAST_STYLE });
             return;
         }
-        
+
+        const updatedEvent = result.event;
+
+        // Refresh form
+        if (updatedEvent && !updatedEvent.status) {
+            setFormData(mapEventToEditForm(updatedEvent));
+        } else {
+            const refreshedEvent = await getEvent(id);
+
+            if (!refreshedEvent.error) {
+                setFormData(mapEventToEditForm(refreshedEvent));
+            }
+        }
+
+        setSelectedFile(null);
+        setRemoveImage(false);
         toast.success(result.message, { style: EVENT_TOAST_STYLE });
     };
 

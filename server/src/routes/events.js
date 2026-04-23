@@ -1,54 +1,42 @@
-//This file takes in the request given by the frontend 
-//This file will also deal with converting errors/outcomes to HTTP responses e.g. 500 server error
-//It also deals with basic input validation, like making sure fields exist
-
 const { Router } = require("express");
-const multer = require("multer");    //for parsing FormData object
+const multer = require("multer");
 const eventService = require("../services/eventService");
 
 const router = Router();
-
-//For reading the FormData
 const upload = multer({ storage: multer.memoryStorage() });
 
 //Passes data onto eventService and does error checks on the data
 router.post("/create-event", upload.single("image"), async (req, res) => {
-    if (!req.session.user) {
+    const userId = getSessionUserId(req);
+    if (!userId) {
         return res.status(401).json({ message: "Please sign in." });
     }
 
     const {
-        title,
-        subtitle, description,
-        event_date, event_time,
-        location,
-        tags,
-        price,
-        repeat_event,
-        available_contact
+        title, subtitle, description,
+        event_date, event_time, location,
+        tags, price, repeat_event, available_contact
     } = req.body;
 
-    if (!title || !description || !event_date || !event_time || !location || !available_contact) {
+    if (!title || !description || !event_date || !event_time || !location || available_contact == null) {
         return res.status(400).json({ message: "Form input requirement is missing." });
     }
-
-    //deconstructing contactInfo
-    // As FormData is now being used, contactinfo (bool) is turned into a string (unlike in json), so this needs to be automatically set now
-    let intContactInfo = (available_contact === "true") ? 1 : 0;
     
     let result;
     try {
         result = await eventService.createEvent(
             title,
-            subtitle, description,
+            subtitle,
+            description,
             req.file ?? null,
-            event_date, event_time,
+            event_date,
+            event_time,
             location,
             tags,
             price,
             repeat_event,
-            intContactInfo,
-            req.session.user.id
+            available_contact === true || available_contact === "true" ? 1 : 0,
+            userId
         );
     } catch (error) {
         return res.status(500).send({
@@ -62,18 +50,19 @@ router.post("/create-event", upload.single("image"), async (req, res) => {
 });
 
 router.get("/get-user-made-events", async(req, res) => {
-    if (!req.session.user) {
+    const userId = getSessionUserId(req);
+    if (!userId) {
         return res.status(401).json({ message: "Please sign in." });
     }
     
     let events;
     try {
-        events = await eventService.getUserMadeEvents(req.session.user.id)
+        events = await eventService.getUserMadeEvents(userId);
     } catch (error) {
         return res.status(500).send({
             message: "Server error",
             error: error.message,
-            code: error.code 
+            code: error.code
         });
     }
 
@@ -81,24 +70,14 @@ router.get("/get-user-made-events", async(req, res) => {
 });
 
 router.get("/get-event", async(req, res) => {
+    const eventId = req.query.eventId;
+    if (!isValidID(eventId)) {
+        return res.status(400).json({ message: "A valid event ID is required." });
+    }
+
+    let event;
     try {
-        const eventId = req.query.eventId;
-        if (!isValidID(eventId)) {
-            return res.status(400).json({ message: "A valid event ID is required." });
-        }
-
-        const event = await eventService.getEvent(eventId);
-
-        if (!event) {
-            return res.status(404).json({ message: "Event not found." });
-        }
-
-        return res.status(200).json({
-            ...event,
-            imageUrl: `${event.id}/image` // Attach image URL
-        }
-            
-        );
+        event = await eventService.getEvent(eventId);
     } catch (error) {
         return res.status(500).send({
             message: "Server error",
@@ -106,10 +85,17 @@ router.get("/get-event", async(req, res) => {
             code: error.code 
         });
     }
+
+    if (!event) {
+        return res.status(404).json({ message: "Event not found." });
+    }
+
+    return res.status(200).json(event);
 });
 
 router.delete("/delete-event", async(req, res) => {
-    if (!req.session.user) {
+    const userId = getSessionUserId(req);
+    if (!userId) {
         return res.status(401).json({ message: "Please sign in." });
     }
 
@@ -120,12 +106,12 @@ router.delete("/delete-event", async(req, res) => {
     
     let result;
     try {
-        result = await eventService.deleteEvent(eventId, req.session.user.id);
+        result = await eventService.deleteEvent(eventId, userId);
     } catch (error) {
         return res.status(500).send({
             message: "Server error",
             error: error.message,
-            code: error.code 
+            code: error.code
         });
     }
     
@@ -141,7 +127,8 @@ router.delete("/delete-event", async(req, res) => {
 });
 
 router.put("/update-event", upload.single("image"), async(req, res) => {
-    if (!req.session.user) {
+    const userId = getSessionUserId(req);
+    if (!userId) {
         return res.status(401).json({ message: "Please sign in." });
     }
 
@@ -151,15 +138,9 @@ router.put("/update-event", upload.single("image"), async(req, res) => {
     }
 
     const {
-        title,
-        subtitle, description,
-        remove_image,
-        event_date, event_time,
-        location,
-        tags,
-        price,
-        repeat_event,
-        available_contact
+        title, subtitle, description, remove_image,
+        event_date, event_time, location, tags,
+        price, repeat_event, available_contact
     } = req.body;
 
     if (remove_image === "true" && req.file) {
@@ -175,21 +156,22 @@ router.put("/update-event", upload.single("image"), async(req, res) => {
         image = undefined; // Do not touch image
     }
 
-    let intContactInfo = available_contact === true || available_contact === "true" ? 1 : 0;
-
     let result;
     try {
         result = await eventService.updateEvent(
-            Number(eventId), req.session.user.id,
+            Number(eventId),
+            userId,
             title,
-            subtitle, description,
+            subtitle,
+            description,
             image,
-            event_date, event_time,
+            event_date,
+            event_time,
             location,
             tags,
             price,
             repeat_event,
-            intContactInfo
+            available_contact === true || available_contact === "true" ? 1 : 0
         );
     } catch (error) {
         return res.status(500).send({
@@ -207,7 +189,10 @@ router.put("/update-event", upload.single("image"), async(req, res) => {
         return res.status(403).json({ message: "You are not allowed to update this event." });
     }    
 
-    return res.status(200).json(result);
+    return res.status(200).json({
+        message: "Event updated.",
+        event: result.event
+    });
 });
 
 router.get("/get-all-events", async(req, res) => {
@@ -219,15 +204,9 @@ router.get("/get-all-events", async(req, res) => {
     const sourceFilter = req.query.sourceFilter;
     const dateFilter = req.query.dateFilter;
 
+    let events;
     try{
-        const result = await eventService.getAllEvents(limit, offset, sourceFilter, dateFilter);
-
-        const events = result.map((event) => ({
-            ...event,
-            imageUrl: `${event.id}/image` // Send image url
-        }));
-
-        return res.status(200).json(events);
+        events = await eventService.getAllEvents(limit, offset, sourceFilter, dateFilter);
     } catch (error){
         return res.status(500).send({
             message: "Server error",
@@ -235,36 +214,44 @@ router.get("/get-all-events", async(req, res) => {
             code: error.code 
         });
     }
+
+    return res.status(200).json(events);
 });
 
 router.get("/:id/image", async(req, res) => {
+    const eventId = req.params.id;
+    if (!isValidID(eventId)) {
+        return res.status(400).json({ message: "A valid event ID is required." });
+    }
+
+    let event;
     try {
-        const eventId = req.params.id;
-        if (!isValidID(eventId)) {
-            return res.status(400).json({ message: "A valid event ID is required." });
-        }
-
-        const event = await eventService.getEvent(eventId);
-        
-        if (!event) {
-            return res.status(404).send("Event not found");
-        }
-
-        if (!event.image) {
-            return res.status(204).send("Event has no image");
-        }
-
-        res.setHeader("Content-Type", event.image_mime);
-        res.setHeader("Cache-Control", "no-cache");
-        return res.send(event.image);
+        event = await eventService.getEvent(eventId, { mode: "image" });
     } catch (error){
         return res.status(500).send({
             message: "Server error",
             error: error.message,
-            code: error.code 
+            code: error.code
         });
     }
+
+    if (!event) {
+        return res.status(404).send("Event not found");
+    }
+
+    if (!event.image) {
+        return res.status(204).send("Event has no image");
+    }
+
+    res.setHeader("Content-Type", event.image_mime);
+    res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+    return res.send(event.image);
 });
+
+function getSessionUserId(req) {
+    const userId = Number(req.session.user?.id);
+    return Number.isInteger(userId) && userId > 0 ? userId : null;
+}
 
 function isValidID(id) {
     return typeof id === "string" && /^-?\d+$/.test(id);

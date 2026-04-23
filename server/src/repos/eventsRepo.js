@@ -30,10 +30,10 @@ async function saveKSUEvents(events) {
         INSERT INTO events (
             title, user_id, description, event_date, event_time,
             location, tags, price, repeat_event, available_contact,
-            image_url, background_event_image_url, source, external_url,
+            image_url, background_image_url, source, external_url,
             end_event_time, ticket_url
         ) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON DUPLICATE KEY UPDATE external_url = external_url
     `;
 
@@ -76,20 +76,34 @@ async function getUserMadeEvents(user_id) {
     return rows;
 }
 
-async function getEvent(eventId) {
-    const query = `
-        SELECT *
-        FROM events
-        WHERE id = ?
-        LIMIT 1
-    `;
+async function getEvent(eventId, { mode = "api" } = {}) {
+    let query;
+
+    if (mode === "image") {
+        query = `
+            SELECT id, image, image_mime
+            FROM events
+            WHERE id = ?
+            LIMIT 1
+        `;
+    } else {
+        query = `
+            SELECT
+                id, user_id, title, subtitle, description,
+                event_date, event_time, location, tags,
+                price, repeat_event, available_contact,
+                source, image_url, background_image_url,
+                updated_at,
+                CASE WHEN image IS NOT NULL THEN 1 ELSE 0 END AS has_uploaded_image
+            FROM events
+            WHERE id = ?
+            LIMIT 1
+        `;
+    }
 
     const [rows] = await db.execute(query, [eventId]);
     const row = rows[0] ?? null;
-
-    if (!row) {
-        return null;
-    }
+    if (!row) return null;
 
     return {
         ...row,
@@ -154,10 +168,12 @@ async function updateEvent(
 
 async function getAllEvents(limit, offset, sourceFilter, dateFilter) {
     let query = `
-        SELECT id, title, subtitle, description,
-            image_url, image_mime,
+        SELECT
+            id, title, subtitle, description,
             event_date, event_time, location, tags,
-            price, repeat_event, available_contact, source
+            price, repeat_event, available_contact, source,
+            image_url, background_image_url, updated_at,
+            CASE WHEN image IS NOT NULL THEN 1 ELSE 0 END AS has_uploaded_image
         FROM events
         WHERE event_date >= CURDATE()
     `;
@@ -184,7 +200,7 @@ async function getAllEvents(limit, offset, sourceFilter, dateFilter) {
     const [rows] = await db.query(query, params);
     return rows.map(row => ({
         ...row,
-        tags: parseTags(rows.tags)
+        tags: parseTags(row.tags)
     }));
 }
 

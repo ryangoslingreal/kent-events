@@ -5,7 +5,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import Header from "../../components/layout/Header"
 import styles from "./Home.module.css"
 
-import { getAllEvents, getEventImageUrl } from "../../api"
+import { getAllEvents, getHeaderEventImageUrl, getPrimaryEventImageUrl } from "../../api"
 import { mapEventToCard } from "../Events/shared/eventMappers";
 
 function Home(){
@@ -25,18 +25,30 @@ function Home(){
 
             const data = await getAllEvents(PAGE_SIZE, 0, activeSourceFilter, selectedDate);
 
-            const url = data[0].source === 'ksu' || data[0].source === 'kentUni'
-                ? data[0].image_url
-                : getEventImageUrl(data[0].imageUrl);
-            setFeaturedUrl(url);
-
             if (data.error) {
                 setAllEvents([]);
                 setRawEvents([]);
+                setFeaturedUrl("");
+                setHasMore(false);
                 return;
             }
-            
-            const events = data.map(mapEventToCard);
+
+            if (data.length === 0) {
+                setAllEvents([]);
+                setRawEvents([]);
+                setFeaturedUrl("");
+                setOffset(0);
+                setHasMore(false);
+                return;
+            }
+
+            const events = data.map((event) => ({
+                ...mapEventToCard(event),
+                imageUrl: getPrimaryEventImageUrl(event),
+                backgroundImageUrl: getHeaderEventImageUrl(event)
+            }));
+
+            setFeaturedUrl(events[0].backgroundImageUrl || events[0].imageUrl || "");
             setAllEvents(events);
             setRawEvents(events);
             setOffset(PAGE_SIZE);
@@ -50,16 +62,25 @@ function Home(){
     }, [activeSourceFilter, selectedDate]);
 
     const loadMore = async() => {
-        const newEvents = await getAllEvents(PAGE_SIZE, offset, activeSourceFilter, selectedDate)
-        console.log(newEvents)
-        if (newEvents.length < PAGE_SIZE){
-            setHasMore(false)
+        const newEvents = await getAllEvents(PAGE_SIZE, offset, activeSourceFilter, selectedDate);
+        
+        if (newEvents.error) {
+            return;
+        }
+        
+        if (newEvents.length < PAGE_SIZE) {
+            setHasMore(false);
         }
 
-        const events = newEvents.map(mapEventToCard);
-        setAllEvents(prev => [...prev, ...events])
-        setRawEvents(prev => [...prev, ...events])    //fixing issue of events not being filtered when load more
-        setOffset(prev => prev + PAGE_SIZE)
+        const events = newEvents.map((event) => ({
+            ...mapEventToCard(event),
+            imageUrl: getPrimaryEventImageUrl(event),
+            backgroundImageUrl: getHeaderEventImageUrl(event)
+        }));
+
+        setAllEvents(prev => [...prev, ...events]);
+        setRawEvents(prev => [...prev, ...events]);    //fixing issue of events not being filtered when load more
+        setOffset(prev => prev + PAGE_SIZE);
     }
 
     function eventDetail(eventId) {
@@ -108,7 +129,7 @@ function Home(){
                                 </div>
                             </div>
                             
-                            { allEvents[0] ? (
+                            {allEvents[0] ? (
                                 <div className={styles.featuredEvent}
                                     style={{ // Fades background image at the bottom
                                     backgroundImage: `
@@ -161,16 +182,14 @@ function Home(){
                                 {allEvents.map((event) => (
                                     <div key={event.id} className={styles.eventCard} onClick={() => eventDetail(event.id)}>
                                         <div className={styles.imageWrapper}>
-                                            { event.source === 'ksu' || event.source === 'kentUni' ? (
-                                                <img className={styles.eventImage} src={event.image_url}></img>
-                                            ) : (
+                                            {event.imageUrl && (
                                                 <img 
                                                     className={styles.eventImage}
-                                                    src={getEventImageUrl(event.imageUrl)}
+                                                    src={event.imageUrl}
                                                     alt={event.title}
                                                 />
                                             )}
-                                            { event.id === allEvents[0].id && (
+                                            {event.id === allEvents[0].id && (
                                                 <span className={styles.badge}>featured</span>
                                             )}
                                         </div>
@@ -182,7 +201,7 @@ function Home(){
                                             <h4 className={styles.eventTitle}>{event.title}</h4>
                                             <p className={styles.location_tag}>
                                                 {event.location}
-                                                { event.tags.length != 0 && (
+                                                {event.tags.length != 0 && (
                                                     <span className={styles.tag}>{event.tags[0]}</span>
                                                 )}
                                             </p>
@@ -191,7 +210,7 @@ function Home(){
                                 ))}
                             </div>
                             <div className={styles.loadMoreWrapper}>
-                                { hasMore && (
+                                {hasMore && (
                                     <button onClick={() => loadMore()} className={styles.loadMoreBtn}>Load More</button>
                                 )}
                             </div>

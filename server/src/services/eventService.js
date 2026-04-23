@@ -1,55 +1,44 @@
-// This is the middle layer between 
-// routes -> HTTP concerns, and
-// repos -> database concerns
-// This layer deals with all the logic to check before passing to the database, such as making sure events are in the future and not in the past
-
 const eventsRepo = require('../repos/eventsRepo');
 
-//Deals with passing a createEvent request to repos
-async function createEvent(title, subtitle, description, image, date, time, location, tags, price, repeat, contactInfo, user_id) {
-    try {
-        const tagsParsed = toTagArray(tags);
-
-        return await eventsRepo.createEvent(
-            title,
-            subtitle, description,
-            image,
-            date, time,
-            location,
-            tagsParsed,
-            price,
-            repeat,
-            contactInfo,
-            user_id
-        );
-    } catch (error) {
-        throw error;
-    }
+async function createEvent(
+    title, subtitle, description,
+    image, date, time, location,
+    tags, price, repeat, contactInfo,
+    user_id
+) {
+    return await eventsRepo.createEvent(
+        title,
+        subtitle,
+        description,
+        image,
+        date,
+        time,
+        location,
+        toTagArray(tags),
+        price,
+        repeat,
+        contactInfo,
+        user_id
+    );
 }
 
 async function getUserMadeEvents(event_id) {
-    try {
-        return await eventsRepo.getUserMadeEvents(event_id);
-    } catch (error) {
-        throw error;
-    }
+    return await eventsRepo.getUserMadeEvents(event_id);
 }
 
-async function getEvent(eventId) {
-    try {
-        return await eventsRepo.getEvent(eventId);
-    } catch (error) {
-        throw error;
+async function getEvent(eventId, opts) {
+    const row = await eventsRepo.getEvent(eventId, opts);
+    if (!row) return null;
+
+    if (opts?.mode === "image") {
+        return row;
     }
+
+    return toEventDTO(row);
 }
 
 async function deleteEvent(eventId, userId) {
-    let event;
-    try {
-        event = await eventsRepo.getEvent(eventId);
-    } catch (error){
-        throw error;
-    }
+    const event = await eventsRepo.getEvent(eventId);
 
     if (!event) {
         return { status: "EVENTNOTFOUND" };
@@ -59,22 +48,17 @@ async function deleteEvent(eventId, userId) {
         return { status: "FORBIDDEN" };
     }
 
-    try {
-        await eventsRepo.deleteEvent(eventId);
-    } catch (error) {
-        throw error;
-    }
+    await eventsRepo.deleteEvent(eventId);
 
     return { status: "DELETED", message: "Event deleted" };
 }
 
-async function updateEvent(eventId, userId, title, subtitle, description, image, event_date, event_time, location, tags, price, repeat_event, available_contact) {
-    let event;
-    try {
-        event = await eventsRepo.getEvent(eventId);
-    } catch (error){
-        throw error;
-    }
+async function updateEvent(
+    eventId, userId, title, subtitle, description,
+    image, event_date, event_time, location, tags,
+    price, repeat_event, available_contact
+) {
+    const event = await eventsRepo.getEvent(eventId);
 
     if (!event) {
         return { status: "EVENTNOTFOUND" };
@@ -84,25 +68,26 @@ async function updateEvent(eventId, userId, title, subtitle, description, image,
         return { status: "FORBIDDEN" };
     }
 
-    try {
-        const tagsParsed = toTagArray(tags);
+    await eventsRepo.updateEvent(
+        eventId,
+        title,
+        subtitle,
+        description,
+        image,
+        event_date,
+        event_time,
+        location,
+        toTagArray(tags),
+        price,
+        repeat_event,
+        available_contact
+    );
 
-        await eventsRepo.updateEvent(
-            eventId, title,
-            subtitle, description,
-            image,
-            event_date, event_time,
-            location,
-            tagsParsed,
-            price,
-            repeat_event,
-            available_contact
-        );
-    } catch (error) {
-        throw error;
-    }
-
-    return { status: "UPDATED", message: "Event updated" };
+    return {
+        status: "UPDATED",
+        message: "Event updated",
+        event: await getEvent(eventId)
+    };
 }
 
 async function getAllEvents(limit, offset, sourceFilter, dateFilter) {
@@ -112,13 +97,50 @@ async function getAllEvents(limit, offset, sourceFilter, dateFilter) {
         "student": "student",
         "all": null
     };
-    
-    return await eventsRepo.getAllEvents(
+    const rows = await eventsRepo.getAllEvents(
         limit,
         offset,
         sourceMap[sourceFilter] ?? null,
         dateFilter ?? null
     );
+
+    return rows.map(toEventDTO);
+}
+
+function toEventDTO(event) {
+    const hasUploadedImage = Boolean(event.has_uploaded_image);
+
+    let imageUrl = null;
+    let imageKind = "none";
+
+    if (hasUploadedImage) {
+        imageUrl = `/api/events/${event.id}/image?v=${new Date(event.updated_at).getTime()}`; // ! Need to update route
+        imageKind = "upload";
+    } else if (event.image_url) {
+        imageUrl = event.image_url;
+        imageKind = "remote";
+    }
+
+    return {
+        id: event.id,
+        title: event.title,
+        subtitle: event.subtitle,
+        description: event.description,
+        event_date: event.event_date,
+        event_time: event.event_time,
+        location: event.location,
+        tags: event.tags,
+        price: event.price,
+        repeat_event: event.repeat_event,
+        available_contact: event.available_contact,
+        source: event.source,
+        image: {
+            url: imageUrl,
+            kind: imageKind
+        },
+        backgroundImageUrl: event.background_image_url ?? null,
+        updated_at: event.updated_at
+    };
 }
 
 function toTagArray(value) {

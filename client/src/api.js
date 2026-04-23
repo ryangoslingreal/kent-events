@@ -116,6 +116,41 @@ export async function healthCheck() {
 	return requestJson("/api/health", {}, "Network error: Failed to reach server");
 }
 
+function normaliseEvent(event) {
+    if (!event || event.error) {
+        return event;
+    }
+
+    const primaryImageUrl = getPrimaryEventImageUrl(event);
+	const backgroundImageUrl = event.backgroundImageUrl ?? event.backaground_image_url ?? null;
+
+	return {
+		...event,
+		image: event.image ?? {
+			url: primaryImageUrl,
+			kind: primaryImageUrl ? "unknown" : "none"
+		},
+		imageUrl: primaryImageUrl,
+		backgroundImageUrl
+	};
+}
+
+function normaliseEvents(events) {
+	if (!Array.isArray(events)) {
+		return events;
+	}
+
+	return events.map(normaliseEvent);
+}
+
+export function getPrimaryEventImageUrl(event) {
+	return event?.image?.url ?? event?.imageUrl ?? event?.image_url ?? null;
+}
+
+export function getHeaderEventImageUrl(event) {
+	return event?.backgroundImageUrl ?? event?.backaground_image_url ?? getPrimaryEventImageUrl(event);
+}
+
 
 // ========================================
 // ========== Authentication API ==========
@@ -251,8 +286,4 @@ export async function getAllEvents(limit, offset, sourceFilter, dateFilter) {
 		{},
 		"Network error: Failed to get all events"
 	);
-}
-
-export function getEventImageUrl(imagePath) {
-	return "/api/events/" + imagePath;
 }

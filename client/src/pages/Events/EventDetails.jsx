@@ -4,7 +4,7 @@ import styles from "./EventDetails.module.css";
 import Header from "../../components/layout/Header"
 import toast from "react-hot-toast";
 
-import { getEvent, getAllEvents, getEventImageUrl } from "../../api";
+import { getEvent, getAllEvents, getHeaderEventImageUrl, getPrimaryEventImageUrl } from "../../api";
 import { mapEventToDetails, mapEventToRelatedCard } from "./shared/eventMappers.js";
 import { EVENT_TOAST_STYLE } from "./shared/eventFormShared.jsx";
 
@@ -24,7 +24,11 @@ function EventDetails() {
                 return;
             }
 
-            setFormData(mapEventToDetails(eventData));
+            setFormData({
+                ...mapEventToDetails(eventData),
+                imageUrl: getPrimaryEventImageUrl(eventData),
+                backgroundImageUrl: getHeaderEventImageUrl(eventData)
+            });
         }
 
         async function getOtherEvents() {
@@ -38,7 +42,10 @@ function EventDetails() {
             const events = data
                 .filter((event) => String(event.id) !== String(id))
                 .slice(0, 5)
-                .map(mapEventToRelatedCard);
+                .map((event) => ({
+                    ...mapEventToRelatedCard(event),
+                    imageUrl: getPrimaryEventImageUrl(event)
+                }));
 
             setOtherEvents(events);
         }
@@ -56,17 +63,13 @@ function EventDetails() {
             <Header /> 
             <div className={styles.page}>
                 <div className={styles.eventHeader}>
-                    {formData.source !== 'ksu' && formData.source !== 'kentUni' ? (
+                    {formData.backgroundImageUrl || formData.imageUrl ? (
                         <img
                             className={styles.eventHeaderImg}
-                            src={getEventImageUrl(formData.imageUrl)}
+                            src={formData.backgroundImageUrl || formData.imageUrl}
                             alt={formData.title}
                         />
-                    ) : formData.background_event_image_url ? (
-                        <img className={styles.eventHeaderImg} src={formData.background_event_image_url} />
-                    ) : (
-                        <img className={styles.eventHeaderImg} src={formData.image_url} />
-                    )}
+                    ) : null}
                     <div className={styles.eventHeaderOverlay} />
                     <div className={styles.eventHeaderContent}>
                         <h2 className={styles.title}>{formData.title}</h2>
@@ -102,12 +105,10 @@ function EventDetails() {
                             <div className={styles.otherEventsScroller}>
                                 {otherEvents.map((event) => (
                                     <div key={event.id} className={styles.eventCard} onClick={() => eventDetail(event.id)}>
-                                        {event.source === 'ksu' || event.source === 'kentUni' ? (
-                                            <img className={styles.eventImage} src={event.image_url}></img>
-                                        ) : (
+                                        {event.imageUrl && (
                                             <img
                                                 className={styles.eventImage}
-                                                src={getEventImageUrl(event.imageUrl)}
+                                                src={event.imageUrl}
                                                 alt={event.title}
                                             />
                                         )}
