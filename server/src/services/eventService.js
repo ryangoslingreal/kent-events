@@ -6,21 +6,19 @@
 const eventsRepo = require('../repos/eventsRepo');
 
 //Deals with passing a createEvent request to repos
-async function createEvent(title, subtitle, description, image, date, time, location, tag, price, repeat, contactInfo, user_id) {
+async function createEvent(title, subtitle, description, image, date, time, location, tags, price, repeat, contactInfo, user_id) {
     try {
-        const tags = Array.isArray(tag) // turning tags into an array
-            ? tag
-            : [tag].filter(Boolean);
+        const tagsParsed = toTagArray(tags);
 
         return await eventsRepo.createEvent(
-            title, 
-            subtitle, description, 
-            image, 
-            date, time, 
-            location, 
-            tags, 
-            price, 
-            repeat, 
+            title,
+            subtitle, description,
+            image,
+            date, time,
+            location,
+            tagsParsed,
+            price,
+            repeat,
             contactInfo,
             user_id
         );
@@ -87,9 +85,7 @@ async function updateEvent(eventId, userId, title, subtitle, description, image,
     }
 
     try {
-        const tagsParsed = Array.isArray(tags) // Turning tags into an array
-            ? tags
-            : [tags].filter(Boolean);
+        const tagsParsed = toTagArray(tags);
 
         await eventsRepo.updateEvent(
             eventId, title,
@@ -123,6 +119,27 @@ async function getAllEvents(limit, offset, sourceFilter, dateFilter) {
         sourceMap[sourceFilter] ?? null,
         dateFilter ?? null
     );
+}
+
+function toTagArray(value) {
+    if (Array.isArray(value)) {
+        return value.filter(Boolean);
+    }
+
+    if (value == null || value === "") {
+        return [];
+    }
+
+    if (typeof value === "string") {
+        try {
+            const parsed = JSON.parse(value);
+            return Array.isArray(parsed) ? parsed.filter(Boolean) : [parsed].filter(Boolean);
+        } catch {
+            return [value].filter(Boolean);
+        }
+    }
+
+    return [value].filter(Boolean);
 }
 
 module.exports = { 

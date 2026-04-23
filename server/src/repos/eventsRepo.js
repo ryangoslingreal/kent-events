@@ -58,7 +58,16 @@ async function getEvent(eventId) {
     `;
 
     const [rows] = await db.execute(query, [eventId]);
-    return rows[0] ?? null;
+    const row = rows[0] ?? null;
+
+    if (!row) {
+        return null;
+    }
+
+    return {
+        ...row,
+        tags: parseTags(row.tags)
+    };
 }
 
 async function deleteEvent(eventId) {
@@ -132,7 +141,10 @@ async function getAllEvents(limit, offset, sourceFilter, dateFilter) {
     params.push(limit, offset);
 
     const [rows] = await db.query(query, params);
-    return rows;
+    return rows.map(row => ({
+        ...row,
+        tags: parseTags(rows.tags)
+    }));
 }
 
 async function lastScrapeTime(){
@@ -146,6 +158,23 @@ async function lastScrapeTime(){
 
     const [result] = await db.execute(query);
     return result;
+}
+
+function parseTags(raw) {
+    if (Array.isArray(raw)) {
+        return raw;
+    }
+
+    if (raw == null || raw === "") {
+        return [];
+    }
+
+    try {
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [parsed];
+    } catch {
+        return [];
+    }
 }
 
 module.exports = { 
