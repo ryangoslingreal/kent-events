@@ -107,7 +107,7 @@ async function updateEvent(eventId, title, subtitle, description, image, event_d
 
 async function getAllEvents(limit, offset, sourceFilter, dateFilter) {
     let query = `
-        SELECT id, title, subtitle, description, image_mime, event_date, event_time, location, tags, price, repeat_event, available_contact, source
+        SELECT id, title, subtitle, description, image_url, image_mime, event_date, event_time, location, tags, price, repeat_event, available_contact, source
         FROM events
         WHERE event_date >= CURDATE()
     `;

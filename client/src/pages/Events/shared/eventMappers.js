@@ -30,10 +30,9 @@ function formatTime(timeValue) {
 }
 
 export function mapEventToCard(item) {
-    return { 
+    return {
         id: item.id,
-        image: item.image, 
-        internalImageUrl: item.internalImageUrl, 
+        imageUrl: item.imageUrl,
         time: formatTime(item.event_time),
         date: formatDateShort(item.event_date),
         event_date: item.event_date,

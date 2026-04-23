@@ -12,7 +12,7 @@ function Home(){
     const [activeSourceFilter, setActiveSourceFilter] = useState("all");
     const [allEvents, setAllEvents] = useState([]);
     const [rawEvents, setRawEvents] = useState([]);
-    const [featuredUrl, setFeaturedUrl] = useState([]);
+    const [featuredUrl, setFeaturedUrl] = useState("");
     const [selectedDate, setSelectedDate] = useState(null);
     const [offset, setOffset] = useState(0);
     const [hasMore, setHasMore] = useState(true);
@@ -27,7 +27,7 @@ function Home(){
 
             const url = data[0].source === 'ksu' || data[0].source === 'kentUni'
                 ? data[0].image_url
-                : getEventImageUrl(data[0].image_url)
+                : getEventImageUrl(data[0].imageUrl);
             setFeaturedUrl(url);
 
             if (data.error) {
