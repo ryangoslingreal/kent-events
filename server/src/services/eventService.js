@@ -6,7 +6,7 @@
 const eventsRepo = require('../repos/eventsRepo');
 
 //Deals with passing a createEvent request to repos
-async function createEvent(title, subtitle, description, image, image_mime, date, time, location, tag, price, repeat, contactInfo, user_id) {
+async function createEvent(title, subtitle, description, image, date, time, location, tag, price, repeat, contactInfo, user_id) {
     try {
         const tags = Array.isArray(tag) // turning tags into an array
             ? tag
@@ -15,7 +15,7 @@ async function createEvent(title, subtitle, description, image, image_mime, date
         return await eventsRepo.createEvent(
             title, 
             subtitle, description, 
-            image, image_mime, 
+            image, 
             date, time, 
             location, 
             tags, 
@@ -70,7 +70,7 @@ async function deleteEvent(eventId, userId) {
     return { status: "DELETED", message: "Event deleted" };
 }
 
-async function updateEvent(eventId, userId, title, subtitle, description, image, image_mime, event_date, event_time, location, tags, price, repeat_event, available_contact) {
+async function updateEvent(eventId, userId, title, subtitle, description, image, event_date, event_time, location, tags, price, repeat_event, available_contact) {
     let event;
     try {
         event = await eventsRepo.getEvent(eventId);
@@ -92,14 +92,14 @@ async function updateEvent(eventId, userId, title, subtitle, description, image,
             : [tags].filter(Boolean);
 
         await eventsRepo.updateEvent(
-            eventId, title, 
-            subtitle, description, 
-            image, image_mime, 
-            event_date, event_time, 
-            location, 
-            tagsParsed, 
-            price, 
-            repeat_event, 
+            eventId, title,
+            subtitle, description,
+            image,
+            event_date, event_time,
+            location,
+            tagsParsed,
+            price,
+            repeat_event,
             available_contact
         );
     } catch (error) {

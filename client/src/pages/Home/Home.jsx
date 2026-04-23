@@ -9,7 +9,7 @@ import { getAllEvents, getEventImageUrl } from "../../api"
 import { mapEventToCard } from "../Events/shared/eventMappers";
 
 function Home(){
-    const [activeSourceFilter, setActiveSourceFilter] = useState("All");
+    const [activeSourceFilter, setActiveSourceFilter] = useState("all");
     const [allEvents, setAllEvents] = useState([]);
     const [rawEvents, setRawEvents] = useState([]);
     const [featuredUrl, setFeaturedUrl] = useState([]);
@@ -27,7 +27,7 @@ function Home(){
 
             const url = data[0].source === 'ksu' || data[0].source === 'kentUni'
                 ? data[0].image_url
-                : `${API_BASE}/api/events/${allEvents[0].internalImageUrl}` // !
+                : getEventImageUrl(data[0].image_url)
             setFeaturedUrl(url);
 
             if (data.error) {
@@ -39,10 +39,10 @@ function Home(){
             const events = data.map(mapEventToCard);
             setAllEvents(events);
             setRawEvents(events);
-            setOffset(PAGE_SIZE)
+            setOffset(PAGE_SIZE);
 
             if (data.length < PAGE_SIZE){
-                setHasMore(false)
+                setHasMore(false);
             }
         }
         

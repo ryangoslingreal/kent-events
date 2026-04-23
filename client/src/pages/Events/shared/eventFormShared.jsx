@@ -77,14 +77,20 @@ export function mapEventToEditForm(data) {
     };
 }
 
-export function buildEventUpdatePayload(formData, selectedFile) {
+export function buildEventUpdatePayload(formData, selectedFile, removeImage = false) {
     const payload = {...formData};
+
+    delete payload.image;
+    delete payload.image_mime;
+    delete payload.remove_image;
+
+    if (removeImage) {
+        payload.remove_image = true;
+        return payload;
+    }
         
     if (selectedFile) {
         payload.image = selectedFile;
-    } else {
-        delete payload.image;
-        delete payload.image_mime;
     }
 
     return payload;

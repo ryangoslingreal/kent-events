@@ -2,9 +2,24 @@
 
 const db = require('../db/pool');
 
-async function createEvent(title, subtitle, description, image, image_mime, date, time, location, tags, price, repeat, contactInfo, user_id, source = "student") {
+async function createEvent(title, subtitle, description, image, date, time, location, tags, price, repeat, contactInfo, user_id, source = "student") {
     const query = 'INSERT INTO events (title, user_id ,subtitle, description, image, image_mime, event_date, event_time, location, tags, price, repeat_event, available_contact, source) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
-    const values = [title, user_id ,subtitle, description, image?.buffer ?? null, image_mime, date, time, location, JSON.stringify(tags), price, repeat, contactInfo, source];
+    const values = [
+        title,
+        user_id,
+        subtitle,
+        description,
+        image?.buffer ?? null,
+        image?.mimetype ?? null,
+        date,
+        time,
+        location,
+        JSON.stringify(tags),
+        price,
+        repeat,
+        contactInfo,
+        source
+    ];
 
     const [result] = await db.query(query, values);
     return result;
@@ -15,10 +30,10 @@ async function saveKSUEvents(events) {
         if (!event.title || !event.description) {
             continue; 
         }
-        const query = `INSERT INTO events (title, user_id, description, image, image_mime, event_date, event_time, location, tags, price, repeat_event, available_contact, image_url, background_event_image_url, source, external_url, end_event_time, ticket_url) 
+        const query = `INSERT INTO events (title, user_id, description, event_date, event_time, location, tags, price, repeat_event, available_contact, image_url, background_event_image_url, source, external_url, end_event_time, ticket_url) 
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON DUPLICATE KEY UPDATE external_url = external_url`;
-        const values = [event.title, 1, event.description, null, null, event.date, event.time, event.location, JSON.stringify(event.tags), 0, "never", 0, event.image_url, event.background_event_image_url, event.source, event.external_url, event.end_event_time, event.ticket_url]   //Made the user_id 1 as default
+        const values = [event.title, 1, event.description, event.date, event.time, event.location, JSON.stringify(event.tags), 0, "never", 0, event.image_url, event.background_event_image_url, event.source, event.external_url, event.end_event_time, event.ticket_url]   //Made the user_id 1 as default
         await db.query(query, values);
     }
 }
@@ -56,9 +71,15 @@ async function deleteEvent(eventId) {
     return result;
 }
 
-async function updateEvent(eventId, title, subtitle, description, image, image_mime, event_date, event_time, location, tags, price, repeat_event, available_contact) {
-    // Checks for image, to save executing time
-    if (!image) {
+async function updateEvent(eventId, title, subtitle, description, image, event_date, event_time, location, tags, price, repeat_event, available_contact) {
+    // * NOTE:
+    // * Currently overwrites all event fields, even if only a subset is being updated.
+    // * This is simpler, but less efficient.
+
+    // TODO: Consider updating only changed fields.
+    
+    // image === undefined -> leave existing image unchanged
+    if (image === undefined) {
         const query = `
             UPDATE events
             SET title=?, subtitle=?, description=?, event_date=?, event_time=?, location=?, tags=?, price=?, repeat_event=?, available_contact=?
@@ -69,16 +90,19 @@ async function updateEvent(eventId, title, subtitle, description, image, image_m
         return result;
     }
 
+    // image === null -> clear image and mime
+    // image is a file object -> replace image
     const query = `
         UPDATE events
         SET title=?, subtitle=?, description=?, image=?, image_mime=?, event_date=?, event_time=?, location=?, tags=?, price=?, repeat_event=?, available_contact=?
         WHERE id = ?
     `;
-        
-    const [result] = await db.execute(query, [title, subtitle, description, image?.buffer, image_mime, event_date, event_time, location, JSON.stringify(tags), price, repeat_event, available_contact, eventId]);
-    return result;
 
-    // ? SHOULD i JUST UPDATE ALL COLUMNS with teh sepcific event, or only changed ones?
+    const imageData = image === null ? null : image.buffer;
+    const imageMime = image === null ? null : image.mimetype;
+        
+    const [result] = await db.execute(query, [title, subtitle, description, imageData, imageMime, event_date, event_time, location, JSON.stringify(tags ?? []), price, repeat_event, available_contact, eventId]);
+    return result;
 }
 
 async function getAllEvents(limit, offset, sourceFilter, dateFilter) {

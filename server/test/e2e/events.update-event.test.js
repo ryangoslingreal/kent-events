@@ -4,7 +4,7 @@ const { createTestAgent } = require("../helpers/testingUtils.js");
 const { cleanupTestUsers, cleanupTestEvents } = require("../helpers/dbTestingUtils.js");
 const { createTestUserAndEvent } = require("../helpers/scenarioTestingUtils.js");
 const { registerAndLoginTestUser, logoutTestUser } = require("../helpers/authTestingUtils.js");
-const { updateTestEvent, getEvent, normaliseEvent } = require("../helpers/eventsTestingUtils.js");
+const { updateTestEvent, getEvent, getEventImage, normaliseEvent } = require("../helpers/eventsTestingUtils.js");
 
 const TEST_PREFIX = process.env.TEST_PREFIX;
 
@@ -158,7 +158,76 @@ describe.sequential("api/events/update-event", () => {
         const beforeUpdate = Buffer.from(getRes1.body.image);
         const afterUpdate = Buffer.from(getRes2.body.image);
         expect(afterUpdate.equals(beforeUpdate)).toBe(false);
-        expect(afterUpdate.equals(afterUpdate)).toBe(true);
+        expect(afterUpdate.equals(image2)).toBe(true);
+    });
+
+    it("returns 200 and clears image when `remove_image=true`", async () => {
+        // Create user and event with image
+        const image = Buffer.from("image-to-clear");
+
+        const { userRes, eventRes } = await createTestUserAndEvent(agent, {
+            image
+        });
+
+        expect(userRes.status).toBe(200);
+        expect(eventRes.status).toBe(201);
+
+        const eventId = eventRes.body.eventId;
+
+        const { res: getRes1 } = await getEvent(agent, eventId);
+        expect(getRes1.status).toBe(200);
+        expect(getRes1.body.image).toBeTruthy();
+
+        // Update event and clear image
+        const { res: updateRes } = await updateTestEvent(
+            agent,
+            eventId,
+            { remove_image: true }
+        );
+
+        expect(updateRes.status).toBe(200);
+
+        // Verify image has been cleared
+        const { res: getRes2 } = await getEvent(agent, eventId);
+        expect(getRes2.status).toBe(200);
+        expect(getRes2.body.image ?? null).toBeNull();
+        expect(getRes2.body.image_mime ?? null).toBeNull();
+
+        const { res: imageRes } = await getEventImage(agent, eventId);
+        expect(imageRes.status).toBe(204);
+    });    
+
+    it("returns 400 when `remove_image=true` and a new image are sent", async () => {
+        // Create user and event with image
+        const originalImage = Buffer.from("original-image");
+
+        const { userRes, eventRes } = await createTestUserAndEvent(agent, {
+            image: originalImage
+        });
+
+        expect(userRes.status).toBe(200);
+        expect(eventRes.status).toBe(201);
+
+        const eventId = eventRes.body.eventId;
+
+        const replacementImage = Buffer.from("replacement-image");
+
+        // Attempt to update event and clear image with an image
+        const { res: updateRes } = await updateTestEvent(
+            agent,
+            eventId,
+            { remove_image: true },
+            replacementImage
+        );
+
+        expect(updateRes.status).toBe(400);
+
+        const { res: getRes } = await getEvent(agent, eventId);
+        expect(getRes.status).toBe(200);
+        expect(getRes.body.image).toBeTruthy();
+
+        const storedImage = Buffer.from(getRes.body.image);
+        expect(storedImage.equals(originalImage)).toBe(true);
     });
 
     it("returns 400 when missing or invalid `eventId` is provided", async () => {

@@ -19,7 +19,8 @@ function EditEvent(){
     const { id } = useParams();
     const navigate = useNavigate();
     const [formData, setFormData] = useState(createInitialEventForm());
-    const [selectedFile, setSelectedFile] = useState();
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [removeImage, setRemoveImage] = useState(false);
 
     const baseHandleInputChange = applyEventInputChange(setFormData);
 
@@ -28,13 +29,23 @@ function EditEvent(){
 
         if (event.target.name === "image") {
             setSelectedFile(selectedImage);
+            setRemoveImage(false);
         }
+    };
+
+    const handleRemoveImage = () => {
+        setRemoveImage(true);
+        setSelectedFile(null);
+    };
+
+    const handleKeepCurrentImage = () => {
+        setRemoveImage(false);
     };
 
     const handleSubmit = async(e) => {
         e.preventDefault();
 
-        const payload = buildEventUpdatePayload(formData, selectedFile);
+        const payload = buildEventUpdatePayload(formData, selectedFile, removeImage);
         const result = await updateEvent(id, payload);
 
         if (result.error){
@@ -75,18 +86,10 @@ function EditEvent(){
     return (
         <>
             <Header />
-            <Toaster 
-                position="bottom-right"
-                toastOptions={{
-                    style: {
-                        fontFamily: "Overpass, Helvetica, Arial, sans-serif",
-                    }
-                }}
-            />
             <div className={styles.page}>
                 <div className={styles.card}>
                     <form className={styles.form} onSubmit={handleSubmit}>
-                        <h1 className={styles.title}>Create Event</h1>
+                        <h1 className={styles.title}>Edit Event</h1>
                         <h2 className={styles.subtitle}>Fill in the details below</h2>
 
                         <section className={styles.section}>
@@ -140,7 +143,13 @@ function EditEvent(){
                                 htmlFor="image"
                             >
                                 <label htmlFor="image" className={styles.image}>
-                                    {selectedFile ? selectedFile.name : formData.image ? "Choose new image" : "Select Image"}
+                                    {removeImage
+                                        ? "Image will be removed"
+                                        : selectedFile
+                                            ? selectedFile.name
+                                            : formData.image
+                                                ? "Choose new image"
+                                                : "Select Image"}
                                 </label>
                                 <div>
                                     <input
@@ -152,6 +161,26 @@ function EditEvent(){
                                         hidden // This is hidden due to me wanting to change the text next to the input image box
                                     />
                                 </div>
+
+                                {formData.image && !selectedFile && !removeImage && (
+                                    <button
+                                        type="button"
+                                        className={styles.saveForm}
+                                        onClick={handleRemoveImage}
+                                    >
+                                        Remove current image
+                                    </button>
+                                )}
+
+                                {removeImage && (
+                                    <button
+                                        type="button"
+                                        className={styles.saveForm}
+                                        onClick={handleKeepCurrentImage}
+                                    >
+                                        Keep current image
+                                    </button>
+                                )}
                             </Field>
                         </section>
 

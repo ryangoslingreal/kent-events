@@ -46,7 +46,7 @@ describe.sequential("api/events/:id/image", () => {
 
         expect(imageRes.body.equals(image)).toBe(true);
         expect(imageRes.headers["content-type"]).toBe("image/png");
-        expect(imageRes.headers["cache-control"]).toBe("public, max-age=86400");
+        expect(imageRes.headers["cache-control"]).toBe("no-cache");
     });
 
     it("returns 204 when event has no image", async () => {

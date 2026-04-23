@@ -67,14 +67,6 @@ function CreateEvent() {
     return (
         <>
             <Header />
-            <Toaster 
-                position="bottom-right"
-                toastOptions={{
-                    style: {
-                        fontFamily: "Overpass, Helvetica, Arial, sans-serif",
-                    }
-                }}
-            />
             <div className={styles.page}>
                 <div className={styles.card}>
                     <form className={styles.form} onSubmit={handleSubmit}>

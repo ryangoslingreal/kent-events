@@ -30,8 +30,7 @@ async function sendMultipart(req, payload = {}, image = null) {
 
     if (image != null) {
         req.attach("image", image, {
-            filename: "test.png",
-            contentType: "image/png"
+            filename: "test.png"
         });
     }
 
@@ -54,10 +53,7 @@ async function createTestEvent(agent, payload = {}, image = null) {
     return sendMultipart(
         agent
             .post("/api/events/create-event"),
-        { 
-            ...defaultEventPayload(payload),
-            ...(image != null ? { image_mime: "image/png" } : {})
-        },
+        defaultEventPayload(payload),
         image
     );
 }
@@ -67,10 +63,7 @@ async function updateTestEvent(agent, eventId, payload = {}, image = null) {
         agent
             .put("/api/events/update-event")
             .query({ eventId }),
-        { 
-            ...defaultEventPayload(payload),
-            ...(image != null ? { image_mime: "image/png" } : {})
-        },
+        defaultEventPayload(payload),
         image
     );
 }

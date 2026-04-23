@@ -20,7 +20,6 @@ router.post("/create-event", upload.single("image"), async (req, res) => {
     const {
         title,
         subtitle, description,
-        image_mime,
         event_date, event_time,
         location,
         tags,
@@ -43,7 +42,6 @@ router.post("/create-event", upload.single("image"), async (req, res) => {
             title,
             subtitle, description,
             req.file ?? null,
-            image_mime,
             event_date, event_time,
             location,
             tags,
@@ -155,7 +153,7 @@ router.put("/update-event", upload.single("image"), async(req, res) => {
     const {
         title,
         subtitle, description,
-        image_mime,
+        remove_image,
         event_date, event_time,
         location,
         tags,
@@ -164,21 +162,33 @@ router.put("/update-event", upload.single("image"), async(req, res) => {
         available_contact
     } = req.body;
 
-    let intContactInfo = (available_contact === "true") ? 1 : 0;
+    if (remove_image === "true" && req.file) {
+        return res.status(400).json({ message: "Cannot upload and remove an image in the same request." });
+    }
+
+    let image;
+    if (remove_image === "true") {
+        image = null; // Clear image
+    } else if (req.file) {
+        image = req.file; // Replace image
+    } else {
+        image = undefined; // Do not touch image
+    }
+
+    let intContactInfo = available_contact === true || available_contact === "true" ? 1 : 0;
 
     let result;
     try {
         result = await eventService.updateEvent(
             Number(eventId), req.session.user.id,
-            title, 
+            title,
             subtitle, description,
-            req.file ?? null, 
-            image_mime, 
-            event_date, event_time, 
-            location, 
-            tags, 
-            price, 
-            repeat_event, 
+            image,
+            event_date, event_time,
+            location,
+            tags,
+            price,
+            repeat_event,
             intContactInfo
         );
     } catch (error) {
@@ -245,7 +255,7 @@ router.get("/:id/image", async(req, res) => {
         }
 
         res.setHeader("Content-Type", event.image_mime);
-        res.setHeader("Cache-Control", "public, max-age=86400"); // Cache for 1 day
+        res.setHeader("Cache-Control", "no-cache");
         return res.send(event.image);
     } catch (error){
         return res.status(500).send({

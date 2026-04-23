@@ -85,6 +85,7 @@ describe.sequential("api/events/create-event", () => {
                 image_mime: "image/png"
             })
         );
+        
         expect(Buffer.from(getRes.body.image).equals(image)).toBe(true);
     });
 
