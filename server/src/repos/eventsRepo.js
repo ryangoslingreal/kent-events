@@ -6,12 +6,12 @@ async function createEvent(
     availableContact, user_id, source = "student"
 ) {
     const query = `
-        INSERT INTO events (
+        INSERT INTO events ( // ! Currently can't set end_event_time
             title, user_id, subtitle, description, image, image_mime,
-            event_date, event_time, location, tags, price, repeat_event,
-            available_contact, source
+            event_date, event_time, end_event_time, location, tags, price,
+            repeat_event, available_contact, source
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const values = [
@@ -90,8 +90,8 @@ async function getEvent(eventId, { mode = "api" } = {}) {
         query = `
             SELECT
                 id, user_id, title, subtitle, description,
-                event_date, event_time, location, tags,
-                price, repeat_event, available_contact,
+                event_date, event_time, end_event_time, location,
+                tags, price, repeat_event, available_contact,
                 source, image_url, background_image_url,
                 updated_at,
                 CASE WHEN image IS NOT NULL THEN 1 ELSE 0 END AS has_uploaded_image
@@ -132,7 +132,7 @@ async function updateEvent(
 
     // TODO: Consider updating only changed fields.
 
-    const setClauses = [
+    const setClauses = [ // ! Currently can't set end_event_time
         "title=?", "subtitle=?", "description=?", "event_date=?", "event_time=?",
         "location=?", "tags=?", "price=?", "repeat_event=?", "available_contact=?"
     ]
@@ -169,8 +169,8 @@ async function updateEvent(
 async function getAllEvents(limit, offset, sourceFilter, dateFilter) {
     let query = `
         SELECT
-            id, title, subtitle, description,
-            event_date, event_time, location, tags,
+            id, title, subtitle, description, event_date,
+            event_time, end_event_time, location, tags,
             price, repeat_event, available_contact, source,
             image_url, background_image_url, updated_at,
             CASE WHEN image IS NOT NULL THEN 1 ELSE 0 END AS has_uploaded_image

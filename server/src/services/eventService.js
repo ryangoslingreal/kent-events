@@ -114,7 +114,7 @@ function toEventDTO(event) {
     let imageKind = "none";
 
     if (hasUploadedImage) {
-        imageUrl = `/api/events/${event.id}/image?v=${new Date(event.updated_at).getTime()}`; // ! Need to update route
+        imageUrl = `/api/events/${event.id}/image?v=${new Date(event.updated_at).getTime()}`;
         imageKind = "upload";
     } else if (event.image_url) {
         imageUrl = event.image_url;
@@ -128,6 +128,7 @@ function toEventDTO(event) {
         description: event.description,
         event_date: event.event_date,
         event_time: event.event_time,
+        end_event_time: event.end_event_time ?? null,
         location: event.location,
         tags: event.tags,
         price: event.price,
