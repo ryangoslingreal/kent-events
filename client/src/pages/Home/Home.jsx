@@ -24,6 +24,7 @@ function Home(){
         async function getHomeEvents() {
 
             const data = await getAllEvents(PAGE_SIZE, 0, activeSourceFilter, selectedDate);
+            setHasMore(true)
 
             if (data.error) {
                 setAllEvents([]);
