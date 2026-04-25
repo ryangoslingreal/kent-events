@@ -114,7 +114,7 @@ function toEventDTO(event) {
     let imageKind = "none";
 
     if (hasUploadedImage) {
-        imageUrl = `/api/events/${event.id}/image?v=${new Date(event.updated_at).getTime()}`; // ! Need to update route
+        imageUrl = `/api/events/${event.id}/image?v=${new Date(event.updated_at).getTime()}`;
         imageKind = "upload";
     } else if (event.image_url) {
         imageUrl = event.image_url;

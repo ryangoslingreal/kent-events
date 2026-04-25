@@ -1,11 +1,10 @@
-import e from "express";
 import { beforeEach, describe, it, expect, afterEach } from "vitest";
 const inbox = require("../helpers/emailInbox.js");
 const { createTestAgent } = require("../helpers/testingUtils.js");
 const { cleanupTestUsers, cleanupTestEvents } = require("../helpers/dbTestingUtils.js");
 const { createTestUserAndEvent } = require("../helpers/scenarioTestingUtils.js");
 const { makeTestEmail, registerAndLoginTestUser } = require("../helpers/authTestingUtils.js");
-const { getEvent, createTestEvent } = require("../helpers/eventsTestingUtils.js");
+const { getEvent } = require("../helpers/eventsTestingUtils.js");
 
 describe.sequential("api/events/get-event", () => {
     let app;
@@ -29,8 +28,9 @@ describe.sequential("api/events/get-event", () => {
     });
 
     it("returns 200 with event for valid `eventId`", async () => {
-        // Create user and event
-        const { userRes, eventRes } = await createTestUserAndEvent(agent);
+        // Create user and event with image
+        const image = Buffer.from("fake-image-bytes");
+        const { userRes, eventRes } = await createTestUserAndEvent(agent, { image });
         expect(userRes.status).toBe(200);
         expect(eventRes.status).toBe(201);
         
@@ -40,7 +40,12 @@ describe.sequential("api/events/get-event", () => {
         const { res: getRes } = await getEvent(agent, eventId);
         expect(getRes.status).toBe(200);
         expect(getRes.body.id).toBe(eventId);
-        expect(getRes.body.imageUrl).toBe(`${eventId}/image`);
+        expect(getRes.body.image).toEqual(
+            expect.objectContaining({
+                url: expect.stringContaining(`/api/events/${eventId}/image?v=`),
+                kind: "upload"
+            })
+        );
     });
 
     it("returns 400 when missing or invalid `eventId` is provided", async () => {

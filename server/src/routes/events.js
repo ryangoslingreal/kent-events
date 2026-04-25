@@ -5,7 +5,6 @@ const eventService = require("../services/eventService");
 const router = Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
-//Passes data onto eventService and does error checks on the data
 router.post("/create-event", upload.single("image"), async (req, res) => {
     const userId = getSessionUserId(req);
     if (!userId) {

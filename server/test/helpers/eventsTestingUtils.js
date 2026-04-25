@@ -30,7 +30,8 @@ async function sendMultipart(req, payload = {}, image = null) {
 
     if (image != null) {
         req.attach("image", image, {
-            filename: "test.png"
+            filename: "test.png",
+            contentType: "image/png"
         });
     }
 

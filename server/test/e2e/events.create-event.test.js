@@ -4,7 +4,7 @@ const { createTestAgent } = require("../helpers/testingUtils.js");
 const { cleanupTestUsers, cleanupTestEvents } = require("../helpers/dbTestingUtils.js");
 const { createTestUserAndEvent } = require("../helpers/scenarioTestingUtils.js");
 const { registerAndLoginTestUser } = require("../helpers/authTestingUtils.js");
-const { createTestEvent, getUserMadeEvents, getEvent, normaliseEvent } = require("../helpers/eventsTestingUtils.js");
+const { createTestEvent, getUserMadeEvents, getEvent, getEventImage, normaliseEvent } = require("../helpers/eventsTestingUtils.js");
 
 const TEST_PREFIX = process.env.TEST_PREFIX;
 
@@ -58,7 +58,7 @@ describe.sequential("api/events/create-event", () => {
             }, 
             image
         });
-
+    
         expect(userRes.status).toBe(200);
         expect(eventRes.status).toBe(201);
 
@@ -71,7 +71,6 @@ describe.sequential("api/events/create-event", () => {
         expect(normaliseEvent(getRes.body)).toEqual(
             expect.objectContaining({
                 id: eventId,
-                user_id: userId,
                 title,
                 subtitle,
                 description,
@@ -82,11 +81,16 @@ describe.sequential("api/events/create-event", () => {
                 price,
                 repeat_event,
                 available_contact,
-                image_mime: "image/png"
+                image: expect.objectContaining({
+                    url: expect.stringContaining(`/api/events/${eventId}/image?v=`),
+                    kind: "upload"
+                })
             })
         );
-        
-        expect(Buffer.from(getRes.body.image).equals(image)).toBe(true);
+
+        const { res: imageRes } = await getEventImage(agent, eventId);
+        expect(imageRes.status).toBe(200);
+        expect(imageRes.body.equals(image)).toBe(true);
     });
 
     it("returns 201 and successfully creates event without an image", async () => {
@@ -103,8 +107,15 @@ describe.sequential("api/events/create-event", () => {
         // Verify event is created with no image
         const { res: getRes } = await getEvent(agent, eventId);
         expect(getRes.status).toBe(200);
-        expect(getRes.body.image ?? null).toBeNull();
-        expect(getRes.body.image_mime ?? null).toBeNull();
+        expect(getRes.body.image).toEqual(
+            expect.objectContaining({
+                url: null,
+                kind: "none"
+            })
+        );
+
+        const { res: imageRes } = await getEventImage(agent, eventId);
+        expect(imageRes.status).toBe(204);
     });
 
     it("returns 400 when missing or invalid fields are provided", async () => {

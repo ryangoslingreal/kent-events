@@ -67,6 +67,21 @@ describe.sequential("api/events/update-event", () => {
         );
 
         expect(updateRes.status).toBe(200);
+        expect(normaliseEvent(updateRes.body.event)).toEqual(
+            expect.objectContaining({
+                id: eventId,
+                title,
+                subtitle,
+                description,
+                event_date,
+                event_time,
+                location,
+                tags,
+                price,
+                repeat_event,
+                available_contact
+            })
+        );
 
         // Verify event is updated
         const { res: getRes } = await getEvent(agent, eventId);
@@ -100,9 +115,9 @@ describe.sequential("api/events/update-event", () => {
 
         const eventId = eventRes.body.eventId;
 
-        const { res: getRes1 } = await getEvent(agent, eventId);
-        expect(getRes1.status).toBe(200);
-        expect(getRes1.body.image).toBeTruthy();
+        const { res: imageRes1 } = await getEventImage(agent, eventId);
+        expect(imageRes1.status).toBe(200);
+        expect(imageRes1.body.equals(image)).toBe(true);
 
         // Update event without providing new image
         const { res: updateRes } = await updateTestEvent(
@@ -112,15 +127,17 @@ describe.sequential("api/events/update-event", () => {
         );
 
         expect(updateRes.status).toBe(200);
+        expect(updateRes.body.event.image).toEqual(
+            expect.objectContaining({
+                url: expect.stringContaining(`/api/events/${eventId}/image?v=`),
+                kind: "upload"
+            })
+        );
 
         // Verify image unchanged
-        const { res: getRes2 } = await getEvent(agent, eventId);
-        expect(getRes2.status).toBe(200);
-        expect(getRes2.body.image).toBeTruthy();
-        
-        const originalImage = Buffer.from(getRes1.body.image);
-        const preservedImage = Buffer.from(getRes2.body.image);
-        expect(preservedImage.equals(originalImage)).toBe(true);
+        const { res: imageRes2 } = await getEventImage(agent, eventId);
+        expect(imageRes2.status).toBe(200);
+        expect(imageRes2.body.equals(image)).toBe(true);
     });
 
     it("returns 200 and replaces image when updating with a new one", async () => {
@@ -137,9 +154,9 @@ describe.sequential("api/events/update-event", () => {
 
         const eventId = eventRes.body.eventId;
 
-        const { res: getRes1 } = await getEvent(agent, eventId);
-        expect(getRes1.status).toBe(200);
-        expect(getRes1.body.image).toBeTruthy();
+        const { res: imageRes1 } = await getEventImage(agent, eventId);
+        expect(imageRes1.status).toBe(200);
+        expect(imageRes1.body.equals(image1)).toBe(true);
 
         // Update event with new image
         const { res: updateRes } = await updateTestEvent(
@@ -150,15 +167,18 @@ describe.sequential("api/events/update-event", () => {
         );
 
         expect(updateRes.status).toBe(200);
+        expect(updateRes.body.event.image).toEqual(
+            expect.objectContaining({
+                url: expect.stringContaining(`/api/events/${eventId}/image?v=`),
+                kind: "upload"
+            })
+        );
 
         // Verify image replaced
-        const { res: getRes2 } = await getEvent(agent, eventId);
-        expect(getRes2.body.image).toBeTruthy();
-
-        const beforeUpdate = Buffer.from(getRes1.body.image);
-        const afterUpdate = Buffer.from(getRes2.body.image);
-        expect(afterUpdate.equals(beforeUpdate)).toBe(false);
-        expect(afterUpdate.equals(image2)).toBe(true);
+        const { res: imageRes2 } = await getEventImage(agent, eventId);
+        expect(imageRes2.status).toBe(200);
+        expect(imageRes2.body.equals(image1)).toBe(false);
+        expect(imageRes2.body.equals(image2)).toBe(true);
     });
 
     it("returns 200 and clears image when `remove_image=true`", async () => {
@@ -174,9 +194,9 @@ describe.sequential("api/events/update-event", () => {
 
         const eventId = eventRes.body.eventId;
 
-        const { res: getRes1 } = await getEvent(agent, eventId);
-        expect(getRes1.status).toBe(200);
-        expect(getRes1.body.image).toBeTruthy();
+        const { res: imageRes1 } = await getEventImage(agent, eventId);
+        expect(imageRes1.status).toBe(200);
+        expect(imageRes1.body.equals(image)).toBe(true);
 
         // Update event and clear image
         const { res: updateRes } = await updateTestEvent(
@@ -186,15 +206,25 @@ describe.sequential("api/events/update-event", () => {
         );
 
         expect(updateRes.status).toBe(200);
+        expect(updateRes.body.event.image).toEqual(
+            expect.objectContaining({
+                url: null,
+                kind: "none"
+            })
+        );
 
         // Verify image has been cleared
-        const { res: getRes2 } = await getEvent(agent, eventId);
-        expect(getRes2.status).toBe(200);
-        expect(getRes2.body.image ?? null).toBeNull();
-        expect(getRes2.body.image_mime ?? null).toBeNull();
+        const { res: getRes } = await getEvent(agent, eventId);
+        expect(getRes.status).toBe(200);
+        expect(getRes.body.image).toEqual(
+            expect.objectContaining({
+                url: null,
+                kind: "none"
+            })
+        );
 
-        const { res: imageRes } = await getEventImage(agent, eventId);
-        expect(imageRes.status).toBe(204);
+        const { res: imageRes2 } = await getEventImage(agent, eventId);
+        expect(imageRes2.status).toBe(204);
     });    
 
     it("returns 400 when `remove_image=true` and a new image are sent", async () => {
@@ -209,7 +239,6 @@ describe.sequential("api/events/update-event", () => {
         expect(eventRes.status).toBe(201);
 
         const eventId = eventRes.body.eventId;
-
         const replacementImage = Buffer.from("replacement-image");
 
         // Attempt to update event and clear image with an image
@@ -222,12 +251,9 @@ describe.sequential("api/events/update-event", () => {
 
         expect(updateRes.status).toBe(400);
 
-        const { res: getRes } = await getEvent(agent, eventId);
-        expect(getRes.status).toBe(200);
-        expect(getRes.body.image).toBeTruthy();
-
-        const storedImage = Buffer.from(getRes.body.image);
-        expect(storedImage.equals(originalImage)).toBe(true);
+        const { res: imageRes } = await getEventImage(agent, eventId);
+        expect(imageRes.status).toBe(200);
+        expect(imageRes.body.equals(originalImage)).toBe(true);
     });
 
     it("returns 400 when missing or invalid `eventId` is provided", async () => {

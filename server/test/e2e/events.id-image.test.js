@@ -4,7 +4,7 @@ const { createTestAgent } = require("../helpers/testingUtils.js");
 const { cleanupTestUsers, cleanupTestEvents } = require("../helpers/dbTestingUtils.js");
 const { createTestUserAndEvent } = require("../helpers/scenarioTestingUtils.js");
 const { makeTestEmail, registerAndLoginTestUser } = require("../helpers/authTestingUtils.js");
-const { getEventImage, createTestEvent } = require("../helpers/eventsTestingUtils.js");
+const { getEventImage } = require("../helpers/eventsTestingUtils.js");
 
 describe.sequential("api/events/:id/image", () => {
     let app;
@@ -46,7 +46,7 @@ describe.sequential("api/events/:id/image", () => {
 
         expect(imageRes.body.equals(image)).toBe(true);
         expect(imageRes.headers["content-type"]).toBe("image/png");
-        expect(imageRes.headers["cache-control"]).toBe("no-cache");
+        expect(imageRes.headers["cache-control"]).toBe("public, max-age=31536000, immutable");
     });
 
     it("returns 204 when event has no image", async () => {

@@ -31,7 +31,8 @@ describe.sequential("api/events/get-all-events", () => {
         // Create user and events
         await registerAndLoginTestUser(agent);
 
-        const { res: createFutureRes } = await createTestEvent(agent, { event_date: "2077-05-01" });
+        const image = Buffer.from("future-image-bytes");
+        const { res: createFutureRes } = await createTestEvent(agent, { event_date: "2077-05-01" }, image);
         expect(createFutureRes.status).toBe(201);
 
         const { res: createPastRes } = await createTestEvent(agent, { event_date: "2000-01-01" });
@@ -49,11 +50,13 @@ describe.sequential("api/events/get-all-events", () => {
 
         const futureEvent = getAllRes.body.find(e => e.id === futureEventId);
         expect(futureEvent).toBeDefined();
-
         expect(futureEvent).toEqual(
             expect.objectContaining({
                 id: futureEventId,
-                imageUrl: `${futureEventId}/image`
+                image: expect.objectContaining({
+                    url: expect.stringContaining(`/api/events/${futureEventId}/image?v=`),
+                    kind: "upload"
+                })
             })
         );
     });
