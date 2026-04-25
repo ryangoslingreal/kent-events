@@ -4,6 +4,8 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Header from "../../components/layout/Header"
 import styles from "./Home.module.css"
+import toast from "react-hot-toast";
+
 
 import { getAllEvents, getHeaderEventImageUrl, getPrimaryEventImageUrl } from "../../api"
 import { mapEventToCard } from "../Events/shared/eventMappers";
@@ -16,14 +18,18 @@ function Home(){
     const [selectedDate, setSelectedDate] = useState(null);
     const [offset, setOffset] = useState(0);
     const [hasMore, setHasMore] = useState(true);
+    const [loading, setLoading] = useState(false)
     const navigate = useNavigate();
 
     const PAGE_SIZE = 15;
 
     useEffect (() => {
         async function getHomeEvents() {
-
+            setLoading(true)
             const data = await getAllEvents(PAGE_SIZE, 0, activeSourceFilter, selectedDate);
+            
+            const sleep = ms => new Promise(r => setTimeout(r, ms));
+            await sleep(5000)
             setHasMore(true)
 
             if (data.error) {
@@ -53,19 +59,23 @@ function Home(){
             setAllEvents(events);
             setRawEvents(events);
             setOffset(PAGE_SIZE);
+            setLoading(false);
 
             if (data.length < PAGE_SIZE){
                 setHasMore(false);
             }
         }
-        
         getHomeEvents();
     }, [activeSourceFilter, selectedDate]);
 
     const loadMore = async() => {
+        setLoading(true)
         const newEvents = await getAllEvents(PAGE_SIZE, offset, activeSourceFilter, selectedDate);
+        const sleep = ms => new Promise(r => setTimeout(r, ms));
+        await sleep(5000)
         
         if (newEvents.error) {
+            setLoading(false)
             return;
         }
         
@@ -82,6 +92,8 @@ function Home(){
         setAllEvents(prev => [...prev, ...events]);
         setRawEvents(prev => [...prev, ...events]);    //fixing issue of events not being filtered when load more
         setOffset(prev => prev + PAGE_SIZE);
+
+        setLoading(false)
     }
 
     function eventDetail(eventId) {
@@ -210,11 +222,23 @@ function Home(){
                                     </div>
                                 ))}
                             </div>
-                            <div className={styles.loadMoreWrapper}>
-                                {hasMore && (
-                                    <button onClick={() => loadMore()} className={styles.loadMoreBtn}>Load More</button>
-                                )}
-                            </div>
+                            { loading ? (
+                                <div className="spinnerWrapper">
+                                    <div className="spinner"></div>
+                                </div>
+                            ) : (
+                                <>
+                                <div className={styles.loadMoreWrapper}>
+                                    {hasMore && (
+                                        <button onClick={() => loadMore()} className={styles.loadMoreBtn}>Load More</button>
+                                    )}
+                                </div>
+                                </>
+                            )}
+                            
+                                
+                            
+                            
                         </div>
                     </div>
                 </div>
