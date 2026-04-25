@@ -31,6 +31,7 @@ async function scrape() {
         });
         return results
     })
+    console.log('Events found:', events.length);
     
     await page.close();
 
@@ -51,9 +52,10 @@ async function scrape() {
     //         console.log('DETAIL:', text); // only log what you care about
     //     }
     // });
-
+    let count = 0;
     for (const event of uniqueEvents) {
-    
+        count++;
+        console.log(`scraping ${count}/${uniqueEvents.length}:`, event.external_url);
         if (!event.external_url) {
             console.log('skipping - no external_url');
             continue;

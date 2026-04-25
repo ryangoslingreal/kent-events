@@ -38,14 +38,14 @@ async function saveKSUEvents(events) {
     `;
 
     for (const event of events) {
-        if (!event.title || !event.description) {
+        if (!event.title) {
             continue; 
         }
         
         const values = [
             event.title,
             1, // Default user_id = 1
-            event.description,
+            event.description || "No description provided",
             event.date,
             event.time,
             event.location,

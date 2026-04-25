@@ -21,20 +21,27 @@ async function scrape() {
         await loadMoreBtn.click();
         await page.waitForNetworkIdle(); // wait for new events to load
     }
-   // page.on('console', msg => console.log('BROWSER:', msg.text()));  //so console logs actually get logged
+   page.on('console', msg => console.log('BROWSER:', msg.text()));  //so console logs actually get logged
     const events = await page.evaluate(() => {
         const results = [];
-        
+        let skipped = 0;
         document.querySelectorAll('.col').forEach(el => {
+
+            const link = el.querySelector('a');
+            if (!link) { skipped++; return; }
+            const href = link.getAttribute('href');
+            if (!href?.startsWith('/events/id/')) { skipped++; return; }
             
             //grabbing date and time
             const dateTime = el.querySelector('.fw-bold.mb-0')?.innerText.trim();
+            if (!dateTime || !dateTime.includes(' | ')) { skipped++; return; }
             let dt = dateTime.split(" | ");
             const dateStr = dt[0];
             const timeStr = dt[1];
 
             
             //Turning into correct time format for db
+            if (!timeStr || !timeStr.includes(' - ')) { skipped++; return; }
             const event_time = timeStr.split(' - ')
             const time = event_time[0].trim() + ':00';
             const end_event_time = event_time[1].trim() + ':00';
@@ -50,14 +57,11 @@ async function scrape() {
 
             //grabbing title
             const title = el.querySelector('.h5')?.innerText.trim();
-
-
-            const link = el.querySelector('a');
-            if (!link) return;
-            const href = link.getAttribute('href');
+            if (!title) { skipped++; return; }
             
             results.push({ title, image_url, href, date, time, end_event_time });
         });
+        console.log('skipped:', skipped);
         return results;
     });
     await page.close();
@@ -76,18 +80,28 @@ async function scrape() {
 
     //------individual event details section ---------
     const detailPage = await browser.newPage();
-    //detailPage.on('console', msg => console.log('BROWSER:', msg.text()));   //So that I can console log
+    detailPage.on('console', msg => console.log('BROWSER:', msg.text()));   //So that I can console log
 
     const fullEvents = [];
-
+    let count = 0;
     for (const event of uniqueEvents) {
         const fullUrl = BASEURL + event.href;
 
+        count ++;
+        console.log(`KSU scraping ${count}/${uniqueEvents.length} ${event.href}`);
+        
         await detailPage.goto(fullUrl, { waitUntil: 'domcontentloaded', timeout: 60000 });
 
+        try {
+            await detailPage.waitForSelector('#eventDescription', { timeout: 5000 });
+        } catch {
+            console.log('no description for:', fullUrl);
+        }
+        
         const details = await detailPage.evaluate(() => {
+    
             const description = document.querySelector('#eventDescription')?.innerHTML.trim();
-
+            
             const location = document.querySelector('#eventVenue')?.innerText.trim();
 
             const background_event_image_url = document.querySelector('.w-100.border.rounded.ku-aspect-16-9.shadow.mb-3')?.getAttribute('src'); 
