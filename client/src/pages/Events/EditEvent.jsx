@@ -43,7 +43,7 @@ function EditEvent(){
 
     const handleSubmit = async(e) => {
         e.preventDefault();
-
+        
         const payload = buildEventUpdatePayload(formData, selectedFile, removeImage);
         const result = await updateEvent(id, payload);
 
@@ -67,18 +67,18 @@ function EditEvent(){
 
         setSelectedFile(null);
         setRemoveImage(false);
-        toast.success(result.message, { style: EVENT_TOAST_STYLE });
+        toast.success(result.message);
     };
 
     const handleDeleteEvent = async(e) => {
         const result = await deleteEvent(id);
 
         if (result.error) {
-            toast.error(result.error, { style: EVENT_TOAST_STYLE });
+            toast.error(result.error);
             return;
         }
         
-        toast.success(result.message, { style: EVENT_TOAST_STYLE });
+        toast.success(result.message);
         setTimeout(() => navigate("/"), 1000);
     };
 
@@ -87,7 +87,7 @@ function EditEvent(){
             const data = await getEvent(id);
 
             if (data.error) {
-                toast.error(data.error, { style: EVENT_TOAST_STYLE });
+                toast.error(data.error);
                 return;
             }
 
@@ -229,6 +229,20 @@ function EditEvent(){
                                         value={formData.event_time}
                                         onChange={handleInputChange}
                                         required
+                                    />
+                                </Field>
+
+                                <Field
+                                    styles={styles}
+                                    label={<>End Time </>}
+                                    htmlFor="end_event_time"    
+                                >
+                                    <input
+                                        type="time"
+                                        id="end_event_time"
+                                        name="end_event_time"
+                                        value={formData.end_event_time}
+                                        onChange={handleInputChange}
                                     />
                                 </Field>
                             </div>

@@ -68,6 +68,7 @@ export function mapEventToEditForm(data) {
     return {
         ...data,
         event_time: data.event_time.toString().slice(0, 5),
+        end_event_time: data.end_event_time ? data.end_event_time.toString().slice(0, 5) : "",
         event_date: data.event_date.slice(0, 10),
         available_contact: data.available_contact == 1
     };

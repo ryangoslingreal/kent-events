@@ -121,7 +121,7 @@ router.put("/update-event", upload.single("image"), async(req, res) => {
 
     const {
         title, subtitle, description, remove_image,
-        event_date, event_time, location, tags,
+        event_date, event_time, end_event_time, location, tags,
         price, repeat_event, available_contact
     } = req.body;
 
@@ -149,6 +149,7 @@ router.put("/update-event", upload.single("image"), async(req, res) => {
             image,
             event_date,
             event_time,
+            end_event_time,
             location,
             tags,
             price,

@@ -123,7 +123,7 @@ async function deleteEvent(eventId) {
 
 async function updateEvent(
     eventId, title, subtitle, description, image,
-    eventDate, eventTime, location, tags, price,
+    eventDate, eventTime, endEventTime, location, tags, price,
     repeatEvent, availableContact
 ) {
     // * NOTE:
@@ -133,12 +133,12 @@ async function updateEvent(
     // TODO: Consider updating only changed fields.
 
     const setClauses = [
-        "title=?", "subtitle=?", "description=?", "event_date=?", "event_time=?",
+        "title=?", "subtitle=?", "description=?", "event_date=?", "event_time=?", "end_event_time=?",
         "location=?", "tags=?", "price=?", "repeat_event=?", "available_contact=?"
     ]
 
     const values = [
-        title, subtitle, description, eventDate, eventTime, location,
+        title, subtitle, description, eventDate, eventTime, endEventTime, location,
         JSON.stringify(tags ?? []), price, repeatEvent, availableContact
     ];
     

@@ -66,7 +66,7 @@ async function createEvent(
  */
 async function updateEvent(
     eventId, userId, title, subtitle, description,
-    image, event_date, event_time, location, tags,
+    image, event_date, event_time, end_event_time, location, tags,
     price, repeat_event, available_contact
 ) {
     const event = await eventsRepo.getEvent(eventId);
@@ -87,6 +87,7 @@ async function updateEvent(
         image,
         event_date,
         event_time,
+        end_event_time,
         location,
         toTagArray(tags),
         price,
