@@ -54,3 +54,4 @@ npm test -- "^auth.login"
 
 - **Technical Report:** <https://docs.google.com/document/d/1CGVLdbOW_-rIPZs84L8Uq1hVenXK73U6aaddA-_L-TE/edit?tab=t.0>
 - **Testing Report:** <https://docs.google.com/document/d/1TjcMOh88t4Z80yA6RCgkCoSDmjAs7lqegykTRR6xX5A/edit?tab=t.0>
+- **Meeting Notes:** <https://docs.google.com/document/d/1rPF2KjEgII_I8zfD8FKEu6J6l83rChvJJISCFXZX54E/edit?tab=t.0#heading=h.sbsgs1f9jaty>
