@@ -58,14 +58,21 @@ export function mapEventToCard(item) {
 export function mapEventToDetails(item) {
     const { imageUrl, backgroundImageUrl } = resolveImage(item);
 
-    const [h, m] = item.event_time.split(":");
+    const [start_h, start_m] = item.event_time.split(":");  
 
+    let end_h, end_m;
+    if (item.end_event_time) {
+        [end_h, end_m] = item.end_event_time.split(":");
+    }
+    
+    
     return {
         ...item,
         imageUrl,
         backgroundImageUrl,
         event_date: formatDateLong(item.event_date),
-        event_time: `${h}:${m}`
+        event_time: `${start_h}:${start_m}`,
+        end_event_time: item.end_event_time ? `${end_h}:${end_m}` : null
     };
 }
 

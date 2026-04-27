@@ -229,6 +229,7 @@ function toEventDTO(event) {
         backgroundImageUrl: event.background_image_url ?? null,
         updated_at: event.updated_at,
         ticket_url: event.ticket_url,
+        end_event_time: event.end_event_time
     };
 }
 
