@@ -93,7 +93,7 @@ async function getEvent(eventId, { mode = "api" } = {}) {
                 event_date, event_time, location, tags,
                 price, repeat_event, available_contact,
                 source, image_url, background_image_url,
-                updated_at,
+                updated_at, ticket_url, 
                 CASE WHEN image IS NOT NULL THEN 1 ELSE 0 END AS has_uploaded_image
             FROM events
             WHERE id = ?
@@ -172,7 +172,7 @@ async function getAllEvents(limit, offset, sourceFilter, dateFilter) {
             id, title, subtitle, description,
             event_date, event_time, location, tags,
             price, repeat_event, available_contact, source,
-            image_url, background_image_url, updated_at,
+            image_url, background_image_url, updated_at, ticket_url,
             CASE WHEN image IS NOT NULL THEN 1 ELSE 0 END AS has_uploaded_image
         FROM events
         WHERE event_date >= CURDATE()

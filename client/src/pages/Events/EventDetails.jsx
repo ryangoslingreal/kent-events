@@ -150,16 +150,6 @@ function EventDetails() {
                         </div>
                         {formData.ticket_url ? (
                             <>
-                            <div className={styles.spotsBar}>
-                                <div className={styles.barTrack}>
-                                    <div className={styles.barFill} style={{ width: "74%" }}></div>
-                                </div>
-                                <div className={styles.spotsText}>
-                                    <p>178 registered</p>
-                                    <p>62 spots left</p>
-                                </div>
-                            </div>
-
                             <div className={styles.ticketType}>
                                 <p className={styles.ticketTypeHeader}>Select Ticket Type</p>
                                 <div
@@ -167,21 +157,15 @@ function EventDetails() {
                                     onClick={() => setSelected("student")}
                                 >
                                     <p className={styles.ticketTitle}>University of Kent students</p>
-                                    <p className={styles.ticketPrice}>£3</p>
                                 </div>
-                                <div
-                                    className={`${styles.ticketCard} ${selected === "member" ? styles.selected : ""}`}
-                                    onClick={() => setSelected("member")}
-                                >
-                                    <p className={styles.ticketTitle}>Society Members</p>
-                                    <p className={styles.ticketPrice}>Free</p>
-                                </div>
-                                <button className={styles.register}>Register Now →</button>
+                                <button className={styles.register} onClick={() => window.open(formData.ticket_url)}>Register Now →</button>
                                 <button className={styles.save}>Save event</button>
                             </div>
                             </>
                         ) : (
-                            <></>
+                            <div className={styles.ticketType}>
+                                <button className={styles.save}>Save event</button>
+                            </div>
                         )}
                         
                         <div className={styles.shareEvent}>
