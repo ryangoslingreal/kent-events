@@ -190,7 +190,7 @@ function EventDetails() {
                                 className={styles.shareButton}
                                 onClick={() => {
                                     navigator.clipboard.writeText(window.location.href);
-                                    toast.success("Link Copied!", { style: EVENT_TOAST_STYLE });
+                                    toast.success("Link Copied!");
                                 }}
                             >
                                 Copy Link
