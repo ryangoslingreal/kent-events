@@ -27,25 +27,27 @@ function Home(){
         async function getHomeEvents() {
             setLoading(true)
             const data = await getAllEvents(PAGE_SIZE, 0, activeSourceFilter, selectedDate);
-            
-            const sleep = ms => new Promise(r => setTimeout(r, ms));
-            await sleep(5000)
+    
             setHasMore(true)
 
             if (data.error) {
+                toast.error("No events found. " + data.error)
                 setAllEvents([]);
                 setRawEvents([]);
                 setFeaturedUrl("");
                 setHasMore(false);
+                setLoading(false);
                 return;
             }
 
             if (data.length === 0) {
+                toast.error("No events found. " + data.error)
                 setAllEvents([]);
                 setRawEvents([]);
                 setFeaturedUrl("");
                 setOffset(0);
                 setHasMore(false);
+                setLoading(false);
                 return;
             }
 
@@ -71,11 +73,10 @@ function Home(){
     const loadMore = async() => {
         setLoading(true)
         const newEvents = await getAllEvents(PAGE_SIZE, offset, activeSourceFilter, selectedDate);
-        const sleep = ms => new Promise(r => setTimeout(r, ms));
-        await sleep(5000)
         
         if (newEvents.error) {
             setLoading(false)
+            toast.error("No events found. " + newEvents.error)
             return;
         }
         

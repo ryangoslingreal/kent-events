@@ -36,7 +36,9 @@ function App() {
 				position="bottom-right"
 				toastOptions={{
 					style: {
-						fontFamily: "Overpass, Helvetica, Arial, sans-serif"
+						fontFamily: "Overpass, Helvetica, Arial, sans-serif",
+						background: "#05345C",
+    					color: "white"
 					},
 				}}
 			/>

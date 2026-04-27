@@ -23,8 +23,6 @@ function ChooseEvent() {
         async function getUsersEvents() {
             setLoading(true);
             const data = await getUserMadeEvents();
-            const sleep = ms => new Promise(r => setTimeout(r, ms));
-            await sleep(5000)
 
             if (data.error) {
                 setLoading(false);

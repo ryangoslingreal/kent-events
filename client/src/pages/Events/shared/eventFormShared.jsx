@@ -1,8 +1,3 @@
-export const EVENT_TOAST_STYLE = {
-    background: "#05345C",
-    color: "white"
-};
-
 export function Field({ styles, label, htmlFor, children }) {
     return (
         <div className={styles.fieldGroup}>

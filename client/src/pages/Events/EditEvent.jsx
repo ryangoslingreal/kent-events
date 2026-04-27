@@ -12,7 +12,6 @@ import {
     applyEventInputChange,
     mapEventToEditForm,
     buildEventUpdatePayload,
-    EVENT_TOAST_STYLE
 } from "./shared/eventFormShared.jsx";
 
 function EditEvent(){
@@ -49,7 +48,7 @@ function EditEvent(){
         const result = await updateEvent(id, payload);
 
         if (result.error){
-            toast.error(result.error, { style: EVENT_TOAST_STYLE });
+            toast.error(result.error);
             return;
         }
 

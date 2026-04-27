@@ -10,7 +10,6 @@ import {
     Field,
     createInitialEventForm,
     applyEventInputChange,
-    EVENT_TOAST_STYLE
 } from "./shared/eventFormShared.jsx";
 
 const initialForm = {
@@ -52,16 +51,16 @@ function CreateEvent() {
         const result = await createEvent(formData);
 
         if (result.error){
-            toast.error(result.error, { style: EVENT_TOAST_STYLE });
+            toast.error(result.error);
             return;
         }
 
-        toast.success(result.message, { style: EVENT_TOAST_STYLE });
+        toast.success(result.message);
     };
 
     const handleReset = () => {
         setFormData(createInitialEventForm());
-        toast.success("Event form reset", { style: EVENT_TOAST_STYLE });
+        toast.success("Event form reset");
     };
 
     return (

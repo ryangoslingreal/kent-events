@@ -6,7 +6,6 @@ import toast from "react-hot-toast";
 
 import { getEvent, getAllEvents, getHeaderEventImageUrl, getPrimaryEventImageUrl } from "../../api";
 import { mapEventToDetails, mapEventToRelatedCard } from "./shared/eventMappers.js";
-import { EVENT_TOAST_STYLE } from "./shared/eventFormShared.jsx";
 
 function EventDetails() {
     const [otherEvents, setOtherEvents] = useState([])
@@ -21,6 +20,7 @@ function EventDetails() {
 
             if (eventData.error) {
                 setFormData({});
+                toast.error("Event not found. " + eventData.error)
                 return;
             }
 
