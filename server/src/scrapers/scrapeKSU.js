@@ -28,20 +28,16 @@ async function scrape() {
         document.querySelectorAll('.col').forEach(el => {
 
             const link = el.querySelector('a');
-            if (!link) { skipped++; return; }
             const href = link.getAttribute('href');
-            if (!href?.startsWith('/events/id/')) { skipped++; return; }
             
             //grabbing date and time
             const dateTime = el.querySelector('.fw-bold.mb-0')?.innerText.trim();
-            if (!dateTime || !dateTime.includes(' | ')) { skipped++; return; }
             let dt = dateTime.split(" | ");
             const dateStr = dt[0];
             const timeStr = dt[1];
 
             
             //Turning into correct time format for db
-            if (!timeStr || !timeStr.includes(' - ')) { skipped++; return; }
             const event_time = timeStr.split(' - ')
             const time = event_time[0].trim() + ':00';
             const end_event_time = event_time[1].trim() + ':00';
@@ -57,11 +53,9 @@ async function scrape() {
 
             //grabbing title
             const title = el.querySelector('.h5')?.innerText.trim();
-            if (!title) { skipped++; return; }
             
             results.push({ title, image_url, href, date, time, end_event_time });
         });
-        console.log('skipped:', skipped);
         return results;
     });
     await page.close();
@@ -90,10 +84,10 @@ async function scrape() {
         count ++;
         console.log(`KSU scraping ${count}/${uniqueEvents.length} ${event.href}`);
         
-        await detailPage.goto(fullUrl, { waitUntil: 'domcontentloaded', timeout: 60000 });
+        await detailPage.goto(fullUrl, { waitUntil: 'networkidle2', timeout: 60000 });
 
         try {
-            await detailPage.waitForSelector('#eventDescription', { timeout: 5000 });
+            await detailPage.waitForSelector('#eventDescription p', { timeout: 10000 });
         } catch {
             console.log('no description for:', fullUrl);
         }
@@ -109,7 +103,11 @@ async function scrape() {
             const tags = Array.from(document.querySelectorAll('#eventCategories .badge'))    //grabs all tags and turns them into an array
                 .map(el => el.innerText.trim());
 
-            const ticket_url = document.querySelector('.btn.ku-btn-green.p-4.mb-3')?.getAttribute('href') || null;
+            let ticket_url = document.querySelector('.btn.ku-btn-green.p-4.mb-3')?.getAttribute('href') || null;
+
+            if (ticket_url && !ticket_url.startsWith("http")){
+                ticket_url = "https://ksu.co.uk" + ticket_url
+            }
 
             return { description, location, background_event_image_url, tags, ticket_url };
         });
