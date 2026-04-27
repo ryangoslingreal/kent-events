@@ -44,7 +44,7 @@ router.post("/create-event", upload.single("image"), async (req, res) => {
 
     const {
         title, subtitle, description,
-        event_date, event_time, location,
+        event_date, event_time, end_event_time,location,
         tags, price, repeat_event, available_contact
     } = req.body;
 
@@ -61,6 +61,7 @@ router.post("/create-event", upload.single("image"), async (req, res) => {
             req.file ?? null,
             event_date,
             event_time,
+            end_event_time,
             location,
             tags,
             price,

@@ -2,22 +2,22 @@ const db = require('../db/pool');
 
 async function createEvent(
     title, subtitle, description, image,
-    eventDate, eventTime, location, tags, price, repeatEvent,
+    eventDate, eventTime, endEventTime, location, tags, price, repeatEvent,
     availableContact, user_id, source = "student"
 ) {
     const query = `
         INSERT INTO events (
             title, user_id, subtitle, description, image, image_mime,
-            event_date, event_time, location, tags, price, repeat_event,
+            event_date, event_time, end_event_time, location, tags, price, repeat_event,
             available_contact, source
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const values = [
         title, user_id, subtitle, description,
         image?.buffer ?? null, image?.mimetype ?? null,
-        eventDate, eventTime, location, JSON.stringify(tags),
+        eventDate, eventTime, endEventTime, location, JSON.stringify(tags),
         price, repeatEvent, availableContact, source
     ];
 

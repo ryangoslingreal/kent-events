@@ -20,7 +20,7 @@ const eventsRepo = require('../repos/eventsRepo');
  */
 async function createEvent(
     title, subtitle, description,
-    image, date, time, location,
+    image, date, time, end_time, location,
     tags, price, repeat, contactInfo,
     user_id
 ) {
@@ -31,6 +31,7 @@ async function createEvent(
         image,
         date,
         time,
+        end_time,
         location,
         toTagArray(tags),
         price,

@@ -20,6 +20,7 @@ const initialForm = {
     image_mime: null,
     event_date: "",
     event_time: "",
+    end_event_time: "",
     location: "",
     tags: [],
     price: "",
@@ -152,7 +153,7 @@ function CreateEvent() {
 
                                 <Field
                                     styles={styles}
-                                    label={<>Time <span className={styles.required}>*</span></>}
+                                    label={<>Start Time <span className={styles.required}>*</span></>}
                                     htmlFor="event_time"
                                 >
                                     <input
@@ -162,6 +163,20 @@ function CreateEvent() {
                                         value={formData.event_time}
                                         onChange={handleInputChange}
                                         required
+                                    />
+                                </Field>
+
+                                <Field
+                                    styles={styles}
+                                    label={<>End Time </>}
+                                    htmlFor="end_event_time"    
+                                >
+                                    <input
+                                        type="time"
+                                        id="end_event_time"
+                                        name="end_event_time"
+                                        value={formData.end_event_time}
+                                        onChange={handleInputChange}
                                     />
                                 </Field>
                             </div>

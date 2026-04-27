@@ -16,6 +16,7 @@ export function createInitialEventForm() {
         image_mime: null,
         event_date: "",
         event_time: "",
+        end_event_time: "",
         location: "",
         tags: [],
         price: "",
