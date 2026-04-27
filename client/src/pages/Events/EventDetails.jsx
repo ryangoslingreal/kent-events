@@ -123,9 +123,9 @@ function EventDetails() {
                     
                     <div className={styles.ticketInformation}>
                         <div className={styles.infoHeader}>
-                            <p className={styles.startingFrom}>starting from</p>
-                            <p className={styles.price}>Free</p>
-                            <h6> For UoK students</h6>
+                            <p className={styles.startingFrom}>For UoK students</p>
+                            <p className={styles.detailsTitle}>Event Details</p>
+                            <h6>Valid student id may be required </h6>
                         </div>
                         <div className={styles.dateTimeLocation}>
                             <div className={styles.dtl_icon}>📅</div>

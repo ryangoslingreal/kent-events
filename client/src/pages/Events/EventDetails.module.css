@@ -315,13 +315,11 @@
     /* margin: 0 0 0.2rem; */
 }
 
-.price {
+.detailsTitle {
     background: #05345C;
     margin: 0;
-    /* padding: 0 1.6rem 1.4rem; */
-    /* font-family: 'Playfair Display', serif; */
-    font-size: 2.4rem;
-    font-weight: 700;
+    font-size: 1.6rem;
+    font-weight: 600;
     color: #ffffff;
     line-height: 1;
 }

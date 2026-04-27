@@ -161,8 +161,8 @@ function Home(){
                                 >
                                     <h3>{allEvents[0].title}</h3>
                                     <p>
-                                        {allEvents[0].date} - {allEvents[0].time} - {allEvents[0].location} - £{allEvents[0].price}
-                                    </p>
+                                        {allEvents[0].date} - {allEvents[0].time} - {allEvents[0].location}
+                                    </p>    
 
                                     <button onClick={() => navigate(`/events/detail/${allEvents[0].id}`)}>
                                         View Details
@@ -210,7 +210,7 @@ function Home(){
 
                                         <div className={styles.eventContent}>
                                             <p className={styles.eventDetails}>
-                                                {event.date} - {event.time} - {Number(event.price) === 0.00 ? "Free" : `£${event.price}`}
+                                                {event.date} - {event.time}
                                             </p>
                                             <h4 className={styles.eventTitle}>{event.title}</h4>
                                             <p className={styles.location_tag}>
