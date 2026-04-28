@@ -1,5 +1,24 @@
 const db = require('../db/pool');
 
+/**
+ * Creates a new event.
+ * 
+ * @param {string} title - Event title
+ * @param {string} subtitle - Optional event subtitle
+ * @param {string} description - Event description
+ * @param {Object|null} image - Optional uploaded image file
+ * @param {string} eventDate - Event date
+ * @param {string} eventTime - Event time
+ * @param {string} location - Event location
+ * @param {string[]} tags - Event tags
+ * @param {string|number} price - Event price
+ * @param {string} repeatEvent - Repeat event setting
+ * @param {number} availableContact - Whether contact is available, stored as 1 or 0
+ * @param {number} user_id - ID of the user creating the event
+ * @param {string} source - Event source, defaults to "student"
+ * 
+ * @returns {Promise<Object>} Database insert result
+ */
 async function createEvent(
     title, subtitle, description, image,
     eventDate, eventTime, location, tags, price, repeatEvent,
@@ -25,102 +44,25 @@ async function createEvent(
     return result;
 }
 
-async function saveKSUEvents(events) {
-    const query = `
-        INSERT INTO events (
-            title, user_id, description, event_date, event_time,
-            location, tags, price, repeat_event, available_contact,
-            image_url, background_image_url, source, external_url,
-            end_event_time, ticket_url
-        ) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ON DUPLICATE KEY UPDATE external_url = external_url
-    `;
-
-    for (const event of events) {
-        if (!event.title) {
-            continue; 
-        }
-        
-        const values = [
-            event.title,
-            1, // Default user_id = 1
-            event.description || "No description provided",
-            event.date,
-            event.time,
-            event.location,
-            JSON.stringify(event.tags),
-            0,
-            "never",
-            0,
-            event.image_url,
-            event.background_event_image_url,
-            event.source,
-            event.external_url,
-            event.end_event_time,
-            event.ticket_url
-        ];
-
-        await db.query(query, values);
-    }
-}
-
-async function getUserMadeEvents(user_id) {
-    const query = `
-        SELECT id, title, event_date
-        FROM events
-        WHERE user_id = ?
-    `;    
-
-    const [rows] = await db.execute(query, [user_id]);
-    return rows;
-}
-
-async function getEvent(eventId, { mode = "api" } = {}) {
-    let query;
-
-    if (mode === "image") {
-        query = `
-            SELECT id, image, image_mime
-            FROM events
-            WHERE id = ?
-            LIMIT 1
-        `;
-    } else {
-        query = `
-            SELECT
-                id, user_id, title, subtitle, description,
-                event_date, event_time, location, tags,
-                price, repeat_event, available_contact,
-                source, image_url, background_image_url,
-                updated_at, ticket_url, 
-                CASE WHEN image IS NOT NULL THEN 1 ELSE 0 END AS has_uploaded_image
-            FROM events
-            WHERE id = ?
-            LIMIT 1
-        `;
-    }
-
-    const [rows] = await db.execute(query, [eventId]);
-    const row = rows[0] ?? null;
-    if (!row) return null;
-
-    return {
-        ...row,
-        tags: parseTags(row.tags)
-    };
-}
-
-async function deleteEvent(eventId) {
-    const query = `
-        DELETE FROM events
-        WHERE id = ?
-    `;
-    
-    const [result] = await db.execute(query, [eventId]);
-    return result;
-}
-
+/**
+ * Updates an existing event by ID.
+ * Preserves, clears, or replaces the uploaded image depending on the image value
+ * 
+ * @param {string|number} eventId - Event ID
+ * @param {string} title - Event title
+ * @param {string} subtitle - Optional event subtitle
+ * @param {string} description - Event description
+ * @param {Object|null|undefined} image - Uploaded image file, null to clear, or undefined to preserve existing image
+ * @param {string} eventDate - Event date
+ * @param {string} eventTime - Event time
+ * @param {string} location - Event location
+ * @param {string[]} tags - Event tags
+ * @param {string|number} price - Event price
+ * @param {string} repeatEvent - Repeat event setting
+ * @param {number} availableContact - Whether contact is available, stored as 1 or 0
+ * 
+ * @returns {Promise<Object>} Database update result
+ */
 async function updateEvent(
     eventId, title, subtitle, description, image,
     eventDate, eventTime, location, tags, price,
@@ -166,6 +108,78 @@ async function updateEvent(
     return result;
 }
 
+/**
+ * Deletes an event by ID.
+ * 
+ * @param {string|number} eventId - Event ID
+ * 
+ * @returns {Promise<Object>} Database delete result
+ */
+async function deleteEvent(eventId) {
+    const query = `
+        DELETE FROM events
+        WHERE id = ?
+    `;
+    
+    const [result] = await db.execute(query, [eventId]);
+    return result;
+}
+
+/**
+ * Returns a single event by ID.
+ * In image mode, only returns image fields needed to serve the image response.
+ * 
+ * @param {string|number} eventId - Event ID
+ * @param {Object} opts - Optional retrieval options
+ * @param {string} opts.mode - Retrieval mode, either "api" or "image"
+ * 
+ * @returns {Promise<Object|null>} Event row, or null if not found
+ */
+async function getEvent(eventId, { mode = "api" } = {}) {
+    let query;
+
+    if (mode === "image") {
+        query = `
+            SELECT id, image, image_mime
+            FROM events
+            WHERE id = ?
+            LIMIT 1
+        `;
+    } else {
+        query = `
+            SELECT
+                id, user_id, title, subtitle, description,
+                event_date, event_time, location, tags,
+                price, repeat_event, available_contact,
+                source, image_url, background_image_url,
+                updated_at, ticket_url, 
+                CASE WHEN image IS NOT NULL THEN 1 ELSE 0 END AS has_uploaded_image
+            FROM events
+            WHERE id = ?
+            LIMIT 1
+        `;
+    }
+
+    const [rows] = await db.execute(query, [eventId]);
+    const row = rows[0] ?? null;
+    if (!row) return null;
+
+    return {
+        ...row,
+        tags: parseTags(row.tags)
+    };
+}
+
+/**
+ * Returns paginated upcoming events, optionally filtered by source and date.
+ * 
+ * @param {number} limit - Maximum number of events to return
+ * @param {number} offset - Number of events to skip
+ * @param {string|null} sourceFilter - Optional source filter
+ * @param {string|null} dateFilter - Optional date filter
+ * 
+ * @returns {Promise<Object[]>} Array of event rows
+ */
 async function getAllEvents(limit, offset, sourceFilter, dateFilter) {
     let query = `
         SELECT
@@ -204,6 +218,77 @@ async function getAllEvents(limit, offset, sourceFilter, dateFilter) {
     }));
 }
 
+/**
+ * Returns basic event details for events created by a specific user.
+ * 
+ * @param {number} user_id - User ID whose events should be returned
+ * 
+ * @returns {Promise<Object[]>} Array of event summary rows
+ */
+async function getUserMadeEvents(user_id) {
+    const query = `
+        SELECT id, title, event_date
+        FROM events
+        WHERE user_id = ?
+    `;    
+
+    const [rows] = await db.execute(query, [user_id]);
+    return rows;
+}
+
+/**
+ * Saves scraped KSU or university events.
+ * Existing events are ignored using the external URL uniqueness constraint.
+ * 
+ * @param {Object[]} events - Scraped event objects to save
+ * 
+ * @returns {Promise<void>}
+ */
+async function saveKSUEvents(events) {
+    const query = `
+        INSERT INTO events (
+            title, user_id, description, event_date, event_time,
+            location, tags, price, repeat_event, available_contact,
+            image_url, background_image_url, source, external_url,
+            end_event_time, ticket_url
+        ) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON DUPLICATE KEY UPDATE external_url = external_url
+    `;
+
+    for (const event of events) {
+        if (!event.title) {
+            continue; 
+        }
+        
+        const values = [
+            event.title,
+            1, // Default user_id = 1
+            event.description || "No description provided",
+            event.date,
+            event.time,
+            event.location,
+            JSON.stringify(event.tags),
+            0,
+            "never",
+            0,
+            event.image_url,
+            event.background_event_image_url,
+            event.source,
+            event.external_url,
+            event.end_event_time,
+            event.ticket_url
+        ];
+
+        await db.query(query, values);
+    }
+}
+
+/**
+ * Returns the latest scrape update time for scraped KSU or university events.
+ * 
+ * @returns {Promise<Object[]>} Array containing the latest updated_at row
+ */
 async function lastScrapeTime(){
     const query = `
         SELECT updated_at
@@ -217,6 +302,14 @@ async function lastScrapeTime(){
     return result;
 }
 
+/**
+ * Parses raw database tags into an array.
+ * Accepts arrays, JSON arrays, single strings, or null.
+ * 
+ * @param {*} value - Raw tag value
+ * 
+ * @returns {Array} Normalised array of non-empty tag values
+ */
 function parseTags(raw) {
     if (Array.isArray(raw)) {
         return raw;
@@ -236,11 +329,11 @@ function parseTags(raw) {
 
 module.exports = { 
     createEvent,
-    getUserMadeEvents,
-    getEvent,
-    deleteEvent,
     updateEvent,
+    deleteEvent,
+    getEvent,
     getAllEvents,
+    getUserMadeEvents,
     saveKSUEvents,
     lastScrapeTime
 };

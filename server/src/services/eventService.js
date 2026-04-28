@@ -133,7 +133,7 @@ async function deleteEvent(eventId, userId) {
  * 
  * @param {number|string} eventId - Event ID
  * @param {Object} opts - Optional retrieval options
- * @param {string} opts.mode - Retrieval mode, such as "image"
+ * @param {string} opts.mode - Retrieval mode, either "api" or "image"
  * 
  * @returns {Promise<Object|null>} Formatted event DTO, raw image row, or null
  */
@@ -153,8 +153,8 @@ async function getEvent(eventId, opts) {
  * 
  * @param {number} limit - Maximum number of events to return
  * @param {number} offset - Number of events to skip
- * @param {string} sourceFilter - Source filter from the client
- * @param {string} dateFilter - Optional event date filter
+ * @param {string} sourceFilter - Source filter
+ * @param {string|null} dateFilter - Optional date filter
  * 
  * @returns {Promise<Object[]>} Array of formatted event DTOs
  */
@@ -263,9 +263,9 @@ function toTagArray(value) {
 
 module.exports = { 
     createEvent,
-    getUserMadeEvents,
-    getEvent,
-    deleteEvent,
     updateEvent,
-    getAllEvents
+    deleteEvent,
+    getEvent,
+    getAllEvents,
+    getUserMadeEvents
 };
