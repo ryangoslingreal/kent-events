@@ -24,8 +24,7 @@ const initialForm = {
     location: "",
     tags: [],
     ticket_url: "",
-    repeat_event: "never",
-    available_contact: false
+    available_contact: ""
 }
 
 function CreateEvent() {
@@ -271,35 +270,17 @@ function CreateEvent() {
 
                             <Field
                                 styles={styles}
-                                label={<>Repeat? <span className={styles.required}>*</span></>}
-                                htmlFor="repeat_event"
+                                label={<>Who to Contact</>}
+                                htmlFor="available_contact"
                             >
-                                <select
-                                    id="repeat_event"
-                                    name="repeat_event"
-                                    value={formData.repeat_event}
-                                    onChange={handleInputChange}
-                                    required
-                                >
-                                    <option value="never">Never</option>
-                                    <option value="weekly">Weekly</option>
-                                    <option value="monthly">Monthly</option>
-                                </select>
-                            </Field>
-
-                            <div className={styles.allowContactInfo}>
-                                <label htmlFor="available_contact">
-                                    Have your contact information available?
-                                </label>
                                 <input
-                                    type="checkbox"
                                     id="available_contact"
                                     name="available_contact"
-                                    checked={formData.available_contact}
+                                    value={formData.available_contact}
                                     onChange={handleInputChange}
-                                    style={{ width: "fit-content" }}
+                                    placeholder="name@example.com"
                                 />
-                            </div>
+                            </Field>
                         </section>
 
                         <div className={styles.formButton}>

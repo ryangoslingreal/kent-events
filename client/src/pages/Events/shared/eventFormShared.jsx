@@ -14,14 +14,13 @@ export function createInitialEventForm() {
         description: "",
         image: null,
         image_mime: null,
-        event_date: "",
+        event_date: "", 
         event_time: "",
         end_event_time: "",
         location: "",
         tags: [],
         ticket_url: "",
-        repeat_event: "never",
-        available_contact: false
+        available_contact: ""
     };
 }
 
@@ -66,7 +65,6 @@ export function mapEventToEditForm(data) {
         event_time: data.event_time.toString().slice(0, 5),
         end_event_time: data.end_event_time ? data.end_event_time.toString().slice(0, 5) : "",
         event_date: data.event_date.slice(0, 10),
-        available_contact: data.available_contact == 1
     };
 }
 

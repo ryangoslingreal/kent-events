@@ -2,16 +2,16 @@ const db = require('../db/pool');
 
 async function createEvent(
     title, subtitle, description, image,
-    eventDate, eventTime, endEventTime, location, tags, ticket_url, repeatEvent,
+    eventDate, eventTime, endEventTime, location, tags, ticket_url,
     availableContact, user_id, source = "student"
 ) {
     const query = `
         INSERT INTO events (
             title, user_id, subtitle, description, image, image_mime,
-            event_date, event_time, end_event_time, location, tags, ticket_url, price, repeat_event,
+            event_date, event_time, end_event_time, location, tags, ticket_url, price,
             available_contact, source
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
     //Price is not being used - so just setting to 0 
     //Keeping as may want to use it in the future.
@@ -19,7 +19,7 @@ async function createEvent(
         title, user_id, subtitle, description,
         image?.buffer ?? null, image?.mimetype ?? null,
         eventDate, eventTime, endEventTime, location, JSON.stringify(tags),
-        ticket_url, 0, repeatEvent, availableContact, source
+        ticket_url, 0, availableContact, source
     ];
 
     const [result] = await db.query(query, values);
@@ -30,11 +30,11 @@ async function saveKSUEvents(events) {
     const query = `
         INSERT INTO events (
             title, user_id, description, event_date, event_time,
-            location, tags, price, repeat_event, available_contact,
+            location, tags, price, available_contact,
             image_url, background_image_url, source, external_url,
             end_event_time, ticket_url
         ) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON DUPLICATE KEY UPDATE external_url = external_url
     `;
 
@@ -92,7 +92,7 @@ async function getEvent(eventId, { mode = "api" } = {}) {
             SELECT
                 id, user_id, title, subtitle, description,
                 event_date, event_time, location, tags,
-                price, repeat_event, available_contact,
+                price, available_contact,
                 source, image_url, background_image_url,
                 updated_at, ticket_url, end_event_time,
                 CASE WHEN image IS NOT NULL THEN 1 ELSE 0 END AS has_uploaded_image
@@ -125,22 +125,23 @@ async function deleteEvent(eventId) {
 async function updateEvent(
     eventId, title, subtitle, description, image,
     eventDate, eventTime, endEventTime, location, tags, ticket_url,
-    repeatEvent, availableContact
+    availableContact
 ) {
     // * NOTE:
     // * Currently overwrites all event fields, even if only a subset is being updated.
     // * This is simpler, but less efficient.
 
     // TODO: Consider updating only changed fields.
+    
 
     const setClauses = [
         "title=?", "subtitle=?", "description=?", "event_date=?", "event_time=?", "end_event_time=?",
-        "location=?", "tags=?", "ticket_url=?", "price=?", "repeat_event=?", "available_contact=?"
+        "location=?", "tags=?", "ticket_url=?", "price=?", "available_contact=?"
     ]
 
     const values = [
         title, subtitle, description, eventDate, eventTime, endEventTime, location,
-        JSON.stringify(tags ?? []), ticket_url, 0, repeatEvent, availableContact
+        JSON.stringify(tags ?? []), ticket_url ?? null, 0, availableContact
     ];
     
     // image === undefined -> leave existing image unchanged
@@ -172,7 +173,7 @@ async function getAllEvents(limit, offset, sourceFilter, dateFilter) {
         SELECT
             id, title, subtitle, description,
             event_date, event_time, location, tags,
-            price, repeat_event, available_contact, source,
+            price, available_contact, source,
             image_url, background_image_url, updated_at, ticket_url, end_event_time,
             CASE WHEN image IS NOT NULL THEN 1 ELSE 0 END AS has_uploaded_image
         FROM events
