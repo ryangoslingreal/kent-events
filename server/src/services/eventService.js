@@ -20,8 +20,8 @@ const eventsRepo = require('../repos/eventsRepo');
  */
 async function createEvent(
     title, subtitle, description,
-    image, date, time, end_time, location,
-    tags, ticket_url, contactInfo,
+    image, date, time, location,
+    tags, price, repeat, contactInfo,
     user_id
 ) {
     return await eventsRepo.createEvent(
@@ -31,10 +31,10 @@ async function createEvent(
         image,
         date,
         time,
-        end_time,
         location,
         toTagArray(tags),
-        ticket_url,
+        price,
+        repeat,
         contactInfo,
         user_id
     );
@@ -65,8 +65,8 @@ async function createEvent(
  */
 async function updateEvent(
     eventId, userId, title, subtitle, description,
-    image, event_date, event_time, end_event_time, location, tags,
-    ticket_url, available_contact
+    image, event_date, event_time, location, tags,
+    price, repeat_event, available_contact
 ) {
     const event = await eventsRepo.getEvent(eventId);
 
@@ -86,10 +86,10 @@ async function updateEvent(
         image,
         event_date,
         event_time,
-        end_event_time,
         location,
         toTagArray(tags),
-        ticket_url,
+        price,
+        repeat_event,
         available_contact
     );
 
@@ -219,6 +219,7 @@ function toEventDTO(event) {
         location: event.location,
         tags: event.tags,
         price: event.price,
+        repeat_event: event.repeat_event,
         available_contact: event.available_contact,
         source: event.source,
         image: {
@@ -228,7 +229,6 @@ function toEventDTO(event) {
         backgroundImageUrl: event.background_image_url ?? null,
         updated_at: event.updated_at,
         ticket_url: event.ticket_url,
-        end_event_time: event.end_event_time
     };
 }
 

@@ -44,16 +44,12 @@ router.post("/create-event", upload.single("image"), async (req, res) => {
 
     const {
         title, subtitle, description,
-        event_date, event_time, end_event_time,location,
-        tags, ticket_url, available_contact
+        event_date, event_time, location,
+        tags, price, repeat_event, available_contact
     } = req.body;
 
-    if (!title || !description || !event_date || !event_time || !location == null) {
+    if (!title || !description || !event_date || !event_time || !location || available_contact == null) {
         return res.status(400).json({ message: "Form input requirement is missing." });
-    }
-
-    if (ticket_url && !ticket_url.startsWith("http")){
-        return res.status(400).json({ message: "Please input a valid ticket URL." });
     }
     
     let result;
@@ -65,15 +61,14 @@ router.post("/create-event", upload.single("image"), async (req, res) => {
             req.file ?? null,
             event_date,
             event_time,
-            end_event_time,
             location,
             tags,
-            ticket_url,
-            available_contact,
+            price,
+            repeat_event,
+            available_contact === true || available_contact === "true" ? 1 : 0,
             userId
         );
     } catch (error) {
-        console.error("Full error:", error)
         return res.status(500).send({
             message: "Server error",
             error: error.message,
@@ -125,8 +120,8 @@ router.put("/update-event", upload.single("image"), async(req, res) => {
 
     const {
         title, subtitle, description, remove_image,
-        event_date, event_time, end_event_time, location, tags,
-        ticket_url, available_contact
+        event_date, event_time, location, tags,
+        price, repeat_event, available_contact
     } = req.body;
 
     if (remove_image === "true" && req.file) {
@@ -142,10 +137,6 @@ router.put("/update-event", upload.single("image"), async(req, res) => {
         image = undefined; // Preserve image
     }
 
-    if (ticket_url && !ticket_url.startsWith("http")){
-        return res.status(400).json({ message: "Please input a valid ticket URL." });
-    }
-
     let result;
     try {
         result = await eventService.updateEvent(
@@ -157,14 +148,13 @@ router.put("/update-event", upload.single("image"), async(req, res) => {
             image,
             event_date,
             event_time,
-            end_event_time,
             location,
             tags,
-            ticket_url,
-            available_contact
+            price,
+            repeat_event,
+            available_contact === true || available_contact === "true" ? 1 : 0
         );
     } catch (error) {
-        console.error("Full error:", error)
         return res.status(500).send({
             message: "Server error",
             error: error.message,
