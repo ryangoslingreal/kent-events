@@ -12,7 +12,6 @@ const eventsRepo = require('../repos/eventsRepo');
  * @param {string} location - Event location
  * @param {string|string[]} tags - Event tags
  * @param {string|number} price - Event price
- * @param {string} repeat - Repeat event setting
  * @param {number} contactInfo - Whether contact is available, stored as 1 or 0
  * @param {number} user_id - ID of the user creating the event
  * 
@@ -21,7 +20,7 @@ const eventsRepo = require('../repos/eventsRepo');
 async function createEvent(
     title, subtitle, description,
     image, date, time, location,
-    tags, price, repeat, contactInfo,
+    tags, price, contactInfo,
     user_id
 ) {
     return await eventsRepo.createEvent(
@@ -34,7 +33,6 @@ async function createEvent(
         location,
         toTagArray(tags),
         price,
-        repeat,
         contactInfo,
         user_id
     );
@@ -53,8 +51,7 @@ async function createEvent(
  * @param {string} event_time - Event time
  * @param {string} location - Event location
  * @param {string|string[]} tags - Event tags
- * @param {string|number} price - Event price
- * @param {string} repeat_event - Repeat event setting
+ * @param {string|number} price - Event price=
  * @param {number} available_contact - Whether contact is available, stored as 1 or 0
  * 
  * @returns {Promise<Object>} Result object containing update status and updated event
@@ -65,8 +62,8 @@ async function createEvent(
  */
 async function updateEvent(
     eventId, userId, title, subtitle, description,
-    image, event_date, event_time, location, tags,
-    price, repeat_event, available_contact
+    image, event_date, event_time, location,
+    tags, price, available_contact
 ) {
     const event = await eventsRepo.getEvent(eventId);
 
@@ -89,7 +86,6 @@ async function updateEvent(
         location,
         toTagArray(tags),
         price,
-        repeat_event,
         available_contact
     );
 
@@ -219,7 +215,6 @@ function toEventDTO(event) {
         location: event.location,
         tags: event.tags,
         price: event.price,
-        repeat_event: event.repeat_event,
         available_contact: event.available_contact,
         source: event.source,
         image: {

@@ -12,7 +12,6 @@ const db = require('../db/pool');
  * @param {string} location - Event location
  * @param {string[]} tags - Event tags
  * @param {string|number} price - Event price
- * @param {string} repeatEvent - Repeat event setting
  * @param {number} availableContact - Whether contact is available, stored as 1 or 0
  * @param {number} user_id - ID of the user creating the event
  * @param {string} source - Event source, defaults to "student"
@@ -21,13 +20,13 @@ const db = require('../db/pool');
  */
 async function createEvent(
     title, subtitle, description, image,
-    eventDate, eventTime, location, tags, price, repeatEvent,
+    eventDate, eventTime, location, tags, price,
     availableContact, user_id, source = "student"
 ) {
     const query = `
         INSERT INTO events (
             title, user_id, subtitle, description, image, image_mime,
-            event_date, event_time, location, tags, price, repeat_event,
+            event_date, event_time, location, tags, price,
             available_contact, source
         )
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -37,7 +36,7 @@ async function createEvent(
         title, user_id, subtitle, description,
         image?.buffer ?? null, image?.mimetype ?? null,
         eventDate, eventTime, location, JSON.stringify(tags),
-        price, repeatEvent, availableContact, source
+        price, availableContact, source
     ];
 
     const [result] = await db.query(query, values);
@@ -58,15 +57,14 @@ async function createEvent(
  * @param {string} location - Event location
  * @param {string[]} tags - Event tags
  * @param {string|number} price - Event price
- * @param {string} repeatEvent - Repeat event setting
  * @param {number} availableContact - Whether contact is available, stored as 1 or 0
  * 
  * @returns {Promise<Object>} Database update result
  */
 async function updateEvent(
     eventId, title, subtitle, description, image,
-    eventDate, eventTime, location, tags, price,
-    repeatEvent, availableContact
+    eventDate, eventTime, location,
+    tags, price, availableContact
 ) {
     // * NOTE:
     // * Currently overwrites all event fields, even if only a subset is being updated.
@@ -76,12 +74,12 @@ async function updateEvent(
 
     const setClauses = [
         "title=?", "subtitle=?", "description=?", "event_date=?", "event_time=?",
-        "location=?", "tags=?", "price=?", "repeat_event=?", "available_contact=?"
+        "location=?", "tags=?", "price=?", "available_contact=?"
     ]
 
     const values = [
         title, subtitle, description, eventDate, eventTime, location,
-        JSON.stringify(tags ?? []), price, repeatEvent, availableContact
+        JSON.stringify(tags ?? []), price, availableContact
     ];
     
     // image === undefined -> leave existing image unchanged
@@ -150,8 +148,8 @@ async function getEvent(eventId, { mode = "api" } = {}) {
             SELECT
                 id, user_id, title, subtitle, description,
                 event_date, event_time, location, tags,
-                price, repeat_event, available_contact,
-                source, image_url, background_image_url,
+                price, available_contact, source,
+                image_url, background_image_url,
                 updated_at, ticket_url, 
                 CASE WHEN image IS NOT NULL THEN 1 ELSE 0 END AS has_uploaded_image
             FROM events
@@ -185,7 +183,7 @@ async function getAllEvents(limit, offset, sourceFilter, dateFilter) {
         SELECT
             id, title, subtitle, description,
             event_date, event_time, location, tags,
-            price, repeat_event, available_contact, source,
+            price, available_contact, source,
             image_url, background_image_url, updated_at, ticket_url,
             CASE WHEN image IS NOT NULL THEN 1 ELSE 0 END AS has_uploaded_image
         FROM events
@@ -248,7 +246,7 @@ async function saveKSUEvents(events) {
     const query = `
         INSERT INTO events (
             title, user_id, description, event_date, event_time,
-            location, tags, price, repeat_event, available_contact,
+            location, tags, price, available_contact,
             image_url, background_image_url, source, external_url,
             end_event_time, ticket_url
         ) 

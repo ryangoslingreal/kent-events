@@ -26,7 +26,6 @@ const upload = multer({ storage: multer.memoryStorage() });
  * @param {string} location - Event location
  * @param {string|string[]} tags - Event tags
  * @param {string|number} price - Event price
- * @param {string} repeat_event - Repeat event setting
  * @param {string|boolean} available_contact - Whether contact information is available
  * 
  * @returns {Object} JSON response with message and created event ID
@@ -45,7 +44,7 @@ router.post("/create-event", upload.single("image"), async (req, res) => {
     const {
         title, subtitle, description,
         event_date, event_time, location,
-        tags, price, repeat_event, available_contact
+        tags, price, available_contact
     } = req.body;
 
     if (!title || !description || !event_date || !event_time || !location || available_contact == null) {
@@ -64,7 +63,6 @@ router.post("/create-event", upload.single("image"), async (req, res) => {
             location,
             tags,
             price,
-            repeat_event,
             available_contact === true || available_contact === "true" ? 1 : 0,
             userId
         );
@@ -95,7 +93,6 @@ router.post("/create-event", upload.single("image"), async (req, res) => {
  * @param {string} location - Event location
  * @param {string|string[]} tags - Event tags
  * @param {string|number} price - Event price
- * @param {string} repeat_event - Repeat event setting
  * @param {string|boolean} available_contact - Whether contact information is available
  * 
  * @returns {Object} JSON response with message and updated event
@@ -120,8 +117,8 @@ router.put("/update-event", upload.single("image"), async(req, res) => {
 
     const {
         title, subtitle, description, remove_image,
-        event_date, event_time, location, tags,
-        price, repeat_event, available_contact
+        event_date, event_time, location,
+        tags, price, available_contact
     } = req.body;
 
     if (remove_image === "true" && req.file) {
@@ -151,7 +148,6 @@ router.put("/update-event", upload.single("image"), async(req, res) => {
             location,
             tags,
             price,
-            repeat_event,
             available_contact === true || available_contact === "true" ? 1 : 0
         );
     } catch (error) {

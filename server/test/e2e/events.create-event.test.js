@@ -39,7 +39,6 @@ describe.sequential("api/events/create-event", () => {
         const location = "Custom location";
         const tags = ["custom", "tags"];
         const price = "10";
-        const repeat_event = "weekly";
         const available_contact = false;
         const image = Buffer.from("fake-image-bytes");
 
@@ -53,7 +52,6 @@ describe.sequential("api/events/create-event", () => {
                 location,
                 tags,
                 price,
-                repeat_event,
                 available_contact
             }, 
             image
@@ -79,7 +77,6 @@ describe.sequential("api/events/create-event", () => {
                 location,
                 tags,
                 price,
-                repeat_event,
                 available_contact,
                 image: expect.objectContaining({
                     url: expect.stringContaining(`/api/events/${eventId}/image?v=`),

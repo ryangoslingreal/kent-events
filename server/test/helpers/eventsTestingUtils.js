@@ -10,7 +10,6 @@ function defaultEventPayload(overrides = {}) {
         location: "Test Location",
         tags: ["vitest"],
         price: "0",
-        repeat_event: "never",
         available_contact: true,
         ...overrides
     }
