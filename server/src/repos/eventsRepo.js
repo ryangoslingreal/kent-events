@@ -256,7 +256,7 @@ async function saveKSUEvents(events) {
             image_url, background_image_url, source, external_url,
             ticket_url
         ) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON DUPLICATE KEY UPDATE external_url = external_url
     `;
 
@@ -271,12 +271,11 @@ async function saveKSUEvents(events) {
             event.description || "No description provided",
             event.date,
             event.time,
-            event.ticket_url,
+            event.end_event_time,
             event.location,
             JSON.stringify(event.tags),
-            0,
-            "never",
-            0,
+            0, // price
+            0, // available_contact
             event.image_url,
             event.background_event_image_url,
             event.source,
