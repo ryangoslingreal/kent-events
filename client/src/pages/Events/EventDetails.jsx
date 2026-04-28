@@ -131,14 +131,14 @@ function EventDetails() {
                             <div className={styles.dtl_icon}>📅</div>
                             <div className={styles.dlt_text}>
                                 <p className={styles.dtl_label}>Date</p>
-                                <p className={styles.dtl_value}>{formData.event_date}</p>
+                                <p className={styles.dtl_value}>{formData.date}</p>
                             </div>  
                         </div>
                         <div className={styles.dateTimeLocation}>
                             <div className={styles.dtl_icon}>🕘</div>
                             <div className={styles.dlt_text}>
                                 <p className={styles.dtl_label}>Time</p>    
-                                <p className={styles.dtl_value}>{formData.event_time} {formData.end_event_time && `- ${formData.end_event_time}`}</p>
+                                <p className={styles.dtl_value}>{formData.start_time} {formData.end_time && `- ${formData.end_time}`}</p>
                             </div>
                         </div>
                         <div className={styles.dateTimeLocation}>

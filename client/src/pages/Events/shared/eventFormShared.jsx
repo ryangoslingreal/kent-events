@@ -14,9 +14,9 @@ export function createInitialEventForm() {
         description: "",
         image: null,
         image_mime: null,
-        event_date: "", 
-        event_time: "",
-        end_event_time: "",
+        date: "", 
+        start_time: "",
+        end_time: "",
         location: "",
         tags: [],
         ticket_url: "",
@@ -62,9 +62,9 @@ export function applyEventInputChange(setFormData) {
 export function mapEventToEditForm(data) {
     return {
         ...data,
-        event_time: data.event_time.toString().slice(0, 5),
-        end_event_time: data.end_event_time ? data.end_event_time.toString().slice(0, 5) : "",
-        event_date: data.event_date.slice(0, 10),
+        date: data.date.slice(0, 10),
+        start_time: data.start_time.toString().slice(0, 5),
+        end_time: data.end_time ? data.end_time.toString().slice(0, 5) : ""
     };
 }
 

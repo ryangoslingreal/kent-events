@@ -3,12 +3,14 @@ const eventsRepo = require('../repos/eventsRepo');
 /**
  * Creates a new event.
  * 
+ * @param {number} userId - ID of the user creating the event
  * @param {string} title - Event title
  * @param {string} subtitle - Optional event subtitle
  * @param {string} description - Event description
  * @param {Object|null} image - Optional uploaded image file
  * @param {string} date - Event date
- * @param {string} time - Event time
+ * @param {string} start_time - Event start time
+ * @param {string} end_time - Event end time
  * @param {string} location - Event location
  * @param {string|string[]} tags - Event tags
  * @param {string|number} price - Event price
@@ -18,23 +20,23 @@ const eventsRepo = require('../repos/eventsRepo');
  * @returns {Promise<Object>} Database insert result
  */
 async function createEvent(
-    title, subtitle, description,
-    image, date, time, location,
-    tags, price, contactInfo,
-    user_id
+    userId, title, subtitle, description,
+    image, date, start_time, end_time,
+    location, tags, price, contactInfo
 ) {
     return await eventsRepo.createEvent(
+        userId,
         title,
         subtitle,
         description,
         image,
         date,
-        time,
+        start_time,
+        end_time,
         location,
         toTagArray(tags),
         price,
-        contactInfo,
-        user_id
+        contactInfo
     );
 }
 
@@ -47,8 +49,9 @@ async function createEvent(
  * @param {string} subtitle - Optional event subtitle
  * @param {string} description - Event description
  * @param {Object|null|undefined} image - Uploaded image, null to clear, or undefined to preserve existing image
- * @param {string} event_date - Event date
- * @param {string} event_time - Event time
+ * @param {string} date - Event date
+ * @param {string} start_time - Event start time
+ * @param {string} end_time - Event end time
  * @param {string} location - Event location
  * @param {string|string[]} tags - Event tags
  * @param {string|number} price - Event price=
@@ -61,9 +64,9 @@ async function createEvent(
  * @status UPDATED - Event updated successfully
  */
 async function updateEvent(
-    eventId, userId, title, subtitle, description,
-    image, event_date, event_time, location,
-    tags, price, available_contact
+    eventId, userId, title, subtitle, description, image,
+    date, start_time, end_time,
+    location, tags, price, available_contact
 ) {
     const event = await eventsRepo.getEvent(eventId);
 
@@ -81,8 +84,9 @@ async function updateEvent(
         subtitle,
         description,
         image,
-        event_date,
-        event_time,
+        date,
+        start_time,
+        end_time,
         location,
         toTagArray(tags),
         price,
@@ -210,8 +214,9 @@ function toEventDTO(event) {
         title: event.title,
         subtitle: event.subtitle,
         description: event.description,
-        event_date: event.event_date,
-        event_time: event.event_time,
+        date: event.date,
+        start_time: event.start_time,
+        end_time: event.end_time,
         location: event.location,
         tags: event.tags,
         price: event.price,

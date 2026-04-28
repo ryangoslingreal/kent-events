@@ -32,10 +32,10 @@ describe.sequential("api/events/get-all-events", () => {
         await registerAndLoginTestUser(agent);
 
         const image = Buffer.from("future-image-bytes");
-        const { res: createFutureRes } = await createTestEvent(agent, { event_date: "2077-05-01" }, image);
+        const { res: createFutureRes } = await createTestEvent(agent, { date: "2077-05-01" }, image);
         expect(createFutureRes.status).toBe(201);
 
-        const { res: createPastRes } = await createTestEvent(agent, { event_date: "2000-01-01" });
+        const { res: createPastRes } = await createTestEvent(agent, { date: "2000-01-01" });
         expect(createPastRes.status).toBe(201);
 
         const futureEventId = createFutureRes.body.eventId;
@@ -64,7 +64,7 @@ describe.sequential("api/events/get-all-events", () => {
     it("returns 200 with empty array when no upcoming events match provided filters", async () => {
         // Create user and past event
         const { userRes, eventRes } = await createTestUserAndEvent(agent, {
-            eventPayload: { event_date: "2000-01-01" }
+            eventPayload: { date: "2000-01-01" }
         });
 
         expect(userRes.status).toBe(200);
@@ -83,7 +83,7 @@ describe.sequential("api/events/get-all-events", () => {
     it("returns 200 with only events matching `sourceFilter`", async () => {
         // Create user and event
         const { userRes, eventRes } = await createTestUserAndEvent(agent, {
-            eventPayload: { event_date: "2077-05-01" }
+            eventPayload: { date: "2077-05-01" }
         });
 
         expect(userRes.status).toBe(200);
@@ -108,10 +108,10 @@ describe.sequential("api/events/get-all-events", () => {
         // Create user and events with different dates
         await registerAndLoginTestUser(agent);
 
-        const { res: createMatchingRes } = await createTestEvent(agent, { event_date: "2077-05-01" });
+        const { res: createMatchingRes } = await createTestEvent(agent, { date: "2077-05-01" });
         expect(createMatchingRes.status).toBe(201);
 
-        const { res: createNonMatchingRes } = await createTestEvent(agent, { event_date: "2077-05-02" });
+        const { res: createNonMatchingRes } = await createTestEvent(agent, { date: "2077-05-02" });
         expect(createNonMatchingRes.status).toBe(201);
 
         const matchingEventId = createMatchingRes.body.eventId;

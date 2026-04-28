@@ -3,40 +3,41 @@ const db = require('../db/pool');
 /**
  * Creates a new event.
  * 
+ * @param {number} userId - ID of the user creating the event
  * @param {string} title - Event title
  * @param {string} subtitle - Optional event subtitle
  * @param {string} description - Event description
  * @param {Object|null} image - Optional uploaded image file
- * @param {string} eventDate - Event date
- * @param {string} eventTime - Event time
+ * @param {string} date - Event date
+ * @param {string} start_time - Event start time
+ * @param {string} end_time - Event end time
  * @param {string} location - Event location
  * @param {string[]} tags - Event tags
  * @param {string|number} price - Event price
  * @param {number} availableContact - Whether contact is available, stored as 1 or 0
- * @param {number} user_id - ID of the user creating the event
  * @param {string} source - Event source, defaults to "student"
  * 
  * @returns {Promise<Object>} Database insert result
  */
 async function createEvent(
-    title, subtitle, description, image,
-    eventDate, eventTime, location, tags, price,
-    availableContact, user_id, source = "student"
+    userId, title, subtitle, description, image,
+    date, start_time, end_time,
+    location, tags, price, availableContact,
+    source = "student"
 ) {
     const query = `
         INSERT INTO events (
-            title, user_id, subtitle, description, image, image_mime,
-            event_date, event_time, location, tags, price,
-            available_contact, source
+            user_id, title, subtitle, description, image, image_mime,
+            date, start_time, end_time,
+            location, tags, price, available_contact, source
         )
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const values = [
-        title, user_id, subtitle, description,
-        image?.buffer ?? null, image?.mimetype ?? null,
-        eventDate, eventTime, location, JSON.stringify(tags),
-        price, availableContact, source
+        userId, title, subtitle, description, image?.buffer ?? null, image?.mimetype ?? null,
+        date, start_time, end_time,
+        location, JSON.stringify(tags), price, availableContact, source
     ];
 
     const [result] = await db.query(query, values);
@@ -52,8 +53,9 @@ async function createEvent(
  * @param {string} subtitle - Optional event subtitle
  * @param {string} description - Event description
  * @param {Object|null|undefined} image - Uploaded image file, null to clear, or undefined to preserve existing image
- * @param {string} eventDate - Event date
- * @param {string} eventTime - Event time
+ * @param {string} date - Event date
+ * @param {string} start_time - Event start time
+ * @param {string} end_time - Event end time
  * @param {string} location - Event location
  * @param {string[]} tags - Event tags
  * @param {string|number} price - Event price
@@ -63,8 +65,8 @@ async function createEvent(
  */
 async function updateEvent(
     eventId, title, subtitle, description, image,
-    eventDate, eventTime, location,
-    tags, price, availableContact
+    date, start_time, end_time,
+    location, tags, price, availableContact
 ) {
     // * NOTE:
     // * Currently overwrites all event fields, even if only a subset is being updated.
@@ -73,13 +75,15 @@ async function updateEvent(
     // TODO: Consider updating only changed fields.
 
     const setClauses = [
-        "title=?", "subtitle=?", "description=?", "event_date=?", "event_time=?",
+        "title=?", "subtitle=?", "description=?",
+        "date=?", "start_time=?", "end_time=?",
         "location=?", "tags=?", "price=?", "available_contact=?"
     ]
 
     const values = [
-        title, subtitle, description, eventDate, eventTime, location,
-        JSON.stringify(tags ?? []), price, availableContact
+        title, subtitle, description,
+        date, start_time, end_time,
+        location, JSON.stringify(tags ?? []), price, availableContact
     ];
     
     // image === undefined -> leave existing image unchanged
@@ -147,10 +151,10 @@ async function getEvent(eventId, { mode = "api" } = {}) {
         query = `
             SELECT
                 id, user_id, title, subtitle, description,
-                event_date, event_time, location, tags,
-                price, available_contact, source,
-                image_url, background_image_url,
-                updated_at, ticket_url, 
+                date, start_time, end_time,
+                location, tags, price, available_contact, source,
+                image_url, background_image_url, ticket_url,
+                updated_at,
                 CASE WHEN image IS NOT NULL THEN 1 ELSE 0 END AS has_uploaded_image
             FROM events
             WHERE id = ?
@@ -182,18 +186,19 @@ async function getAllEvents(limit, offset, sourceFilter, dateFilter) {
     let query = `
         SELECT
             id, title, subtitle, description,
-            event_date, event_time, location, tags,
-            price, available_contact, source,
-            image_url, background_image_url, updated_at, ticket_url,
+            date, start_time, end_time,
+            location, tags, price, available_contact, source,
+            image_url, background_image_url, ticket_url,
+            updated_at,
             CASE WHEN image IS NOT NULL THEN 1 ELSE 0 END AS has_uploaded_image
         FROM events
-        WHERE event_date >= CURDATE()
+        WHERE date >= CURDATE()
     `;
 
     const params = [];
 
     if (dateFilter){
-        query += ` AND DATE(event_date) = DATE(?)`;
+        query += ` AND DATE(date) = DATE(?)`;
         params.push(dateFilter);
     }
     
@@ -203,7 +208,7 @@ async function getAllEvents(limit, offset, sourceFilter, dateFilter) {
     }
 
     query += `
-        ORDER BY event_date ASC, event_time ASC 
+        ORDER BY date ASC, start_time ASC 
         LIMIT ? OFFSET ?
     `;
 
@@ -225,7 +230,7 @@ async function getAllEvents(limit, offset, sourceFilter, dateFilter) {
  */
 async function getUserMadeEvents(user_id) {
     const query = `
-        SELECT id, title, event_date
+        SELECT id, title, date
         FROM events
         WHERE user_id = ?
     `;    
@@ -245,10 +250,11 @@ async function getUserMadeEvents(user_id) {
 async function saveKSUEvents(events) {
     const query = `
         INSERT INTO events (
-            title, user_id, description, event_date, event_time,
+            title, user_id, description,
+            date, start_time, end_time,
             location, tags, price, available_contact,
             image_url, background_image_url, source, external_url,
-            end_event_time, ticket_url
+            ticket_url
         ) 
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON DUPLICATE KEY UPDATE external_url = external_url
@@ -265,6 +271,7 @@ async function saveKSUEvents(events) {
             event.description || "No description provided",
             event.date,
             event.time,
+            event.ticket_url,
             event.location,
             JSON.stringify(event.tags),
             0,
@@ -274,7 +281,6 @@ async function saveKSUEvents(events) {
             event.background_event_image_url,
             event.source,
             event.external_url,
-            event.end_event_time,
             event.ticket_url
         ];
 

@@ -34,8 +34,9 @@ describe.sequential("api/events/create-event", () => {
         const title = `${TEST_PREFIX} Custom title`; // Need prefix for db cleanup
         const subtitle = "Custom subtitle";
         const description = "Custom description";
-        const event_date = "2033-01-01";
-        const event_time = "00:00";
+        const date = "2033-01-01";
+        const start_time = "00:00";
+        const end_time = "01:00";
         const location = "Custom location";
         const tags = ["custom", "tags"];
         const price = "10";
@@ -47,8 +48,9 @@ describe.sequential("api/events/create-event", () => {
                 title,
                 subtitle,
                 description,
-                event_date,
-                event_time,
+                date,
+                start_time,
+                end_time,
                 location,
                 tags,
                 price,
@@ -72,8 +74,9 @@ describe.sequential("api/events/create-event", () => {
                 title,
                 subtitle,
                 description,
-                event_date,
-                event_time,
+                date,
+                start_time,
+                end_time,
                 location,
                 tags,
                 price,

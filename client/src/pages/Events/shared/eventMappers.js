@@ -45,9 +45,8 @@ export function mapEventToCard(item) {
     return {
         id: item.id,
         imageUrl,
-        time: formatTime(item.event_time),
-        date: formatDateShort(item.event_date),
-        event_date: item.event_date,
+        time: formatTime(item.start_time),
+        date: formatDateShort(item.date),
         location: item.location,
         price: item.price,
         title: item.title,
@@ -58,21 +57,16 @@ export function mapEventToCard(item) {
 export function mapEventToDetails(item) {
     const { imageUrl, backgroundImageUrl } = resolveImage(item);
 
-    const [start_h, start_m] = item.event_time.split(":");  
-
-    let end_h, end_m;
-    if (item.end_event_time) {
-        [end_h, end_m] = item.end_event_time.split(":");
-    }
-    
+    const [start_h, start_m] = item.start_time.split(":");  
+    const [end_h, end_m] = item.end_time ? item.end_time.split(":") : ["", ""];
     
     return {
         ...item,
         imageUrl,
         backgroundImageUrl,
-        event_date: formatDateLong(item.event_date),
-        event_time: `${start_h}:${start_m}`,
-        end_event_time: item.end_event_time ? `${end_h}:${end_m}` : null
+        date: formatDateLong(item.date),
+        start_time: `${start_h}:${start_m}`,
+        end_time: item.end_time ? `${end_h}:${end_m}` : ""
     };
 }
 
@@ -82,8 +76,8 @@ export function mapEventToRelatedCard(item) {
     return {
         ...item,
         imageUrl,
-        event_time: formatTime(item.event_time),
-        event_date: formatDateShort(item.event_date)
+        date: formatDateShort(item.date),
+        start_time: formatTime(item.start_time)
     };
 }
 
@@ -91,8 +85,7 @@ export function mapEventToChoiceRow(item) {
     return {
         id: item.id,
         name: item.title,
-        date: item.event_date.split("T")[0],
-        dateCheck: item.event_date
+        date: item.date.split("T")[0]
     };
 }
 

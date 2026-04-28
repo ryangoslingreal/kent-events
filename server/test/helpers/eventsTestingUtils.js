@@ -5,8 +5,9 @@ function defaultEventPayload(overrides = {}) {
         title: `${TEST_PREFIX} Test Event`,
         subtitle: "Test Subtitle",
         description: "Test Description",
-        event_date: "2077-05-01",
-        event_time: "12:00",
+        date: "2077-05-01",
+        start_time: "12:00",
+        end_time: "17:00",
         location: "Test Location",
         tags: ["vitest"],
         price: "0",
@@ -41,11 +42,14 @@ async function sendMultipart(req, payload = {}, image = null) {
 function normaliseEvent(event) {
     return {
         ...event,
-        event_date: event.event_date?.slice(0, 10) ?? null,
-        event_time: event.event_time?.slice(0, 5) ?? null,
+        date: event.date?.slice(0, 10) ?? null,
+        start_time: event.start_time?.slice(0, 5) ?? null,
+        end_time: event.end_time?.slice(0, 5) ?? null,
         tags: typeof event.tags === "string" ? JSON.parse(event.tags) : event.tags,
         price: event.price != null ? String(Number(event.price)) : null,
-        available_contact: event.available_contact === "false" || event.available_contact === "0" ? false : Boolean(event.available_contact)
+        available_contact: event.available_contact === "false" || event.available_contact === "0"
+            ? false
+            : Boolean(event.available_contact)
     };
 }
 

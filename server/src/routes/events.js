@@ -21,8 +21,9 @@ const upload = multer({ storage: multer.memoryStorage() });
  * @param {string} subtitle - Optional event subtitle
  * @param {string} description - Event description
  * @param {File} image - Optional uploaded event image
- * @param {string} event_date - Event date
- * @param {string} event_time - Event time
+ * @param {string} date - Event date
+ * @param {string} start_time - Event start time
+ * @param {string|null} end_time - Event end time
  * @param {string} location - Event location
  * @param {string|string[]} tags - Event tags
  * @param {string|number} price - Event price
@@ -43,28 +44,29 @@ router.post("/create-event", upload.single("image"), async (req, res) => {
 
     const {
         title, subtitle, description,
-        event_date, event_time, location,
-        tags, price, available_contact
+        date, start_time, end_time,
+        location, tags, price, available_contact
     } = req.body;
 
-    if (!title || !description || !event_date || !event_time || !location || available_contact == null) {
+    if (!title || !description || !date || !start_time || !location || available_contact == null) {
         return res.status(400).json({ message: "Form input requirement is missing." });
     }
     
     let result;
     try {
         result = await eventsService.createEvent(
+            userId,
             title,
             subtitle,
             description,
             req.file ?? null,
-            event_date,
-            event_time,
+            date,
+            start_time,
+            end_time ?? null,
             location,
             tags,
             price,
-            available_contact === true || available_contact === "true" ? 1 : 0,
-            userId
+            available_contact === true || available_contact === "true" ? 1 : 0
         );
     } catch (error) {
         return res.status(500).send({
@@ -88,8 +90,9 @@ router.post("/create-event", upload.single("image"), async (req, res) => {
  * @param {string} description - Event description
  * @param {File} image - Optional replacement event image
  * @param {string} remove_image - Whether to remove the current image
- * @param {string} event_date - Event date
- * @param {string} event_time - Event time
+ * @param {string} date - Event date
+ * @param {string} start_time - Event start time
+ * @param {string} end_time - Event end time
  * @param {string} location - Event location
  * @param {string|string[]} tags - Event tags
  * @param {string|number} price - Event price
@@ -117,8 +120,8 @@ router.put("/update-event", upload.single("image"), async(req, res) => {
 
     const {
         title, subtitle, description, remove_image,
-        event_date, event_time, location,
-        tags, price, available_contact
+        date, start_time, end_time,
+        location, tags, price, available_contact
     } = req.body;
 
     if (remove_image === "true" && req.file) {
@@ -143,8 +146,9 @@ router.put("/update-event", upload.single("image"), async(req, res) => {
             subtitle,
             description,
             image,
-            event_date,
-            event_time,
+            date,
+            start_time,
+            end_time ?? null,
             location,
             tags,
             price,

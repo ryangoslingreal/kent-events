@@ -12,21 +12,6 @@ import {
     applyEventInputChange,
 } from "./shared/eventFormShared.jsx";
 
-const initialForm = {
-    title: "",
-    subtitle: "",
-    description: "",
-    image: null,
-    image_mime: null,
-    event_date: "",
-    event_time: "",
-    end_event_time: "",
-    location: "",
-    tags: [],
-    ticket_url: "",
-    available_contact: ""
-}
-
 function CreateEvent() {
     const navigate = useNavigate();
     const [formData, setFormData] = useState(createInitialEventForm());
@@ -161,13 +146,13 @@ function CreateEvent() {
                                 <Field
                                     styles={styles}
                                     label={<>Choose a date <span className={styles.required}>*</span></>}
-                                    htmlFor="event_date"
+                                    htmlFor="date"
                                 >
                                     <input
                                         type="date"
-                                        id="event_date"
-                                        name="event_date"
-                                        value={formData.event_date}
+                                        id="date"
+                                        name="date"
+                                        value={formData.date}
                                         onChange={handleInputChange}
                                         required
                                     />
@@ -176,13 +161,13 @@ function CreateEvent() {
                                 <Field
                                     styles={styles}
                                     label={<>Start Time <span className={styles.required}>*</span></>}
-                                    htmlFor="event_time"
+                                    htmlFor="start_time"
                                 >
                                     <input
                                         type="time"
-                                        id="event_time"
-                                        name="event_time"
-                                        value={formData.event_time}
+                                        id="start_time"
+                                        name="start_time"
+                                        value={formData.start_time}
                                         onChange={handleInputChange}
                                         required
                                     />
@@ -191,13 +176,13 @@ function CreateEvent() {
                                 <Field
                                     styles={styles}
                                     label={<>End Time </>}
-                                    htmlFor="end_event_time"    
+                                    htmlFor="end_time"    
                                 >
                                     <input
                                         type="time"
-                                        id="end_event_time"
-                                        name="end_event_time"
-                                        value={formData.end_event_time}
+                                        id="end_time"
+                                        name="end_time"
+                                        value={formData.end_time}
                                         onChange={handleInputChange}
                                     />
                                 </Field>
