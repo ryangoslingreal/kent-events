@@ -150,7 +150,7 @@ textarea {
     padding: 0 0.5rem;
 }
 
-.price {
+.ticket_url {
     display: inline-flex;
     align-items: center;
     gap: 4px;
@@ -162,7 +162,7 @@ textarea {
     background: white;
 }
 
-.price input {
+.ticket_url input {
     border: none;
     padding: 0;
     outline: none;

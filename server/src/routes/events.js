@@ -45,11 +45,15 @@ router.post("/create-event", upload.single("image"), async (req, res) => {
     const {
         title, subtitle, description,
         event_date, event_time, end_event_time,location,
-        tags, price, repeat_event, available_contact
+        tags, ticket_url, repeat_event, available_contact
     } = req.body;
 
     if (!title || !description || !event_date || !event_time || !location || available_contact == null) {
         return res.status(400).json({ message: "Form input requirement is missing." });
+    }
+
+    if (ticket_url && !ticket_url.startsWith("http")){
+        return res.status(400).json({ message: "Please input a valid ticket URL." });
     }
     
     let result;
@@ -64,12 +68,13 @@ router.post("/create-event", upload.single("image"), async (req, res) => {
             end_event_time,
             location,
             tags,
-            price,
+            ticket_url,
             repeat_event,
             available_contact === true || available_contact === "true" ? 1 : 0,
             userId
         );
     } catch (error) {
+        console.error("Full error:", error)
         return res.status(500).send({
             message: "Server error",
             error: error.message,
@@ -122,7 +127,7 @@ router.put("/update-event", upload.single("image"), async(req, res) => {
     const {
         title, subtitle, description, remove_image,
         event_date, event_time, end_event_time, location, tags,
-        price, repeat_event, available_contact
+        ticket_url, repeat_event, available_contact
     } = req.body;
 
     if (remove_image === "true" && req.file) {
@@ -136,6 +141,10 @@ router.put("/update-event", upload.single("image"), async(req, res) => {
         image = req.file; // Replace image
     } else {
         image = undefined; // Preserve image
+    }
+
+    if (ticket_url && !ticket_url.startsWith("http")){
+        return res.status(400).json({ message: "Please input a valid ticket URL." });
     }
 
     let result;
@@ -152,7 +161,7 @@ router.put("/update-event", upload.single("image"), async(req, res) => {
             end_event_time,
             location,
             tags,
-            price,
+            ticket_url,
             repeat_event,
             available_contact === true || available_contact === "true" ? 1 : 0
         );

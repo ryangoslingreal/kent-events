@@ -19,7 +19,7 @@ export function createInitialEventForm() {
         end_event_time: "",
         location: "",
         tags: [],
-        price: "",
+        ticket_url: "",
         repeat_event: "never",
         available_contact: false
     };
@@ -29,10 +29,6 @@ export function applyEventInputChange(setFormData) {
     return ({ target }) => {
         const { name, value, type, checked, files } = target;
         let nextValue = type === "checkbox" ? checked : value;
-
-        if (name === "price") {
-            nextValue = Math.max(0, Number(nextValue || 0));
-        }
 
         if (name === "image"){
             const selectedFile = files?.[0] ?? null;

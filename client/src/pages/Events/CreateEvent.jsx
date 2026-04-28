@@ -23,7 +23,7 @@ const initialForm = {
     end_event_time: "",
     location: "",
     tags: [],
-    price: "",
+    ticket_url: "",
     repeat_event: "never",
     available_contact: false
 }
@@ -220,7 +220,7 @@ function CreateEvent() {
                         </section>
 
                         <section className={styles.section}>
-                            <h3 className={styles.sectionHeader}>Tags & Pricing</h3>
+                            <h3 className={styles.sectionHeader}>Tags & Ticketing</h3>
 
                             <Field styles={styles} label="Choose tags" htmlFor="tags">
                                 <div className={styles.tagInputWrapper}>
@@ -256,20 +256,15 @@ function CreateEvent() {
 
                             <Field
                                 styles={styles}
-                                label={<>Price <span className={styles.required}>*</span></>}
-                                htmlFor="price"
+                                label={<>Ticket url</>}
+                                htmlFor="ticket_url"
                             >
-                                <div className={styles.price}>
-                                    £
+                                <div className={styles.ticket_url}>
                                     <input
-                                        id="price"
-                                        name="price"
-                                        type="number"
-                                        min={0}
-                                        step={1}
-                                        value={formData.price}
+                                        id="ticket_url"
+                                        name="ticket_url"
+                                        value={formData.ticket_url}
                                         onChange={handleInputChange}
-                                        required
                                     />
                                 </div>
                             </Field>

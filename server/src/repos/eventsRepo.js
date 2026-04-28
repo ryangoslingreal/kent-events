@@ -2,23 +2,24 @@ const db = require('../db/pool');
 
 async function createEvent(
     title, subtitle, description, image,
-    eventDate, eventTime, endEventTime, location, tags, price, repeatEvent,
+    eventDate, eventTime, endEventTime, location, tags, ticket_url, repeatEvent,
     availableContact, user_id, source = "student"
 ) {
     const query = `
         INSERT INTO events (
             title, user_id, subtitle, description, image, image_mime,
-            event_date, event_time, end_event_time, location, tags, price, repeat_event,
+            event_date, event_time, end_event_time, location, tags, ticket_url, price, repeat_event,
             available_contact, source
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
-
+    //Price is not being used - so just setting to 0 
+    //Keeping as may want to use it in the future.
     const values = [
         title, user_id, subtitle, description,
         image?.buffer ?? null, image?.mimetype ?? null,
         eventDate, eventTime, endEventTime, location, JSON.stringify(tags),
-        price, repeatEvent, availableContact, source
+        ticket_url, 0, repeatEvent, availableContact, source
     ];
 
     const [result] = await db.query(query, values);
@@ -123,7 +124,7 @@ async function deleteEvent(eventId) {
 
 async function updateEvent(
     eventId, title, subtitle, description, image,
-    eventDate, eventTime, endEventTime, location, tags, price,
+    eventDate, eventTime, endEventTime, location, tags, ticket_url,
     repeatEvent, availableContact
 ) {
     // * NOTE:
@@ -134,12 +135,12 @@ async function updateEvent(
 
     const setClauses = [
         "title=?", "subtitle=?", "description=?", "event_date=?", "event_time=?", "end_event_time=?",
-        "location=?", "tags=?", "price=?", "repeat_event=?", "available_contact=?"
+        "location=?", "tags=?", "ticket_url=?", "price=?", "repeat_event=?", "available_contact=?"
     ]
 
     const values = [
         title, subtitle, description, eventDate, eventTime, endEventTime, location,
-        JSON.stringify(tags ?? []), price, repeatEvent, availableContact
+        JSON.stringify(tags ?? []), ticket_url, 0, repeatEvent, availableContact
     ];
     
     // image === undefined -> leave existing image unchanged
