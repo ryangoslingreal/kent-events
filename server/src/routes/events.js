@@ -8,7 +8,7 @@
 
 const { Router } = require("express");
 const multer = require("multer");
-const eventService = require("../services/eventService");
+const eventsService = require("../services/eventsService");
 
 const router = Router();
 const upload = multer({ storage: multer.memoryStorage() });
@@ -53,7 +53,7 @@ router.post("/create-event", upload.single("image"), async (req, res) => {
     
     let result;
     try {
-        result = await eventService.createEvent(
+        result = await eventsService.createEvent(
             title,
             subtitle,
             description,
@@ -136,7 +136,7 @@ router.put("/update-event", upload.single("image"), async(req, res) => {
 
     let result;
     try {
-        result = await eventService.updateEvent(
+        result = await eventsService.updateEvent(
             Number(eventId),
             userId,
             title,
@@ -200,7 +200,7 @@ router.delete("/delete-event", async(req, res) => {
     
     let result;
     try {
-        result = await eventService.deleteEvent(eventId, userId);
+        result = await eventsService.deleteEvent(eventId, userId);
     } catch (error) {
         return res.status(500).send({
             message: "Server error",
@@ -241,7 +241,7 @@ router.get("/get-event", async(req, res) => {
 
     let event;
     try {
-        event = await eventService.getEvent(eventId);
+        event = await eventsService.getEvent(eventId);
     } catch (error) {
         return res.status(500).send({
             message: "Server error",
@@ -282,7 +282,7 @@ router.get("/get-all-events", async(req, res) => {
 
     let events;
     try{
-        events = await eventService.getAllEvents(limit, offset, sourceFilter, dateFilter);
+        events = await eventsService.getAllEvents(limit, offset, sourceFilter, dateFilter);
     } catch (error){
         return res.status(500).send({
             message: "Server error",
@@ -312,7 +312,7 @@ router.get("/get-user-made-events", async(req, res) => {
     
     let events;
     try {
-        events = await eventService.getUserMadeEvents(userId);
+        events = await eventsService.getUserMadeEvents(userId);
     } catch (error) {
         return res.status(500).send({
             message: "Server error",
@@ -346,7 +346,7 @@ router.get("/:id/image", async(req, res) => {
 
     let event;
     try {
-        event = await eventService.getEvent(eventId, { mode: "image" });
+        event = await eventsService.getEvent(eventId, { mode: "image" });
     } catch (error){
         return res.status(500).send({
             message: "Server error",
