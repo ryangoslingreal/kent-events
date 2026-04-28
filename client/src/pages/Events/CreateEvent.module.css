@@ -90,9 +90,50 @@ textarea {
     gap: 32px;
 }
 
+/*tags*/
+
+.tagList {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+}
+
+.tagPill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #e8f0fe;
+    color: #1a56db;
+    font-size: 13px;
+    padding: 3px 8px;
+    border-radius: 999px;
+    white-space: nowrap;
+}
+
+.tagRemove {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #1a56db;
+    font-size: 16px;
+    line-height: 1;
+    padding: 0;
+    display: flex;
+    align-items: center;
+}
+
+.tagRemove:hover {
+    color: #c0392b;
+}
+
 .searchBar {
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    flex: 1;
+    min-width: 140px;
+    max-width: 220px;
     border: 1px solid #ccc;
     border-radius: 6px;
 }
@@ -100,12 +141,14 @@ textarea {
 .searchBar input {
     border: none;
     outline: none;
+    background: transparent;
+    width: 50%;
 }
 
 .searchIcon {
-    width: 16px;
+    /* width: 16px; */
     height: 16px;
-    opacity: 0.9;
+    /* opacity: 0.9; */
     padding: 0 0.5rem;
 }
 

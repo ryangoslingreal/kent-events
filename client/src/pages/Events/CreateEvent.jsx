@@ -31,6 +31,7 @@ const initialForm = {
 function CreateEvent() {
     const navigate = useNavigate();
     const [formData, setFormData] = useState(createInitialEventForm());
+    const [tagInput, setTagInput] = useState("");
 
     useEffect(() => {
         async function checkUserAuthentication() {
@@ -63,6 +64,28 @@ function CreateEvent() {
         setFormData(createInitialEventForm());
         toast.success("Event form reset");
     };
+
+    const handleRemoveTag = (indexToRemove) => {
+        setFormData(prev => ({
+            ...prev,
+            tags: prev.tags.filter((_, i) => i !== indexToRemove)
+        }));
+    
+    };
+    const handleTagKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const newTag = tagInput.trim();
+            if (newTag && !formData.tags.includes(newTag)) {
+                setFormData(prev => ({
+                    ...prev,
+                    tags: [...prev.tags, newTag]
+                }));
+                setTagInput("");
+            }
+        }
+    };
+
 
     return (
         <>
@@ -199,20 +222,35 @@ function CreateEvent() {
                         <section className={styles.section}>
                             <h3 className={styles.sectionHeader}>Tags & Pricing</h3>
 
-                            <Field
-                                styles={styles}
-                                label="Choose tags"
-                                htmlFor="tags"
-                            >
-                                <div className={styles.searchBar}>
-                                    <input
-                                        id="tags"
-                                        name="tags"
-                                        value={formData.tags}
-                                        onChange={handleInputChange}
-                                        aria-label="Search tags"
-                                    />
-                                    <img className={styles.searchIcon} src={searchicon} alt="Search" />
+                            <Field styles={styles} label="Choose tags" htmlFor="tags">
+                                <div className={styles.tagInputWrapper}>
+                                    <div className={styles.tagList}>
+                                        <div className={styles.searchBar}>
+                                            <input
+                                                id="tags"
+                                                name="tagInput"
+                                                value={tagInput}
+                                                onChange={(e) => setTagInput(e.target.value)}
+                                                onKeyDown={handleTagKeyDown}
+                                                placeholder="Add a tag..."
+                                                aria-label="Add tag"
+                                            />
+                                            <img className={styles.searchIcon} src={searchicon} alt="Search" />
+                                        </div>
+                                        {formData.tags.map((tag, index) => (
+                                            <span key={index} className={styles.tagPill}>
+                                                {tag}
+                                                <button
+                                                    type="button"
+                                                    className={styles.tagRemove}
+                                                    onClick={() => handleRemoveTag(index)}
+                                                    aria-label={`Remove tag ${tag}`}
+                                                >
+                                                    ×
+                                                </button>
+                                            </span>
+                                        ))}
+                                    </div>
                                 </div>
                             </Field>
 
