@@ -112,10 +112,6 @@ async function requestForm(path, { method = "POST", body, credentials } = {}, fa
 	)
 }
 
-export async function healthCheck() {
-	return requestJson("/api/health", {}, "Network error: Failed to reach server");
-}
-
 function normaliseEvent(event) {
     if (!event || event.error) {
         return event;

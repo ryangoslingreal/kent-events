@@ -1,7 +1,5 @@
-import { useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
-import { healthCheck } from "./api.js";
 
 import "./App.css";
 import "./styles.css";
@@ -15,21 +13,6 @@ import EditEvent from "./pages/Events/EditEvent.jsx";
 import EventDetails from "./pages/Events/EventDetails.jsx";
 
 function App() {
-	useEffect(() => {
-		async function checkBackend() {
-			const result = await healthCheck();
-
-			if (result.error) {
-				console.error("Backend error:", result.error);
-				return;
-			}
-
-			console.log("Backend OK:", result);
-		}
-
-		checkBackend();
-	}, []);
-
 	return (
 		<>
 			<Toaster 
