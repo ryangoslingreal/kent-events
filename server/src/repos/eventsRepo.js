@@ -5,7 +5,6 @@ const db = require('../db/pool');
  * 
  * @param {number} userId - ID of the user creating the event
  * @param {string} title - Event title
- * @param {string} subtitle - Optional event subtitle
  * @param {string} description - Event description
  * @param {Object|null} image - Optional uploaded image file
  * @param {string} date - Event date
@@ -20,22 +19,22 @@ const db = require('../db/pool');
  * @returns {Promise<Object>} Database insert result
  */
 async function createEvent(
-    userId, title, subtitle, description, image,
+    userId, title, description, image,
     date, start_time, end_time,
     location, tags, price, availableContact,
     source = "student"
 ) {
     const query = `
         INSERT INTO events (
-            user_id, title, subtitle, description, image, image_mime,
+            user_id, title, description, image, image_mime,
             date, start_time, end_time,
             location, tags, price, available_contact, source
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const values = [
-        userId, title, subtitle, description, image?.buffer ?? null, image?.mimetype ?? null,
+        userId, title, description, image?.buffer ?? null, image?.mimetype ?? null,
         date, start_time, end_time,
         location, JSON.stringify(tags), price, availableContact, source
     ];
@@ -50,7 +49,6 @@ async function createEvent(
  * 
  * @param {string|number} eventId - Event ID
  * @param {string} title - Event title
- * @param {string} subtitle - Optional event subtitle
  * @param {string} description - Event description
  * @param {Object|null|undefined} image - Uploaded image file, null to clear, or undefined to preserve existing image
  * @param {string} date - Event date
@@ -64,7 +62,7 @@ async function createEvent(
  * @returns {Promise<Object>} Database update result
  */
 async function updateEvent(
-    eventId, title, subtitle, description, image,
+    eventId, title, description, image,
     date, start_time, end_time,
     location, tags, price, availableContact
 ) {
@@ -75,13 +73,13 @@ async function updateEvent(
     // TODO: Consider updating only changed fields.
 
     const setClauses = [
-        "title=?", "subtitle=?", "description=?",
+        "title=?", "description=?",
         "date=?", "start_time=?", "end_time=?",
         "location=?", "tags=?", "price=?", "available_contact=?"
     ]
 
     const values = [
-        title, subtitle, description,
+        title, description,
         date, start_time, end_time,
         location, JSON.stringify(tags ?? []), price, availableContact
     ];
@@ -150,7 +148,7 @@ async function getEvent(eventId, { mode = "api" } = {}) {
     } else {
         query = `
             SELECT
-                id, user_id, title, subtitle, description,
+                id, user_id, title, description,
                 date, start_time, end_time,
                 location, tags, price, available_contact, source,
                 image_url, background_image_url, ticket_url,
@@ -185,7 +183,7 @@ async function getEvent(eventId, { mode = "api" } = {}) {
 async function getAllEvents(limit, offset, sourceFilter, dateFilter) {
     let query = `
         SELECT
-            id, title, subtitle, description,
+            id, title, description,
             date, start_time, end_time,
             location, tags, price, available_contact, source,
             image_url, background_image_url, ticket_url,

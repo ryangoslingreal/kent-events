@@ -32,7 +32,6 @@ describe.sequential("api/events/create-event", () => {
     it("returns 201 and successfully creates event with all fields", async () => {
         // Create user and event
         const title = `${TEST_PREFIX} Custom title`; // Need prefix for db cleanup
-        const subtitle = "Custom subtitle";
         const description = "Custom description";
         const date = "2033-01-01";
         const start_time = "00:00";
@@ -46,7 +45,6 @@ describe.sequential("api/events/create-event", () => {
         const { userRes, eventRes } = await createTestUserAndEvent(agent, {
             eventPayload: {
                 title,
-                subtitle,
                 description,
                 date,
                 start_time,
@@ -72,7 +70,6 @@ describe.sequential("api/events/create-event", () => {
             expect.objectContaining({
                 id: eventId,
                 title,
-                subtitle,
                 description,
                 date,
                 start_time,

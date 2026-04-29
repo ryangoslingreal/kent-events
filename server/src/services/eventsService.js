@@ -5,7 +5,6 @@ const eventsRepo = require('../repos/eventsRepo');
  * 
  * @param {number} userId - ID of the user creating the event
  * @param {string} title - Event title
- * @param {string} subtitle - Optional event subtitle
  * @param {string} description - Event description
  * @param {Object|null} image - Optional uploaded image file
  * @param {string} date - Event date
@@ -20,14 +19,13 @@ const eventsRepo = require('../repos/eventsRepo');
  * @returns {Promise<Object>} Database insert result
  */
 async function createEvent(
-    userId, title, subtitle, description,
+    userId, title, description,
     image, date, start_time, end_time,
     location, tags, price, contactInfo
 ) {
     return await eventsRepo.createEvent(
         userId,
         title,
-        subtitle,
         description,
         image,
         date,
@@ -46,7 +44,6 @@ async function createEvent(
  * @param {number|string} eventId - Event ID
  * @param {number} userId - ID of the requesting user
  * @param {string} title - Event title
- * @param {string} subtitle - Optional event subtitle
  * @param {string} description - Event description
  * @param {Object|null|undefined} image - Uploaded image, null to clear, or undefined to preserve existing image
  * @param {string} date - Event date
@@ -64,7 +61,7 @@ async function createEvent(
  * @status UPDATED - Event updated successfully
  */
 async function updateEvent(
-    eventId, userId, title, subtitle, description, image,
+    eventId, userId, title, description, image,
     date, start_time, end_time,
     location, tags, price, available_contact
 ) {
@@ -81,7 +78,6 @@ async function updateEvent(
     await eventsRepo.updateEvent(
         eventId,
         title,
-        subtitle,
         description,
         image,
         date,
@@ -212,7 +208,6 @@ function toEventDTO(event) {
     return {
         id: event.id,
         title: event.title,
-        subtitle: event.subtitle,
         description: event.description,
         date: event.date,
         start_time: event.start_time,

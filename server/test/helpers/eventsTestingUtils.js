@@ -3,7 +3,6 @@ const TEST_PREFIX = process.env.TEST_PREFIX;
 function defaultEventPayload(overrides = {}) {
     return {
         title: `${TEST_PREFIX} Test Event`,
-        subtitle: "Test Subtitle",
         description: "Test Description",
         date: "2077-05-01",
         start_time: "12:00",

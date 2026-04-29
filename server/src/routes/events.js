@@ -18,7 +18,6 @@ const upload = multer({ storage: multer.memoryStorage() });
  * Creates a new event for the currently authenticated user.
  * 
  * @param {string} title - Event title
- * @param {string} subtitle - Optional event subtitle
  * @param {string} description - Event description
  * @param {File} image - Optional uploaded event image
  * @param {string} date - Event date
@@ -43,7 +42,7 @@ router.post("/create-event", upload.single("image"), async (req, res) => {
     }
 
     const {
-        title, subtitle, description,
+        title, description,
         date, start_time, end_time,
         location, tags, price, available_contact
     } = req.body;
@@ -57,7 +56,6 @@ router.post("/create-event", upload.single("image"), async (req, res) => {
         result = await eventsService.createEvent(
             userId,
             title,
-            subtitle,
             description,
             req.file ?? null,
             date,
@@ -86,7 +84,6 @@ router.post("/create-event", upload.single("image"), async (req, res) => {
  * 
  * @param {string} eventId - Event ID passed as a query parameter
  * @param {string} title - Event title
- * @param {string} subtitle - Optional event subtitle
  * @param {string} description - Event description
  * @param {File} image - Optional replacement event image
  * @param {string} remove_image - Whether to remove the current image
@@ -119,7 +116,7 @@ router.put("/update-event", upload.single("image"), async(req, res) => {
     }
 
     const {
-        title, subtitle, description, remove_image,
+        title, description, remove_image,
         date, start_time, end_time,
         location, tags, price, available_contact
     } = req.body;
@@ -143,7 +140,6 @@ router.put("/update-event", upload.single("image"), async(req, res) => {
             Number(eventId),
             userId,
             title,
-            subtitle,
             description,
             image,
             date,

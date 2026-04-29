@@ -39,7 +39,6 @@ describe.sequential("api/events/update-event", () => {
 
         // Update event
         const title = `${TEST_PREFIX} New title`; // Need prefix for db cleanup
-        const subtitle = "New subtitle";
         const description = "New description";
         const date = "2033-01-01";
         const start_time = "00:00";
@@ -54,7 +53,6 @@ describe.sequential("api/events/update-event", () => {
             eventId,
             {
                 title,
-                subtitle,
                 description,
                 date,
                 start_time,
@@ -71,7 +69,6 @@ describe.sequential("api/events/update-event", () => {
             expect.objectContaining({
                 id: eventId,
                 title,
-                subtitle,
                 description,
                 date,
                 start_time,
@@ -89,7 +86,6 @@ describe.sequential("api/events/update-event", () => {
         expect(normaliseEvent(getRes.body)).toEqual(
             expect.objectContaining({
                 title,
-                subtitle,
                 description,
                 date,
                 start_time,
