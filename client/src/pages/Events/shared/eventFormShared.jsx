@@ -10,7 +10,6 @@ export function Field({ styles, label, htmlFor, children }) {
 export function createInitialEventForm() {
     return {
         title: "",
-        subtitle: "",
         description: "",
         image: null,
         image_mime: null,

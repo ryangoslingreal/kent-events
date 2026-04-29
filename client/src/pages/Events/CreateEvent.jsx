@@ -99,19 +99,6 @@ function CreateEvent() {
 
                             <Field
                                 styles={styles}
-                                label="Subtitle"
-                                htmlFor="subtitle"
-                            >
-                                <input
-                                    id="subtitle"
-                                    name="subtitle"
-                                    value={formData.subtitle}
-                                    onChange={handleInputChange}
-                                />
-                            </Field>
-
-                            <Field
-                                styles={styles}
                                 label={<>Description <span className={styles.required}>*</span></>}
                                 htmlFor="description"
                             >
