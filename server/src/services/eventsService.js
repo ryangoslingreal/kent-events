@@ -13,15 +13,14 @@ const eventsRepo = require('../repos/eventsRepo');
  * @param {string} location - Event location
  * @param {string|string[]} tags - Event tags
  * @param {string|number} price - Event price
- * @param {number} contactInfo - Whether contact is available, stored as 1 or 0
- * @param {number} user_id - ID of the user creating the event
+ * @param {string} contact_email - Optional contact email
  * 
  * @returns {Promise<Object>} Database insert result
  */
 async function createEvent(
     userId, title, description,
     image, date, start_time, end_time,
-    location, tags, price, contactInfo
+    location, tags, price, contact_email
 ) {
     return await eventsRepo.createEvent(
         userId,
@@ -34,7 +33,7 @@ async function createEvent(
         location,
         toTagArray(tags),
         price,
-        contactInfo
+        contact_email
     );
 }
 
@@ -51,8 +50,8 @@ async function createEvent(
  * @param {string} end_time - Event end time
  * @param {string} location - Event location
  * @param {string|string[]} tags - Event tags
- * @param {string|number} price - Event price=
- * @param {number} available_contact - Whether contact is available, stored as 1 or 0
+ * @param {string|number} price - Event price
+ * @param {string} contact_email - Optional contact email
  * 
  * @returns {Promise<Object>} Result object containing update status and updated event
  * 
@@ -63,7 +62,7 @@ async function createEvent(
 async function updateEvent(
     eventId, userId, title, description, image,
     date, start_time, end_time,
-    location, tags, price, available_contact
+    location, tags, price, contact_email
 ) {
     const event = await eventsRepo.getEvent(eventId);
 
@@ -86,7 +85,7 @@ async function updateEvent(
         location,
         toTagArray(tags),
         price,
-        available_contact
+        contact_email
     );
 
     return {
@@ -215,7 +214,7 @@ function toEventDTO(event) {
         location: event.location,
         tags: event.tags,
         price: event.price,
-        available_contact: event.available_contact,
+        contact_email: event.contact_email,
         source: event.source,
         image: {
             url: imageUrl,

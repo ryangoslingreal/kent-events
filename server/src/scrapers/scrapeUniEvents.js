@@ -72,7 +72,13 @@ async function scrape() {
             const ticket_url = document.querySelector('.alert.panel.panel--yellow-light a')?.getAttribute('href') || null;
 
             //ADD THIS INTO OBJECTS
-            const available_contact = document.querySelector('.link.body--icon.body--16')?.getAttribute('href') || null;
+            const contact_email_href = document
+                .querySelector('.link.body--icon.body--16')
+                ?.getAttribute('href');
+
+            const contact_email = isValidEmail(contact_email_href)
+                ? contact_email_href
+                : null;
 
             let tags = []
             const textBody = document.querySelector('.text__body');
@@ -126,7 +132,7 @@ async function scrape() {
                 ? null
                 : dateAndTimes[2] + ":00";
 
-            return { description, ticket_url, available_contact, tags, location, price, date, time, end_time }
+            return { description, ticket_url, contact_email, tags, location, price, date, time, end_time }
         })
 
         fullEvents.push({
@@ -142,6 +148,10 @@ async function scrape() {
     return fullEvents;
 
     
+}
+
+function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
 }
 
 module.exports = { scrape } ;

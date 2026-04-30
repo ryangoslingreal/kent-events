@@ -13,7 +13,7 @@ const db = require('../db/pool');
  * @param {string} location - Event location
  * @param {string[]} tags - Event tags
  * @param {string|number} price - Event price
- * @param {number} availableContact - Whether contact is available, stored as 1 or 0
+ * @param {string} contact_email - Optional contact email
  * @param {string} source - Event source, defaults to "student"
  * 
  * @returns {Promise<Object>} Database insert result
@@ -21,14 +21,14 @@ const db = require('../db/pool');
 async function createEvent(
     userId, title, description, image,
     date, start_time, end_time,
-    location, tags, price, availableContact,
+    location, tags, price, contact_email,
     source = "student"
 ) {
     const query = `
         INSERT INTO events (
             user_id, title, description, image, image_mime,
             date, start_time, end_time,
-            location, tags, price, available_contact, source
+            location, tags, price, contact_email, source
         )
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
@@ -36,7 +36,8 @@ async function createEvent(
     const values = [
         userId, title, description, image?.buffer ?? null, image?.mimetype ?? null,
         date, start_time, end_time,
-        location, JSON.stringify(tags), price, availableContact, source
+        location, JSON.stringify(tags), price, contact_email,
+        source
     ];
 
     const [result] = await db.query(query, values);
@@ -57,14 +58,14 @@ async function createEvent(
  * @param {string} location - Event location
  * @param {string[]} tags - Event tags
  * @param {string|number} price - Event price
- * @param {number} availableContact - Whether contact is available, stored as 1 or 0
+ * @param {string} contact_email - Optional contact email
  * 
  * @returns {Promise<Object>} Database update result
  */
 async function updateEvent(
     eventId, title, description, image,
     date, start_time, end_time,
-    location, tags, price, availableContact
+    location, tags, price, contact_email
 ) {
     // * NOTE:
     // * Currently overwrites all event fields, even if only a subset is being updated.
@@ -75,13 +76,13 @@ async function updateEvent(
     const setClauses = [
         "title=?", "description=?",
         "date=?", "start_time=?", "end_time=?",
-        "location=?", "tags=?", "price=?", "available_contact=?"
+        "location=?", "tags=?", "price=?", "contact_email=?"
     ]
 
     const values = [
         title, description,
         date, start_time, end_time,
-        location, JSON.stringify(tags ?? []), price, availableContact
+        location, JSON.stringify(tags ?? []), price, contact_email
     ];
     
     // image === undefined -> leave existing image unchanged
@@ -150,7 +151,7 @@ async function getEvent(eventId, { mode = "api" } = {}) {
             SELECT
                 id, user_id, title, description,
                 date, start_time, end_time,
-                location, tags, price, available_contact, source,
+                location, tags, price, contact_email, source,
                 image_url, background_image_url, ticket_url,
                 updated_at,
                 CASE WHEN image IS NOT NULL THEN 1 ELSE 0 END AS has_uploaded_image
@@ -185,7 +186,7 @@ async function getAllEvents(limit, offset, sourceFilter, dateFilter) {
         SELECT
             id, title, description,
             date, start_time, end_time,
-            location, tags, price, available_contact, source,
+            location, tags, price, contact_email, source,
             image_url, background_image_url, ticket_url,
             updated_at,
             CASE WHEN image IS NOT NULL THEN 1 ELSE 0 END AS has_uploaded_image
@@ -250,7 +251,7 @@ async function saveKSUEvents(events) {
         INSERT INTO events (
             title, user_id, description,
             date, start_time, end_time,
-            location, tags, price, available_contact,
+            location, tags, price, contact_email,
             image_url, background_image_url, source, external_url,
             ticket_url
         ) 
@@ -273,7 +274,7 @@ async function saveKSUEvents(events) {
             event.location,
             JSON.stringify(event.tags),
             0, // price
-            0, // available_contact
+            event.contact_email,
             event.image_url,
             event.background_event_image_url,
             event.source,

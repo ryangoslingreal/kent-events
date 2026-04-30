@@ -94,10 +94,10 @@ function EventDetails() {
                                 <a>{tag}</a>
                             ))}
                         </div>
-                        {formData.available_contact && formData.available_contact !== "0" ? (
+                        {formData.contact_email && formData.contact_email !== "0" ? (
                             <div className={styles.contact}>
                                 <h3>Who to contact</h3>
-                                <p>{formData.available_contact}</p>
+                                <p>{formData.contact_email}</p>
                             </div>
                         ) : null}
                         <div className={styles.otherEvents}>

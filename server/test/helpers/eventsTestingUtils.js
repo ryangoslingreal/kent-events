@@ -10,7 +10,7 @@ function defaultEventPayload(overrides = {}) {
         location: "Test Location",
         tags: ["vitest"],
         price: "0",
-        available_contact: true,
+        contact_email: "testemail@example.com",
         ...overrides
     }
 }
@@ -45,10 +45,7 @@ function normaliseEvent(event) {
         start_time: event.start_time?.slice(0, 5) ?? null,
         end_time: event.end_time?.slice(0, 5) ?? null,
         tags: typeof event.tags === "string" ? JSON.parse(event.tags) : event.tags,
-        price: event.price != null ? String(Number(event.price)) : null,
-        available_contact: event.available_contact === "false" || event.available_contact === "0"
-            ? false
-            : Boolean(event.available_contact)
+        price: event.price != null ? String(Number(event.price)) : null
     };
 }
 

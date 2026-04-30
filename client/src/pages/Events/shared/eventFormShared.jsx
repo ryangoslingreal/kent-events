@@ -19,7 +19,7 @@ export function createInitialEventForm() {
         location: "",
         tags: [],
         ticket_url: "",
-        available_contact: ""
+        contact_email: ""
     };
 }
 

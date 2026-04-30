@@ -39,7 +39,7 @@ describe.sequential("api/events/create-event", () => {
         const location = "Custom location";
         const tags = ["custom", "tags"];
         const price = "10";
-        const available_contact = false;
+        const contact_email = "customemail@example.com";
         const image = Buffer.from("fake-image-bytes");
 
         const { userRes, eventRes } = await createTestUserAndEvent(agent, {
@@ -52,7 +52,7 @@ describe.sequential("api/events/create-event", () => {
                 location,
                 tags,
                 price,
-                available_contact
+                contact_email
             }, 
             image
         });
@@ -77,7 +77,7 @@ describe.sequential("api/events/create-event", () => {
                 location,
                 tags,
                 price,
-                available_contact,
+                contact_email,
                 image: expect.objectContaining({
                     url: expect.stringContaining(`/api/events/${eventId}/image?v=`),
                     kind: "upload"
@@ -124,7 +124,7 @@ describe.sequential("api/events/create-event", () => {
         const { res: res2 } = await createTestEvent(agent, { description: "" }); // Invalid description
         expect(res2.status).toBe(400);
 
-        const { res: res3 } = await createTestEvent(agent, { available_contact: undefined }); // Other missing field
+        const { res: res3 } = await createTestEvent(agent, { contact_email: "not-an-email" }); // Invalid optional email
         expect(res3.status).toBe(400);
 
         // Verify no events were created

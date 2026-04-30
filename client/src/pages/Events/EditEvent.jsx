@@ -325,12 +325,12 @@ function EditEvent(){
                             <Field
                                 styles={styles}
                                 label={<>Who to Contact</>}
-                                htmlFor="available_contact"
+                                htmlFor="contact_email"
                             >
                                 <input
-                                    id="available_contact"
-                                    name="available_contact"
-                                    value={formData.available_contact}
+                                    id="contact_email"
+                                    name="contact_email"
+                                    value={formData.contact_email}
                                     onChange={handleInputChange}
                                     required
                                 />

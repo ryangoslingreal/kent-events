@@ -26,7 +26,7 @@ const upload = multer({ storage: multer.memoryStorage() });
  * @param {string} location - Event location
  * @param {string|string[]} tags - Event tags
  * @param {string|number} price - Event price
- * @param {string|boolean} available_contact - Whether contact information is available
+ * @param {string} contact_email - Optional contact email
  * 
  * @returns {Object} JSON response with message and created event ID
  * 
@@ -44,27 +44,33 @@ router.post("/create-event", upload.single("image"), async (req, res) => {
     const {
         title, description,
         date, start_time, end_time,
-        location, tags, price, available_contact
+        location, tags, price, contact_email
     } = req.body;
 
-    if (!title || !description || !date || !start_time || !location || available_contact == null) {
-        return res.status(400).json({ message: "Form input requirement is missing." });
+    if (
+        !title || !description ||
+        !date || !start_time ||
+        !location || (contact_email && !isValidEmail(contact_email))
+    ) {
+        return res.status(400).json({ message: "Invalid form data." });
     }
     
+    const image = req.file ?? null;
+
     let result;
     try {
         result = await eventsService.createEvent(
             userId,
             title,
             description,
-            req.file ?? null,
+            image,
             date,
             start_time,
             end_time ?? null,
             location,
             tags,
             price,
-            available_contact === true || available_contact === "true" ? 1 : 0
+            contact_email?.trim() ?? null
         );
     } catch (error) {
         return res.status(500).send({
@@ -93,7 +99,7 @@ router.post("/create-event", upload.single("image"), async (req, res) => {
  * @param {string} location - Event location
  * @param {string|string[]} tags - Event tags
  * @param {string|number} price - Event price
- * @param {string|boolean} available_contact - Whether contact information is available
+ * @param {string} contact_email - Optional contact email
  * 
  * @returns {Object} JSON response with message and updated event
  * 
@@ -118,8 +124,16 @@ router.put("/update-event", upload.single("image"), async(req, res) => {
     const {
         title, description, remove_image,
         date, start_time, end_time,
-        location, tags, price, available_contact
+        location, tags, price, contact_email
     } = req.body;
+
+    if (
+        !title || !description ||
+        !date || !start_time ||
+        !location || (contact_email && !isValidEmail(contact_email))
+    ) {
+        return res.status(400).json({ message: "Invalid form data." });
+    }
 
     if (remove_image === "true" && req.file) {
         return res.status(400).json({ message: "Cannot upload and remove an image in the same request." });
@@ -148,7 +162,7 @@ router.put("/update-event", upload.single("image"), async(req, res) => {
             location,
             tags,
             price,
-            available_contact === true || available_contact === "true" ? 1 : 0
+            contact_email?.trim() ?? null
         );
     } catch (error) {
         return res.status(500).send({
@@ -375,6 +389,10 @@ function getSessionUserId(req) {
 
 function isValidID(id) {
     return typeof id === "string" && /^-?\d+$/.test(id);
+}
+
+function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
 }
 
 module.exports = router;
