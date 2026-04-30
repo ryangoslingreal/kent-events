@@ -12,7 +12,7 @@ const eventsRepo = require('../repos/eventsRepo');
  * @param {string} end_time - Event end time
  * @param {string} location - Event location
  * @param {string|string[]} tags - Event tags
- * @param {string|number} price - Event price
+ * @param {string} ticket_url - Optional ticket URL
  * @param {string} contact_email - Optional contact email
  * 
  * @returns {Promise<Object>} Database insert result
@@ -20,7 +20,7 @@ const eventsRepo = require('../repos/eventsRepo');
 async function createEvent(
     userId, title, description,
     image, date, start_time, end_time,
-    location, tags, price, contact_email
+    location, tags, ticket_url, contact_email
 ) {
     return await eventsRepo.createEvent(
         userId,
@@ -32,7 +32,7 @@ async function createEvent(
         end_time,
         location,
         toTagArray(tags),
-        price,
+        ticket_url,
         contact_email
     );
 }
@@ -50,7 +50,7 @@ async function createEvent(
  * @param {string} end_time - Event end time
  * @param {string} location - Event location
  * @param {string|string[]} tags - Event tags
- * @param {string|number} price - Event price
+ * @param {string} ticket_url - Optional ticket URL
  * @param {string} contact_email - Optional contact email
  * 
  * @returns {Promise<Object>} Result object containing update status and updated event
@@ -62,7 +62,7 @@ async function createEvent(
 async function updateEvent(
     eventId, userId, title, description, image,
     date, start_time, end_time,
-    location, tags, price, contact_email
+    location, tags, ticket_url, contact_email
 ) {
     const event = await eventsRepo.getEvent(eventId);
 
@@ -84,7 +84,7 @@ async function updateEvent(
         end_time,
         location,
         toTagArray(tags),
-        price,
+        ticket_url,
         contact_email
     );
 
@@ -213,16 +213,15 @@ function toEventDTO(event) {
         end_time: event.end_time,
         location: event.location,
         tags: event.tags,
-        price: event.price,
         contact_email: event.contact_email,
+        ticket_url: event.ticket_url,
         source: event.source,
         image: {
             url: imageUrl,
             kind: imageKind
         },
         backgroundImageUrl: event.background_image_url ?? null,
-        updated_at: event.updated_at,
-        ticket_url: event.ticket_url,
+        updated_at: event.updated_at
     };
 }
 

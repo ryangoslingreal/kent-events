@@ -22,16 +22,16 @@ const upload = multer({ storage: multer.memoryStorage() });
  * @param {File} image - Optional uploaded event image
  * @param {string} date - Event date
  * @param {string} start_time - Event start time
- * @param {string|null} end_time - Event end time
+ * @param {string} end_time - Optional event end time
  * @param {string} location - Event location
  * @param {string|string[]} tags - Event tags
- * @param {string|number} price - Event price
+ * @param {string} ticket_url - Optional ticket URL
  * @param {string} contact_email - Optional contact email
  * 
  * @returns {Object} JSON response with message and created event ID
  * 
  * @status 201 - Event created successfully
- * @status 400 - Required form input missing
+ * @status 400 - Invalid form data
  * @status 401 - Not authenticated
  * @status 500 - Server error
  */
@@ -44,13 +44,15 @@ router.post("/create-event", upload.single("image"), async (req, res) => {
     const {
         title, description,
         date, start_time, end_time,
-        location, tags, price, contact_email
+        location, tags, ticket_url, contact_email
     } = req.body;
 
     if (
         !title || !description ||
         !date || !start_time ||
-        !location || (contact_email && !isValidEmail(contact_email))
+        !location ||
+        (ticket_url && !isValidURL(ticket_url)) ||
+        (contact_email && !isValidEmail(contact_email))
     ) {
         return res.status(400).json({ message: "Invalid form data." });
     }
@@ -69,7 +71,7 @@ router.post("/create-event", upload.single("image"), async (req, res) => {
             end_time ?? null,
             location,
             tags,
-            price,
+            ticket_url?.trim() ?? null,
             contact_email?.trim() ?? null
         );
     } catch (error) {
@@ -95,16 +97,16 @@ router.post("/create-event", upload.single("image"), async (req, res) => {
  * @param {string} remove_image - Whether to remove the current image
  * @param {string} date - Event date
  * @param {string} start_time - Event start time
- * @param {string} end_time - Event end time
+ * @param {string} end_time - Optional event end time
  * @param {string} location - Event location
  * @param {string|string[]} tags - Event tags
- * @param {string|number} price - Event price
+ * @param {string} ticket_url - Optional ticket URL
  * @param {string} contact_email - Optional contact email
  * 
  * @returns {Object} JSON response with message and updated event
  * 
  * @status 200 - Event updated successfully
- * @status 400 - Invalid event ID or conflicting image action
+ * @status 400 - Invalid event ID / form data, or conflicting image action
  * @status 401 - Not authenticated
  * @status 403 - User does not own this event
  * @status 404 - Event not found
@@ -124,13 +126,15 @@ router.put("/update-event", upload.single("image"), async(req, res) => {
     const {
         title, description, remove_image,
         date, start_time, end_time,
-        location, tags, price, contact_email
+        location, tags, ticket_url, contact_email
     } = req.body;
 
     if (
         !title || !description ||
         !date || !start_time ||
-        !location || (contact_email && !isValidEmail(contact_email))
+        !location ||
+        (ticket_url && !isValidURL(ticket_url)) ||
+        (contact_email && !isValidEmail(contact_email))
     ) {
         return res.status(400).json({ message: "Invalid form data." });
     }
@@ -161,7 +165,7 @@ router.put("/update-event", upload.single("image"), async(req, res) => {
             end_time ?? null,
             location,
             tags,
-            price,
+            ticket_url?.trim() ?? null,
             contact_email?.trim() ?? null
         );
     } catch (error) {
@@ -393,6 +397,10 @@ function isValidID(id) {
 
 function isValidEmail(email) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
+}
+
+function isValidURL(url) {
+    return typeof url === "string" && /^https?:\/\/\S+\.\S+$/.test(url);
 }
 
 module.exports = router;

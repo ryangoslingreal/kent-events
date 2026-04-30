@@ -45,7 +45,7 @@ describe.sequential("api/events/update-event", () => {
         const end_time = "01:00";
         const location = "New location";
         const tags = ["new", "tags"];
-        const price = "10";
+        const ticket_url = "https://www.newurl.com";
         const contact_email = "newemail@example.com";
 
         const { res: updateRes } = await updateTestEvent(
@@ -59,7 +59,7 @@ describe.sequential("api/events/update-event", () => {
                 end_time,
                 location,
                 tags,
-                price,
+                ticket_url,
                 contact_email
             }
         );
@@ -75,7 +75,7 @@ describe.sequential("api/events/update-event", () => {
                 end_time,
                 location,
                 tags,
-                price,
+                ticket_url,
                 contact_email
             })
         );
@@ -92,7 +92,7 @@ describe.sequential("api/events/update-event", () => {
                 end_time,
                 location,
                 tags,
-                price,
+                ticket_url,
                 contact_email
             })
         );

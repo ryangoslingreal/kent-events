@@ -9,7 +9,7 @@ function defaultEventPayload(overrides = {}) {
         end_time: "17:00",
         location: "Test Location",
         tags: ["vitest"],
-        price: "0",
+        ticket_url: "https://www.example.com",
         contact_email: "testemail@example.com",
         ...overrides
     }
@@ -44,8 +44,7 @@ function normaliseEvent(event) {
         date: event.date?.slice(0, 10) ?? null,
         start_time: event.start_time?.slice(0, 5) ?? null,
         end_time: event.end_time?.slice(0, 5) ?? null,
-        tags: typeof event.tags === "string" ? JSON.parse(event.tags) : event.tags,
-        price: event.price != null ? String(Number(event.price)) : null
+        tags: typeof event.tags === "string" ? JSON.parse(event.tags) : event.tags
     };
 }
 

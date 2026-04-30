@@ -38,7 +38,7 @@ describe.sequential("api/events/create-event", () => {
         const end_time = "01:00";
         const location = "Custom location";
         const tags = ["custom", "tags"];
-        const price = "10";
+        const ticket_url = "https://www.customurl.com";
         const contact_email = "customemail@example.com";
         const image = Buffer.from("fake-image-bytes");
 
@@ -51,7 +51,7 @@ describe.sequential("api/events/create-event", () => {
                 end_time,
                 location,
                 tags,
-                price,
+                ticket_url,
                 contact_email
             }, 
             image
@@ -76,7 +76,7 @@ describe.sequential("api/events/create-event", () => {
                 end_time,
                 location,
                 tags,
-                price,
+                ticket_url,
                 contact_email,
                 image: expect.objectContaining({
                     url: expect.stringContaining(`/api/events/${eventId}/image?v=`),
@@ -126,6 +126,9 @@ describe.sequential("api/events/create-event", () => {
 
         const { res: res3 } = await createTestEvent(agent, { contact_email: "not-an-email" }); // Invalid optional email
         expect(res3.status).toBe(400);
+
+        const { res: res4 } = await createTestEvent(agent, { ticket_url: "not-a-url" }); // Invalid optional ticket_url
+        expect(res4.status).toBe(400);
 
         // Verify no events were created
         const { res: listRes } = await getUserMadeEvents(agent);
