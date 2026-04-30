@@ -8,6 +8,7 @@
 
 const { Router } = require("express");
 const authService = require("../services/authService");
+const { isValidEmail } = require("../utils/utils");
 
 const router = Router();
 
@@ -171,9 +172,5 @@ router.get("/me", (req, res) => {
         user: req.session.user
     });
 });
-
-function isValidEmail(email) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
-}
 
 module.exports = router;

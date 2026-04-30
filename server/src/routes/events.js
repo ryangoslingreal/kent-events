@@ -9,6 +9,7 @@
 const { Router } = require("express");
 const multer = require("multer");
 const eventsService = require("../services/eventsService");
+const { isValidEmail, isValidURL, isValidID } = require("../utils/utils");
 
 const router = Router();
 const upload = multer({ storage: multer.memoryStorage() });
@@ -389,18 +390,6 @@ router.get("/:id/image", async(req, res) => {
 function getSessionUserId(req) {
     const userId = Number(req.session.user?.id);
     return Number.isInteger(userId) && userId > 0 ? userId : null;
-}
-
-function isValidID(id) {
-    return typeof id === "string" && /^-?\d+$/.test(id);
-}
-
-function isValidEmail(email) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
-}
-
-function isValidURL(url) {
-    return typeof url === "string" && /^https?:\/\/\S+\.\S+$/.test(url);
 }
 
 module.exports = router;
