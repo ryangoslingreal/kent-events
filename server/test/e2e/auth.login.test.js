@@ -50,10 +50,10 @@ describe.sequential("api/auth/login", () => {
         const token = inbox.last()?.token;
         await verifyTestUser(agent, token);
 
-        const { res: res1 } = await loginTestUser(agent, undefined, "testpassword"); // Missing email
+        const { res: res1 } = await loginTestUser(agent, "", "testpassword"); // Missing email
         expect(res1.status).toBe(401);
 
-        const { res: res2 } = await loginTestUser(agent, email, undefined); // Missing password
+        const { res: res2 } = await loginTestUser(agent, email, ""); // Missing password
         expect(res2.status).toBe(401);
 
         const { res: res3 } = await loginTestUser(agent, email, "wrongpassword"); // Wrong password

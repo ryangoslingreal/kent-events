@@ -155,7 +155,7 @@ async function getEvent(eventId, opts) {
  */
 async function getAllEvents(limit, offset, sourceFilter, dateFilter) {
     const sourceMap = {
-        "society": "ksu",
+        "society": ["ksu", "society"],
         "university": "kentUni",
         "student": "student",
         "all": null

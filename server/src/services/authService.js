@@ -38,17 +38,24 @@ async function login(email, password) {
  * 
  * @param {string} email - The email address of the user to register
  * @param {string} password - The plaintext password for the user
+ * @param {string} account_type - The type of account to be registered, either "student" or "society"
  * 
  * @returns {Promise<Object>} The newly created user object
  * 
  * @throws {Error} Throws an error with code 'DUPLICATE_USER' if a user with the email already exists
  * @throws {Error} Throws any other database or unexpected errors
  */
-async function register(email, password) {
+async function register(email, password, account_type) {
     const { token, tokenHash, expiresAt } = makeVerifyToken();
         
     try {
-        const user = await authRepo.register(email, await hashPassword(password), tokenHash, expiresAt);
+        const user = await authRepo.register(
+            email,
+            await hashPassword(password),
+            account_type,
+            tokenHash,
+            expiresAt
+        );
 
         await emailService.sendVerificationEmail(email, token);
 

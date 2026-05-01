@@ -203,13 +203,16 @@ async function getAllEvents(limit, offset, sourceFilter, dateFilter) {
         params.push(dateFilter);
     }
     
-    if (sourceFilter != null){
+    if (Array.isArray(sourceFilter) && sourceFilter.length > 0) {
+        query += `AND u.account_type IN (${sourceFilter.map(() => "?").join(", ")})`;
+        params.push(...sourceFilter);
+    } else if (sourceFilter != null){
         query += ` AND u.account_type = ?`;
         params.push(sourceFilter);
     }
 
     query += `
-        ORDER BY date ASC, start_time ASC 
+        ORDER BY e.date ASC, e.start_time ASC 
         LIMIT ? OFFSET ?
     `;
 

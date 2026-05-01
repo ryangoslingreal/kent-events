@@ -36,9 +36,19 @@ async function findUser(email) {
  * 
  * @throws {Error} Throws an error if the database query fails or if the email already exists (unique constraint)
  */
-async function register(email, password_hash, token_hash, expires_at) {
-    const query = 'INSERT INTO users (email, password_hash, email_verification_token_hash, email_verification_expires_at) VALUES (?, ?, ?, ?)';
-    const values = [email, password_hash, token_hash, expires_at];
+async function register(email, password_hash, account_type, token_hash, expires_at) {
+    const query = `
+        INSERT INTO users (
+            email,
+            password_hash,
+            account_type,
+            email_verification_token_hash,
+            email_verification_expires_at
+        )
+        VALUES (?, ?, ?, ?, ?)
+    `;
+
+    const values = [email, password_hash, account_type, token_hash, expires_at];
 
     const [result] = await db.query(query, values);
 

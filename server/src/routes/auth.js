@@ -72,6 +72,7 @@ router.post("/login", async (req, res) => { // * NOTE: Ensure HTTPS.
  * 
  * @param {string} email - The email address of the user to register
  * @param {string} password - The plaintext password for the user
+ * @param {string} account_type - The type of account to be registered, either "student" or "society"
  * 
  * @returns {Object} JSON response with message and user object (id, email, account_type)
  * 
@@ -80,15 +81,21 @@ router.post("/login", async (req, res) => { // * NOTE: Ensure HTTPS.
  * @status 500 - Server error
  */
 router.post("/register", async (req, res) => { // * NOTE: Ensure HTTPS.
-    const { email, password } = req.body;
+    const validPublicAccountTypes = ["student", "society"];
 
-    if (!email || !password || !isValidEmail(email)) {
+    const { email, password, account_type } = req.body;
+
+    if (!email ||
+        !password ||
+        !isValidEmail(email) ||
+        !validPublicAccountTypes.includes(account_type)
+    ) {
         return res.status(400).json({ message: "Invalid request data." })
     }
 
     let user;
     try {
-        user = await authService.register(email, password);
+        user = await authService.register(email, password, account_type);
     } catch (error) {
         if (error.code === 'DUPLICATE_USER') {
             return res.status(409).json({ message: "User with this email already exists." });

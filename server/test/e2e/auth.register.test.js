@@ -24,14 +24,19 @@ describe.sequential("api/auth/register", () => {
         await cleanupTestUsers();
     });
 
-    it("returns 201 with user payload and sends verification email on successful registration", async () => {
+    it("returns 201 with student user payload and sends verification email on successful registration", async () => {
         // Regisistration should succeed
-        const { res, email } = await registerTestUser(agent, makeTestEmail(), "testpassword");
-        expect(res.status).toBe(201);
+        const { res, email, account_type } = await registerTestUser(
+            agent,
+            makeTestEmail(),
+            "testpassword",
+            "student"
+        );
 
+        expect(res.status).toBe(201);
         expect(res.body.user).toHaveProperty("id");
         expect(res.body.user).toHaveProperty("email", email);
-        expect(res.body.user).toHaveProperty("account_type");
+        expect(res.body.user).toHaveProperty("account_type", account_type);
 
         // Check email sent
         const sentEmail = inbox.last();
@@ -44,26 +49,62 @@ describe.sequential("api/auth/register", () => {
         expect(sentEmail.verifyUrl).toContain("/api/auth/verify?token=" + sentEmail.token);
     });
 
+    it("returns 201 with society user payload and sends verification email on successful registration", async () => {
+        // Regisistration should succeed
+        const { res, email, account_type } = await registerTestUser(
+            agent,
+            makeTestEmail(),
+            "testpassword",
+            "society"
+        );
+
+        expect(res.status).toBe(201);
+        expect(res.body.user).toHaveProperty("id");
+        expect(res.body.user).toHaveProperty("email", email);
+        expect(res.body.user).toHaveProperty("account_type", account_type);
+
+        // Check email sent
+        const sentEmail = inbox.last();
+        expect(sentEmail).toBeTruthy();
+        expect(sentEmail.to).toBe(email);
+    });
+
     it("returns 400 when missing or invalid fields are provided", async () => {
-        const { res: res1 } = await registerTestUser(agent, undefined, "testpassword"); // Missing email
+        const { res: res1 } = await registerTestUser(agent, "", "testpassword", "student"); // Missing email
         expect(res1.status).toBe(400);
 
-        const { res: res2 } = await registerTestUser(agent, makeTestEmail(), undefined); // Missing password
+        const { res: res2 } = await registerTestUser(agent, makeTestEmail(), "", "student"); // Missing password
         expect(res2.status).toBe(400);
 
-        const { res: res3 } = await registerTestUser(agent, "not-an-email", "testpassword"); // Invalid email
+        const { res: res3 } = await registerTestUser(agent, "not-an-email", "testpassword", "student"); // Invalid email
         expect(res3.status).toBe(400);
+
+        const { res: res4 } = await registerTestUser(agent, makeTestEmail(), "testpassword", ""); // Missing account type
+        expect(res4.status).toBe(400);
+
+        const { res: res5 } = await registerTestUser(agent, makeTestEmail(), "testpassword", "kentUni"); // Invalid public account type
+        expect(res5.status).toBe(400);
     });
 
     it("returns 409 and does not send verification email when email already exists", async () => {
         // First registration should succeed
-        const { res: res1, email: email1 } = await registerTestUser(agent, makeTestEmail(), "testpassword");
+        const { res: res1, email: email1 } = await registerTestUser(
+            agent,
+            makeTestEmail(),
+            "testpassword",
+            "student"
+        );
         expect(res1.status).toBe(201);
 
         inbox.reset(); // Clear inbox
 
         // Second registration should fail
-        const { res: res2, email: email2 } = await registerTestUser(agent, email1, "testpassword"); // Same email
+        const { res: res2, email: email2 } = await registerTestUser(
+            agent,
+            email1, // Same email
+            "testpassword",
+            "society"
+        );
         expect(res2.status).toBe(409);
         expect(inbox.all()).toHaveLength(0); // Check email is NOT sent
     });

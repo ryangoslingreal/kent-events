@@ -9,12 +9,17 @@ function makeTestEmail() {
     return `${TEST_PREFIX}${random}${TEST_DOMAIN}`;
 }
 
-async function registerTestUser(agent, email = makeTestEmail(), password = "testpassword") {
+async function registerTestUser(
+    agent,
+    email = makeTestEmail(),
+    password = "testpassword",
+    account_type = "student"
+) {
     const res = await agent
         .post("/api/auth/register")
-        .send({ email, password });
+        .send({ email, password, account_type });
 
-    return { res, email };
+    return { res, email, account_type };
 }
 
 async function verifyTestUser(agent, token) {
@@ -33,8 +38,13 @@ async function loginTestUser(agent, email, password = "testpassword") {
     return { res, email };
 }
 
-async function registerAndLoginTestUser(agent, email = makeTestEmail(), password = "testpassword") {
-    await registerTestUser(agent, email, password);
+async function registerAndLoginTestUser(
+    agent,
+    email = makeTestEmail(),
+    password = "testpassword",
+    account_type = "student"
+) {
+    await registerTestUser(agent, email, password, account_type);
 
     const token = inbox.last()?.token;
     await verifyTestUser(agent, token);
