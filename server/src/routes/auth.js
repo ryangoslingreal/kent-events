@@ -19,7 +19,7 @@ const router = Router();
  * @param {string} email - The email address of the user to login
  * @param {string} password - The plaintext password for the user
  * 
- * @returns {Object} JSON response with message and user object (id, email)
+ * @returns {Object} JSON response with message and user object (id, email, account_type)
  * 
  * @status 200 - Login successful
  * @status 400 - Already logged in
@@ -54,10 +54,15 @@ router.post("/login", async (req, res) => { // * NOTE: Ensure HTTPS.
     } 
             
     // VERIFIED
-    req.session.user = { id: result.user.id, email: result.user.email } // store user in session
+    req.session.user = { // Store user in session
+        id: result.user.id,
+        email: result.user.email,
+        account_type: result.user.account_type
+    }
+
     return res.status(200).json({ 
         message: "User logged in successfully", 
-        user: { id: result.user.id, email: result.user.email } 
+        user: req.session.user
     });
 });
 
@@ -68,7 +73,7 @@ router.post("/login", async (req, res) => { // * NOTE: Ensure HTTPS.
  * @param {string} email - The email address of the user to register
  * @param {string} password - The plaintext password for the user
  * 
- * @returns {Object} JSON response with message and user object (id, email)
+ * @returns {Object} JSON response with message and user object (id, email, account_type)
  * 
  * @status 201 - User registered successfully
  * @status 409 - User with this email already exists
@@ -94,7 +99,11 @@ router.post("/register", async (req, res) => { // * NOTE: Ensure HTTPS.
 
     return res.status(201).json({
         message: "User registered successfully, verification required.",
-        user: { id: user.id, email: user.email }
+        user: {
+            id: user.id,
+            email: user.email,
+            account_type: user.account_type
+        }
     });
 });
 
@@ -148,6 +157,7 @@ router.post("/logout", (req, res) => {
         if (err) {
             return res.status(500).json({ message: "Server error.", error: err });
         }
+
         res.clearCookie('connect.sid');
         return res.status(200).json({ message: "Logged out successfully." });
     });
@@ -157,7 +167,7 @@ router.post("/logout", (req, res) => {
  * GET /me
  * Returns the currently authenticated user.
  * 
- * @returns {Object} JSON response with message and user object (id, email)
+ * @returns {Object} JSON response with message and user object (id, email, account_type)
  * 
  * @status 200 - User authenticated
  * @status 401 - Not authenticated

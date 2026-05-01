@@ -7,13 +7,13 @@ const db = require('../db/pool');
  * @param {string} email - The user's email address to search for
  * 
  * @returns {Promise<Object | undefined>} 
- *   The user object containing id, email, password_hash, and email_verified_at, 
- *   or undefined if no user is found
+ *   The user object containing id, email, account_type, password_hash,
+ *   and email_verified_at, or undefined if no user is found
  * 
  * @throws {Error} Throws an error if the database query fails
  */
 async function findUser(email) {
-    const query = 'SELECT id, email, password_hash, email_verified_at FROM users WHERE email = ? LIMIT 1';
+    const query = 'SELECT id, email, account_type, password_hash, email_verified_at FROM users WHERE email = ? LIMIT 1';
     const values = [email];
 
     const [rows] = await db.query(query, values);
@@ -32,7 +32,7 @@ async function findUser(email) {
  * @param {string} token_hash - The hashed email verification token
  * @param {Date | string} expires_at - The expiry date of the email verification token
  * 
- * @returns {Promise<Object>} The newly created user object
+ * @returns {Promise<Object>} The newly created user object containing id, email, account_type, and email_verified_at
  * 
  * @throws {Error} Throws an error if the database query fails or if the email already exists (unique constraint)
  */
@@ -42,7 +42,7 @@ async function register(email, password_hash, token_hash, expires_at) {
 
     const [result] = await db.query(query, values);
 
-    const [rows] = await db.query('SELECT id, email, email_verified_at FROM users WHERE id = ? LIMIT 1', [result.insertId]);
+    const [rows] = await db.query('SELECT id, email, account_type, email_verified_at FROM users WHERE id = ? LIMIT 1', [result.insertId]);
 
     return rows[0];
 }

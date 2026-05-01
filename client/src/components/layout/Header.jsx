@@ -13,9 +13,9 @@ import editImg from "../../assets/edit2.png"
 import ticketImg from "../../assets/ticket.png"
 
 function Header() {
-    const [ signedIn, setSignedIn ] = useState(false)
-    const [ initial, setInitial ] = useState("")
-    const [ userEmail, setUserEmail ] = useState("")
+    const [ signedIn, setSignedIn ] = useState(false);
+    const [ initial, setInitial ] = useState("");
+    const [ userEmail, setUserEmail ] = useState("");
     
     const navigate = useNavigate();
 

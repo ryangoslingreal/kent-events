@@ -14,30 +14,27 @@ const db = require('../db/pool');
  * @param {string[]} tags - Event tags
  * @param {string} ticket_url - Optional ticket URL
  * @param {string} contact_email - Optional contact email
- * @param {string} source - Event source, defaults to "student"
  * 
  * @returns {Promise<Object>} Database insert result
  */
 async function createEvent(
     userId, title, description, image,
     date, start_time, end_time,
-    location, tags, ticket_url, contact_email,
-    source = "student"
+    location, tags, ticket_url, contact_email
 ) {
     const query = `
         INSERT INTO events (
             user_id, title, description, image, image_mime,
             date, start_time, end_time,
-            location, tags, ticket_url, contact_email, source
+            location, tags, ticket_url, contact_email
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const values = [
         userId, title, description, image?.buffer ?? null, image?.mimetype ?? null,
         date, start_time, end_time,
-        location, JSON.stringify(tags), ticket_url, contact_email,
-        source
+        location, JSON.stringify(tags), ticket_url, contact_email
     ];
 
     const [result] = await db.query(query, values);
@@ -129,6 +126,7 @@ async function deleteEvent(eventId) {
 /**
  * Returns a single event by ID.
  * In image mode, only returns image fields needed to serve the image response.
+ * In API mode, the source is derived from the events owner's account_type
  * 
  * @param {string|number} eventId - Event ID
  * @param {Object} opts - Optional retrieval options
@@ -149,14 +147,16 @@ async function getEvent(eventId, { mode = "api" } = {}) {
     } else {
         query = `
             SELECT
-                id, user_id, title, description,
-                date, start_time, end_time,
-                location, tags, ticket_url, contact_email,
-                source, image_url, background_image_url,
-                updated_at,
-                CASE WHEN image IS NOT NULL THEN 1 ELSE 0 END AS has_uploaded_image
-            FROM events
-            WHERE id = ?
+                e.id, e.user_id, e.title, e.description,
+                e.date, e.start_time, e.end_time,
+                e.location, e.tags, e.ticket_url, e.contact_email,
+                u.account_type AS source,
+                e.image_url, e.background_image_url,
+                e.updated_at,
+                CASE WHEN e.image IS NOT NULL THEN 1 ELSE 0 END AS has_uploaded_image
+            FROM events e
+            JOIN users u ON e.user_id = u.id
+            WHERE e.id = ?
             LIMIT 1
         `;
     }
@@ -172,7 +172,7 @@ async function getEvent(eventId, { mode = "api" } = {}) {
 }
 
 /**
- * Returns paginated upcoming events, optionally filtered by source and date.
+ * Returns paginated upcoming events, optionally filtered by derived source and date.
  * 
  * @param {number} limit - Maximum number of events to return
  * @param {number} offset - Number of events to skip
@@ -184,25 +184,27 @@ async function getEvent(eventId, { mode = "api" } = {}) {
 async function getAllEvents(limit, offset, sourceFilter, dateFilter) {
     let query = `
         SELECT
-            id, title, description,
-            date, start_time, end_time,
-            location, tags, ticket_url, contact_email,
-            source, image_url, background_image_url
-            updated_at,
-            CASE WHEN image IS NOT NULL THEN 1 ELSE 0 END AS has_uploaded_image
-        FROM events
-        WHERE date >= CURDATE()
+            e.id, e.title, e.description,
+            e.date, e.start_time, e.end_time,
+            e.location, e.tags, e.ticket_url, e.contact_email,
+            u.account_type AS source,
+            e.image_url, e.background_image_url,
+            e.updated_at,
+            CASE WHEN e.image IS NOT NULL THEN 1 ELSE 0 END AS has_uploaded_image
+        FROM events e
+        JOIN users u ON e.user_id = u.id
+        WHERE e.date >= CURDATE()
     `;
 
     const params = [];
 
     if (dateFilter){
-        query += ` AND DATE(date) = DATE(?)`;
+        query += ` AND DATE(e.date) = DATE(?)`;
         params.push(dateFilter);
     }
     
     if (sourceFilter != null){
-        query += ` AND source = ?`;
+        query += ` AND u.account_type = ?`;
         params.push(sourceFilter);
     }
 
@@ -243,18 +245,24 @@ async function getUserMadeEvents(user_id) {
  * Existing events are ignored using the external URL uniqueness constraint.
  * 
  * @param {Object[]} events - Scraped event objects to save
+ * @param {string} account - Account to assign the event to, either "kentUni" or "ksu"
  * 
  * @returns {Promise<void>}
  */
-async function saveKSUEvents(events) {
+async function saveScrapedEvents(events, account) {
+    const accountUserIds = {
+        kentUni: 1,
+        ksu: 2
+    };
+
     const query = `
         INSERT INTO events (
             title, user_id, description,
             date, start_time, end_time,
             location, tags, ticket_url, contact_email,
-            image_url, background_image_url, source, external_url
+            image_url, background_image_url, external_url
         ) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON DUPLICATE KEY UPDATE external_url = external_url
     `;
 
@@ -265,7 +273,7 @@ async function saveKSUEvents(events) {
         
         const values = [
             event.title,
-            1, // Default user_id = 1
+            accountUserIds[account] ?? null, // Null will fail
             event.description || "No description provided",
             event.date,
             event.time,
@@ -276,7 +284,6 @@ async function saveKSUEvents(events) {
             event.contact_email,
             event.image_url,
             event.background_event_image_url,
-            event.source,
             event.external_url
         ];
 
@@ -291,10 +298,11 @@ async function saveKSUEvents(events) {
  */
 async function lastScrapeTime(){
     const query = `
-        SELECT updated_at
-        FROM events
-        WHERE source IN ("ksu", "kentUni")
-        ORDER BY updated_at DESC
+        SELECT e.updated_at
+        FROM events e
+        JOIN users u ON e.user_id = u.id
+        WHERE u.account_type IN ("ksu", "kentUni")
+        ORDER BY e.updated_at DESC
         LIMIT 1
     `;
 
@@ -334,6 +342,6 @@ module.exports = {
     getEvent,
     getAllEvents,
     getUserMadeEvents,
-    saveKSUEvents,
+    saveScrapedEvents,
     lastScrapeTime
 };

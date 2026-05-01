@@ -2,7 +2,7 @@ import { beforeEach, describe, it, expect, afterEach } from "vitest";
 const inbox = require("../helpers/emailInbox.js");
 const { createTestAgent } = require("../helpers/testingUtils.js");
 const { cleanupTestUsers } = require("../helpers/dbTestingUtils.js");
-const { createTestAgent, makeTestEmail, registerTestUser } = require("../helpers/authTestingUtils.js");
+const { makeTestEmail, registerTestUser } = require("../helpers/authTestingUtils.js");
 
 describe.sequential("api/auth/register", () => {
     let app;
@@ -28,9 +28,10 @@ describe.sequential("api/auth/register", () => {
         // Regisistration should succeed
         const { res, email } = await registerTestUser(agent, makeTestEmail(), "testpassword");
         expect(res.status).toBe(201);
-        expect(res.body).toHaveProperty("user");
+
         expect(res.body.user).toHaveProperty("id");
         expect(res.body.user).toHaveProperty("email", email);
+        expect(res.body.user).toHaveProperty("account_type");
 
         // Check email sent
         const sentEmail = inbox.last();

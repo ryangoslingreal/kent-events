@@ -22,6 +22,19 @@ function EditEvent(){
     const [removeImage, setRemoveImage] = useState(false);
     const [tagInput, setTagInput] = useState("");
 
+    useEffect(() => {
+        async function checkUserAuthentication() {
+            const authenticated = await getMe();
+            
+            if (authenticated.error){
+                toast.error("Please sign in.");
+                setTimeout(() => navigate("/"), 1000);
+            }
+        }
+        
+        checkUserAuthentication();
+    }, [navigate]);
+
     const baseHandleInputChange = applyEventInputChange(setFormData);
 
     const handleInputChange = (event) => {

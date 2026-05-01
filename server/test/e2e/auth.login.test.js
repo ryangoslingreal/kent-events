@@ -28,9 +28,10 @@ describe.sequential("api/auth/login", () => {
         // Register, verify, and log in a new user
         const { res, email } = await registerAndLoginTestUser(agent, makeTestEmail(), "testpassword");
         expect(res.status).toBe(200);
-        expect(res.body).toHaveProperty("user");
+        
         expect(res.body.user).toHaveProperty("id");
         expect(res.body.user).toHaveProperty("email", email);
+        expect(res.body.user).toHaveProperty("account_type");
     });
 
     it("returns 400 if already logged in", async () => {

@@ -10,7 +10,7 @@ async function runScrape(){
         try {
             console.log('Initial scrape Kent Uni starting...');
             const uniEvents = await scrapeUniEvents();
-            await eventsRepo.saveKSUEvents(uniEvents);
+            await eventsRepo.saveScrapedEvents(uniEvents, "kentUni");
             console.log(`Initial scrape done - saved ${uniEvents.length} events`);
         } catch (err) {
             console.error('Initial scrape failed:', err.message);
@@ -19,7 +19,7 @@ async function runScrape(){
         try {
             console.log('Initial scrape KSU starting...');
             const ksuEvents = await scrapeKSU();
-            await eventsRepo.saveKSUEvents(ksuEvents);
+            await eventsRepo.saveScrapedEvents(ksuEvents, "ksu");
             console.log(`Initial scrape done - saved ${ksuEvents.length} events`);
         } catch (err) {
             console.error('Initial scrape failed:', err.message);

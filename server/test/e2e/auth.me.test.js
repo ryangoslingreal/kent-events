@@ -30,9 +30,10 @@ describe.sequential("api/auth/me", () => {
 
         const { res } = await getMe(agent);
         expect(res.status).toBe(200);
-        expect(res.body).toHaveProperty("user");
+
         expect(res.body.user).toHaveProperty("id");
         expect(res.body.user).toHaveProperty("email", email);
+        expect(res.body.user).toHaveProperty("account_type");
     });
 
     it("returns 401 when not authenticated", async () => {

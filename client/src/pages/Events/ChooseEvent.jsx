@@ -20,6 +20,15 @@ function ChooseEvent() {
     };
 
     useEffect(() => {
+        async function checkUserAuthentication() {
+            const authenticated = await getMe();
+            
+            if (authenticated.error){
+                toast.error("Please sign in.");
+                setTimeout(() => navigate("/"), 1000);
+            }
+        }
+
         async function getUsersEvents() {
             setLoading(true);
             const data = await getUserMadeEvents();
@@ -39,6 +48,7 @@ function ChooseEvent() {
             setLoading(false);
         }
 
+        checkUserAuthentication();
         getUsersEvents();
         
     }, [navigate]);

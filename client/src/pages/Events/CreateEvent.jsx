@@ -22,12 +22,13 @@ function CreateEvent() {
             const authenticated = await getMe();
             
             if (authenticated.error){
-                toast.error("Please sign in to use this feature")
+                toast.error("Please sign in.");
                 setTimeout(() => navigate("/"), 1000);
             }
-        };
-        checkUserAuthentication()
-    }, [navigate])
+        }
+        
+        checkUserAuthentication();
+    }, [navigate]);
 
     const handleInputChange = applyEventInputChange(setFormData);
 
