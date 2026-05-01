@@ -152,6 +152,15 @@ router.post("/request-verify", async (req, res) => {
     }
 });
 
+/**
+ * POST /logout
+ * Logs out the currently authenticated user.
+ * 
+ * @returns {Object} JSON response with message
+ * 
+ * @status 200 - Logout successful
+ * @status 500 - Server error
+ */
 router.post("/logout", (req, res) => {
     req.session.destroy((err) => {
         if (err) {
