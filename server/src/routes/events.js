@@ -298,10 +298,11 @@ router.get("/get-all-events", async(req, res) => {
     const offset = Number.isInteger(rawOffset) && rawOffset >= 0 ? rawOffset : 0; // Default 0
     const sourceFilter = req.query.sourceFilter;
     const dateFilter = req.query.dateFilter;
+    const search = req.query.search;
 
     let events;
     try{
-        events = await eventsService.getAllEvents(limit, offset, sourceFilter, dateFilter);
+        events = await eventsService.getAllEvents(limit, offset, sourceFilter, dateFilter, search);
     } catch (error){
         return res.status(500).send({
             message: "Server error",

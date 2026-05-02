@@ -263,7 +263,7 @@ export async function getUserMadeEvents() {
 	);
 }
 
-export async function getAllEvents(limit, offset, sourceFilter, dateFilter) {
+export async function getAllEvents(limit, offset, sourceFilter, dateFilter, search) {
 	const params = new URLSearchParams();
 	
 	params.append("limit", String(limit));
@@ -275,6 +275,10 @@ export async function getAllEvents(limit, offset, sourceFilter, dateFilter) {
 
 	if (dateFilter) {
 		params.append("dateFilter", dateFilter.toLocaleDateString("en-CA"));
+	}
+
+	if (search) {
+		params.append("search", search)
 	}
 
 	return requestJson(
