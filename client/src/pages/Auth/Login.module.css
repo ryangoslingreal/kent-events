@@ -115,6 +115,16 @@
   margin-top: 20px;
 }
 
+.backButton {
+  margin-top: 0.75rem;
+  background: none;
+  border: none;
+  color: #4f8df7;
+  text-decoration: underline;
+  cursor: pointer;
+  font: inherit;
+}
+
 .confMessage {
   opacity: 0.8;
   font-size: small;

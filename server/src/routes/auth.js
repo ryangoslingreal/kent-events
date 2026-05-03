@@ -77,6 +77,7 @@ router.post("/login", async (req, res) => { // * NOTE: Ensure HTTPS.
  * @returns {Object} JSON response with message and user object (id, email, account_type)
  * 
  * @status 201 - User registered successfully
+ * @status 400 - Invalid request data
  * @status 409 - User with this email already exists
  * @status 500 - Server error
  */

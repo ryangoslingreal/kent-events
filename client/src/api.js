@@ -164,12 +164,12 @@ export async function login(credentials) {
 	);
 }
 
-export async function register(credentials) {
+export async function register({ email, password, account_type }) {
 	return requestJson(
 		"/api/auth/register",
 		{
 			method: "POST",
-			body: credentials,
+			body: { email, password, account_type },
 			credentials: "include"
 		},
 		"Network error: Failed to register"

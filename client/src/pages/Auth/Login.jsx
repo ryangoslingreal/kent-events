@@ -66,7 +66,7 @@ function Login() {
                                 />
                             </div>
 
-                            <span className={styles.forgotPass}>forgot password?</span>
+                            {/*<span className={styles.forgotPass}>forgot password?</span>*/}
                         </div>
 
                         <button className={styles.button} type="submit">
