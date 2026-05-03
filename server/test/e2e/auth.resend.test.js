@@ -24,28 +24,28 @@ describe.sequential("api/auth/resend", () => {
         await cleanupTestUsers();
     });
 
-    it("returns 200 and sends a new verification email when the account exists, old token comes invalid", async () => {
+    it("returns 200 and sends a new verification code when the account exists, old code becomes invalid", async () => {
         // Register a new user
         const { email } = await registerTestUser(agent, makeTestEmail(), "testpassword");
-        const token1 = inbox.last()?.token;
-        expect(token1).toBeTruthy();
+        const code1 = inbox.last()?.code;
+        expect(code1).toMatch(/^\d{6}$/);
 
-        inbox.reset(); // Clear inbox
+        inbox.reset();
 
         // Request resend
         const { res } = await requestNewVerification(agent, email);
         expect(res.status).toBe(200);
 
-        const token2 = inbox.last()?.token;
-        expect(token2).toBeTruthy();
-        expect(token2).not.toBe(token1); // Should be a new token
+        const code2 = inbox.last()?.code;
+        expect(code2).toMatch(/^\d{6}$/);
+        expect(code2).not.toBe(code1); // Should be a new code
 
-        // Old token should fail
-        const { res: resOld } = await verifyTestUser(agent, token1);
+        // Old code should fail
+        const { res: resOld } = await verifyTestUser(agent, email, code1);
         expect(resOld.status).toBe(400);
 
-        // New token should succeed
-        const { res: resNew } = await verifyTestUser(agent, token2);
+        // New code should succeed
+        const { res: resNew } = await verifyTestUser(agent, email, code2);
         expect(resNew.status).toBe(200);
     });
 

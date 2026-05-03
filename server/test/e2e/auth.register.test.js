@@ -24,7 +24,7 @@ describe.sequential("api/auth/register", () => {
         await cleanupTestUsers();
     });
 
-    it("returns 201 with student user payload and sends verification email on successful registration", async () => {
+    it("returns 201 with student user payload and sends verification code email on successful registration", async () => {
         // Regisistration should succeed
         const { res, email, account_type } = await registerTestUser(
             agent,
@@ -43,13 +43,12 @@ describe.sequential("api/auth/register", () => {
         expect(sentEmail).toBeTruthy();
         expect(sentEmail.to).toBe(email);
 
-        // Check token and URL
-        expect(sentEmail.token).toEqual(expect.any(String));
-        expect(sentEmail.token).not.toHaveLength(0);
-        expect(sentEmail.verifyUrl).toContain("/api/auth/verify?token=" + sentEmail.token);
+        // Check verification code
+        expect(sentEmail.code).toEqual(expect.any(String));
+        expect(sentEmail.code).toMatch(/^\d{6}$/);
     });
 
-    it("returns 201 with society user payload and sends verification email on successful registration", async () => {
+    it("returns 201 with society user payload and sends verification code email on successful registration", async () => {
         // Regisistration should succeed
         const { res, email, account_type } = await registerTestUser(
             agent,
@@ -67,23 +66,25 @@ describe.sequential("api/auth/register", () => {
         const sentEmail = inbox.last();
         expect(sentEmail).toBeTruthy();
         expect(sentEmail.to).toBe(email);
+
+        // Check verification code
+        expect(sentEmail.code).toEqual(expect.any(String));
+        expect(sentEmail.code).toMatch(/^\d{6}$/);
     });
 
     it("returns 400 when missing or invalid fields are provided", async () => {
-        const { res: res1 } = await registerTestUser(agent, "", "testpassword", "student"); // Missing email
-        expect(res1.status).toBe(400);
+        const testCases = [
+            { email: "", password: "testpassword", account_type: "student" }, // Missing email
+            { email: makeTestEmail(), password: "", account_type: "student" }, // Missing password
+            { email: "not-an-email", password: "testpassword", account_type: "student" }, // Invalid email
+            { email: makeTestEmail(), password: "testpassword", account_type: "" }, // Missing account type
+            { email: makeTestEmail(), password: "testpassword", account_type: "kentUni" } // Invalid public account type
+        ];
 
-        const { res: res2 } = await registerTestUser(agent, makeTestEmail(), "", "student"); // Missing password
-        expect(res2.status).toBe(400);
-
-        const { res: res3 } = await registerTestUser(agent, "not-an-email", "testpassword", "student"); // Invalid email
-        expect(res3.status).toBe(400);
-
-        const { res: res4 } = await registerTestUser(agent, makeTestEmail(), "testpassword", ""); // Missing account type
-        expect(res4.status).toBe(400);
-
-        const { res: res5 } = await registerTestUser(agent, makeTestEmail(), "testpassword", "kentUni"); // Invalid public account type
-        expect(res5.status).toBe(400);
+        for (const t of testCases) {
+            const { res } = await registerTestUser(agent, t.email, t.password, t.account_type);
+            expect(res.status).toBe(400);
+        }
     });
 
     it("returns 409 and does not send verification email when email already exists", async () => {
@@ -99,7 +100,7 @@ describe.sequential("api/auth/register", () => {
         inbox.reset(); // Clear inbox
 
         // Second registration should fail
-        const { res: res2, email: email2 } = await registerTestUser(
+        const { res: res2 } = await registerTestUser(
             agent,
             email1, // Same email
             "testpassword",

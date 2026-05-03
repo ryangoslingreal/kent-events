@@ -1,7 +1,7 @@
 const sent = [];
 
-function record({ to, token, verifyUrl }) {
-    sent.push({ to, token, verifyUrl, at: Date.now() });
+function record({ to, code }) {
+    sent.push({ to, code, at: Date.now() });
 }
 
 function last() {

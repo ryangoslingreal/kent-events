@@ -3,7 +3,8 @@ const bcrypt = require("bcrypt");
 const authRepo = require("../repos/authRepo");
 const emailService = require("./emailService");
 
-const VERIFY_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
+const VERIFY_CODE_TTL_MS = 10 * 60 * 1000; // 10 minutes
+const VERIFY_CODE_LENGTH = 6;
 
 /**
  * Authenticates a user with the provided email and password.
@@ -26,7 +27,7 @@ async function login(email, password) {
     if (!await verifyPassword(password, user.password_hash)) return undefined;
 
     if (!user.email_verified_at) {
-        return { status: "UNVERIFIED" };
+        return { status: "UNVERIFIED", user };
     }
 
     // VERIFIED
@@ -46,18 +47,18 @@ async function login(email, password) {
  * @throws {Error} Throws any other database or unexpected errors
  */
 async function register(email, password, account_type) {
-    const { token, tokenHash, expiresAt } = makeVerifyToken();
+    const { code, codeHash, expiresAt } = makeVerificationCode(email);
         
     try {
         const user = await authRepo.register(
             email,
             await hashPassword(password),
             account_type,
-            tokenHash,
+            codeHash,
             expiresAt
         );
 
-        await emailService.sendVerificationEmail(email, token);
+        await emailService.sendVerificationEmail(email, code);
 
         return user;
     } catch (error) {
@@ -72,41 +73,32 @@ async function register(email, password, account_type) {
 }
 
 /**
- * Verifies a user's email using a provided token string.
+ * Verifies a user's email using their email address and verification code.
  *
- * The function hashes the provided token using SHA-256 and attempts to
- * mark the corresponding account as verified.
- *
- * @param {string} token - The raw email verification token
+ * @param {string} email - The email address of the user to verify
+ * @param {string} code - The raw 6-digit email verification code
  * 
- * @throws {Error} If the token is missing or not a string
- * @throws {Error} If the token is invalid or expired (verification failed)
+ * @throws {Error} If the code is invalid, expired, or does not match the email
  * 
- * @returns {Promise<void>} Resolves when verification succeeds
+ * @returns {Promise<void>}
  */
-async function verifyEmail(token) {
-    if (!token || typeof token !== "string") {
-        throw new Error("Missing token");
-    }
+async function verifyEmail(email, code) {
+    const codeHash = hashVerificationCode(email, code);
 
-    const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
-
-    const updated = await authRepo.verifyEmail(tokenHash);
+    const updated = await authRepo.verifyEmail(email, codeHash);
     if (!updated) {
-        throw new Error("Invalid or expired token");
+        throw new Error("Invalid or expired verification code");
     }
-
-    // TODO: Should redirect on successful verification
 }
 
 /**
- * Regenerated and resends an email verification link to the specified user.
+ * Regenerates and resends an email verification code to the specified user.
  * 
  * If no user exists, or user is already verified, silently returns.
  * 
  * @param {string} email - The email address of the user requesting verification
  * 
- * @returns {Promise<void>} Resolves when verification email is sent
+ * @returns {Promise<void>}
  */
 async function resendVerification(email) {
     const user = await authRepo.findUser(email);
@@ -114,46 +106,43 @@ async function resendVerification(email) {
 
     if (user.email_verified_at) return;
 
-    const { token, tokenHash, expiresAt } = makeVerifyToken();
-    await authRepo.setVerificationToken(user.id, tokenHash, expiresAt);
+    const { code, codeHash, expiresAt } = makeVerificationCode(user.email);
+    await authRepo.setVerificationCode(user.id, codeHash, expiresAt);
 
-    await emailService.sendVerificationEmail(user.email, token);
+    await emailService.sendVerificationEmail(user.email, code);
 }
 
-/**
- * Hashes a plaintext password using bcrypt.
- *
- * @param {string} password - The plaintext password to hash
- * @returns {Promise<string>} The bcrypt hash of the password
- */
 async function hashPassword(password) {
     return await bcrypt.hash(password, 10);
 }
 
-/**
- * Compares a plaintext password to a password hash.
- * 
- * @param {string} password - The plaintext password to verify
- * @param {string} hash - The bcrypt hash to compare against
- * 
- * @return {Promise<boolean>} True if the password matches the hash, false otherwise
- */
 async function verifyPassword(password, hash) {
     return await bcrypt.compare(password, hash);
 }
 
-/**
- * Generates a verification token with its hash and expiration time.
- * 
- * @returns {string} .token - The raw verification token (32 byte hex string)
- * @returns {string} .tokenHash - The SHA256 hash of the token
- * @returns {Date} .expiresAt - The expiration time of the token
- */
-function makeVerifyToken() {
-    const token = crypto.randomBytes(32).toString("hex");
-    const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
-    const expiresAt = new Date(Date.now() + VERIFY_TTL_MS);
-    return { token, tokenHash, expiresAt };
+function makeVerificationCode(email) {
+    const max = 10 ** VERIFY_CODE_LENGTH;
+    const code = String(crypto.randomInt(0, max)).padStart(VERIFY_CODE_LENGTH, "0");
+    const codeHash = hashVerificationCode(email, code);
+    const expiresAt = new Date(Date.now() + VERIFY_CODE_TTL_MS);
+
+    return { code, codeHash, expiresAt };
+}
+
+function hashVerificationCode(email, code) {
+    const secret = process.env.SESSION_SECRET;
+
+    if (!secret) {
+        throw new Error("Missing SESSION_SECRET");
+    }
+
+    const normEmail = email.trim().toLowerCase();
+    const normCode = code.trim();
+
+    return crypto
+        .createHmac("sha256", secret)
+        .update(`${normEmail}:${normCode}`)
+        .digest("hex");
 }
 
 module.exports = {

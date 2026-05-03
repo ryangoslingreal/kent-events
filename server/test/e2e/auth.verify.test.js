@@ -1,7 +1,7 @@
 import { beforeEach, describe, it, expect, afterEach } from "vitest";
 const inbox = require("../helpers/emailInbox.js");
 const { createTestAgent } = require("../helpers/testingUtils.js");
-const { cleanupTestUsers, ageVerificationToken } = require("../helpers/dbTestingUtils.js");
+const { cleanupTestUsers, ageVerificationCode } = require("../helpers/dbTestingUtils.js");
 const { makeTestEmail, registerTestUser, verifyTestUser } = require("../helpers/authTestingUtils.js");
 
 describe.sequential("api/auth/verify", () => {
@@ -24,30 +24,43 @@ describe.sequential("api/auth/verify", () => {
         await cleanupTestUsers();
     });
 
-    it("returns 200 when a valid verification token is provided, token becomes unusable", async () => {
-        // Register user to generate token
-        await registerTestUser(agent, makeTestEmail(), "testpassword");
-        const token = inbox.last()?.token;
+    it("returns 200 when a valid verification code is provided, then code becomes unusable", async () => {
+        // Register user to generate code
+        const { email } = await registerTestUser(agent, makeTestEmail(), "testpassword");
+        const code = inbox.last()?.code;
 
         // First verification attempt should succeed
-        const { res: res1 } = await verifyTestUser(agent, token);
+        const { res: res1 } = await verifyTestUser(agent, email, code);
         expect(res1.status).toBe(200);
 
         // Second verification attempt should fail
-        const { res: res2 } = await verifyTestUser(agent, token);
+        const { res: res2 } = await verifyTestUser(agent, email, code);
         expect(res2.status).toBe(400);
     });
 
-    it("returns 400 when verification token is invalid or expired", async () => {
-        // Register user to generate token
-        const { email: email } = await registerTestUser(agent, makeTestEmail(), "testpassword");
-        const token = inbox.last()?.token;
+    it("returns 400 when verification code is invalid, incorrect, or expired", async () => {
+        // Register user to generate code
+        const { email } = await registerTestUser(agent, makeTestEmail(), "testpassword");
+        const code = inbox.last()?.code;
 
-        const { res: res1 } = await verifyTestUser(agent, "invalid-token"); // Invalid token
-        expect(res1.status).toBe(400);
+        const wrongCode = code === "000000" ? "111111" : "000000";
 
-        await ageVerificationToken(email);
-        const { res: res2 } = await verifyTestUser(agent, token) // Expired token
-        expect(res2.status).toBe(400);
+        const testCases = [
+            { email: "", code }, // Missing email
+            { email: "not-at-email", code }, // Invalid email
+            { email, code: "" }, // Missing code
+            { email, code: "invalid-code" }, // Invalid code
+            { email, code: wrongCode } // Incorrect code
+        ];
+
+        for (const t of testCases) {
+            const { res } = await verifyTestUser(agent, t.email, t.code);
+            expect(res.status).toBe(400);
+        }
+
+        await ageVerificationCode(email);
+
+        const { res: expiredRes } = await verifyTestUser(agent, email, code); // Expired code
+        expect(expiredRes.status).toBe(400);
     });
 });

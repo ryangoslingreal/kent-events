@@ -8,7 +8,7 @@
 
 const { Router } = require("express");
 const authService = require("../services/authService");
-const { isValidEmail } = require("../utils/utils");
+const { isValidEmail, isValidVerificationCode } = require("../utils/utils");
 
 const router = Router();
 
@@ -50,7 +50,10 @@ router.post("/login", async (req, res) => { // * NOTE: Ensure HTTPS.
     }
             
     if (result.status === "UNVERIFIED") {
-        return res.status(403).json({ message: "Email not verified." });
+        return res.status(403).json({
+            message: "Email not verified.",
+            email: result.user.email
+        });
     } 
             
     // VERIFIED
@@ -116,31 +119,36 @@ router.post("/register", async (req, res) => { // * NOTE: Ensure HTTPS.
 });
 
 /**
- * GET /verify
- * Verifies a user's email address using a token provided as a query parameter.
+ * POST /verify
+ * Verifies a user's email address using a verification code.
  * 
- * @param {string} token - The authentication token passed as a query parameter
+ * @param {string} email - The email address of the user to verify
+ * @param {string} code - The 6-digit verification code sent to the user's email address
  * 
  * @returns {Object} JSON response with message
  * 
  * @status 200 - Email verified successfully
- * @status 400 - Invalid or expired verification link
+ * @status 400 - Invalid or expired verification code
  */
-router.get("/verify", async (req, res) => {
-    const { token } = req.query;
+router.post("/verify", async (req, res) => {
+    const { email, code } = req.body;
+
+    if (!email || !isValidEmail(email) || !isValidVerificationCode(code)) {
+        return res.status(400).json({ message: "Invalid or expired verification code." });
+    }
 
     // Either redirect or return JSON
     try {
-        await authService.verifyEmail(token);
+        await authService.verifyEmail(email, code);
         return res.status(200).json({ message: "Email verified successfully." });
     } catch (error) {
-        return res.status(400).json({ message: "Invalid or expired verification link." });
+        return res.status(400).json({ message: "Invalid or expired verification code." });
     }
 });
 
 /**
  * POST /request-verify
- * Resends the email verification link to the user's email address.
+ * Resends the email verification code to the user's email address.
  * 
  * @param {string} email - The user's email address
  * 
@@ -151,6 +159,10 @@ router.get("/verify", async (req, res) => {
  */
 router.post("/request-verify", async (req, res) => {
     const { email } = req.body;
+
+    if (!email || !isValidEmail(email)) {
+        return res.status(200).json({ message: "If the account exists, a verification email has been sent." });
+    }
 
     try {
         await authService.resendVerification(email);

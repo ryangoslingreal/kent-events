@@ -22,12 +22,12 @@ async function registerTestUser(
     return { res, email, account_type };
 }
 
-async function verifyTestUser(agent, token) {
+async function verifyTestUser(agent, email, code) {
     const res = await agent
-        .get("/api/auth/verify")
-        .query({ token });
+        .post("/api/auth/verify")
+        .send({ email, code });
 
-    return { res };
+    return { res, email, code };
 }
 
 async function loginTestUser(agent, email, password = "testpassword") {
@@ -46,8 +46,8 @@ async function registerAndLoginTestUser(
 ) {
     await registerTestUser(agent, email, password, account_type);
 
-    const token = inbox.last()?.token;
-    await verifyTestUser(agent, token);
+    const code = inbox.last()?.code;
+    await verifyTestUser(agent, email, code);
 
     return await loginTestUser(agent, email, password);
 }
@@ -67,7 +67,7 @@ async function getMe(agent) {
 
 async function logoutTestUser(agent) {
     const res = await agent
-        .post("/api/auth/logout")
+        .post("/api/auth/logout");
 
     return { res };
 }

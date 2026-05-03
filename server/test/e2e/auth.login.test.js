@@ -46,9 +46,9 @@ describe.sequential("api/auth/login", () => {
 
     it("returns 401 for invalid credentials", async () => {
         // Register and verify a new user
-        const { email: email } = await registerTestUser(agent, makeTestEmail(), "testpassword");
-        const token = inbox.last()?.token;
-        await verifyTestUser(agent, token);
+        const { email } = await registerTestUser(agent, makeTestEmail(), "testpassword");
+        const code = inbox.last()?.code;
+        await verifyTestUser(agent, email, code);
 
         const { res: res1 } = await loginTestUser(agent, "", "testpassword"); // Missing email
         expect(res1.status).toBe(401);
@@ -62,10 +62,12 @@ describe.sequential("api/auth/login", () => {
 
     it("returns 403 for unverified email", async () => {
         // Register a new user but do not verify
-        const { email: email } = await registerTestUser(agent, makeTestEmail(), "testpassword");
+        const { email } = await registerTestUser(agent, makeTestEmail(), "testpassword");
 
         // Attempt login
         const { res } = await loginTestUser(agent, email, "testpassword");
+
         expect(res.status).toBe(403);
+        expect(res.body).toHaveProperty("email", email);
     });
 });

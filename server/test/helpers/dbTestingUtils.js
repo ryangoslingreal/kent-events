@@ -37,7 +37,7 @@ async function cleanupTestEvents() {
     return { deleted: result?.affectedRows ?? 0 };
 }
 
-async function ageVerificationToken(email) {
+async function ageVerificationCode(email) {
     assertIsTesting();
 
     const query = "UPDATE users SET email_verification_expires_at = DATE_SUB(NOW(), INTERVAL 1 YEAR) WHERE email = ?"
@@ -47,5 +47,5 @@ async function ageVerificationToken(email) {
 module.exports = { 
     cleanupTestUsers,
     cleanupTestEvents,
-    ageVerificationToken
+    ageVerificationCode
 };
