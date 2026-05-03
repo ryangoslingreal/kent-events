@@ -29,7 +29,7 @@ function App() {
 				<Route path="/" element={<Home />} />
 				<Route path="/login" element={<Login />} />
 				<Route path="/signup" element={<Signup />} />
-				<Route path="/auth/verify/:token" element={<Verify />} />
+				<Route path="/verify" element={<Verify />} />
 				<Route path="/events/create" element={<CreateEvent />} />
 				<Route path="/events/choose" element={<ChooseEvent />} />
 				<Route path="/events/edit/:id" element={<EditEvent />} />

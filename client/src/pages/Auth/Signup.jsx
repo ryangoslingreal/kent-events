@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { register } from "../../api";
 
 import toast from "react-hot-toast";
-import styles from "./Login.module.css";
+import styles from "./Auth.module.css";
 import Header from "../../components/layout/Header";
 
 const ACCOUNT_TYPES = {
@@ -37,8 +37,10 @@ function Signup (){
             return;
         }
 
-        toast.success(result.message);
-        navigate("/");
+        toast.success("Verification code sent.");
+        navigate("/verify", {
+            state: { email }
+        });
     }
 
     function showAccountTypeSelection() {
@@ -139,7 +141,7 @@ function Signup (){
     }
 
     return (
-        <div className={styles.header_page}>
+        <div className={styles.headerPage}>
             <Header/>
             <div className={styles.page}>
                 <div className={styles.card}>

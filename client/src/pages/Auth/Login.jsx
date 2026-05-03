@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { login } from "../../api.js";
 
 import toast from "react-hot-toast";
-import styles from "./Login.module.css";
+import styles from "./Auth.module.css";
 import Header from "../../components/layout/Header";
 
 function Login() {
@@ -18,6 +18,14 @@ function Login() {
         const result = await login({ email, password });
 
         if (result.error) {
+            if (result.status === 403) {
+                toast.error("Please verify your email first.");
+                navigate("/verify", {
+                    state: { email: result.email || email }
+                });
+                return;
+            }
+            
             toast.error(result.error);
             return;
         }
@@ -27,7 +35,7 @@ function Login() {
     }
 
     return (
-        <div className={styles.header_page}>
+        <div className={styles.headerPage}>
             <Header />
             <div className={styles.page}>
                 <div className={styles.card}>

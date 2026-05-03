@@ -60,7 +60,11 @@ async function request(path, options = {}, fallbackMessage = "An error occurred"
 		const data = await safeReadJson(res);
 
 		if (!res.ok) {
-			return { error: data.message || fallbackMessage };
+			return {
+				...data,
+				error: data.message || fallbackMessage,
+				status: res.status
+			};
 		}
 
 		return data;
@@ -176,11 +180,27 @@ export async function register({ email, password, account_type }) {
 	);
 }
 
-export async function verify(token) {
+export async function verify({ email, code }) {
 	return requestJson(
-		"/api/auth/verify?token=" + encodeURIComponent(token),
-		{},
+		"/api/auth/verify",
+		{
+			method: "POST",
+			body: { email, code },
+			credentials: "include"
+		},
 		"Network error: Failed to verify user"
+	);
+}
+
+export async function requestVerification(email) {
+	return requestJson(
+		"/api/auth/request-verify",
+		{
+			method: "POST",
+			body: { email },
+			credentials: "include"
+		},
+		"Network error: Failed to request verification code"
 	);
 }
 
