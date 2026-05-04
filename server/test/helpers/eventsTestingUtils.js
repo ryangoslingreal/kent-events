@@ -96,11 +96,19 @@ async function getAllEvents(
         limit = 100000,
         offset = 0,
         sourceFilter,
-        dateFilter
+        dateFilter,
+        search
     } = {}) {
-    const res = await agent
-        .get("/api/events/get-all-events")
-        .query({ limit, offset, sourceFilter, dateFilter });
+    const req = agent
+        .get("/api/events/get-all-events");
+
+    if (limit !== undefined) req.query({ limit });
+    if (offset !== undefined) req.query({ offset });
+    if (sourceFilter !== undefined) req.query({ sourceFilter });
+    if (dateFilter !== undefined) req.query({ dateFilter });
+    if (search !== undefined) req.query({ search });
+
+    const res = await req;
 
     return { res };
 }

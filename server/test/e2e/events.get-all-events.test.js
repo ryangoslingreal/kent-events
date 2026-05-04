@@ -130,4 +130,37 @@ describe.sequential("api/events/get-all-events", () => {
         const nonMatchingEvent = getAllRes.body.find(e => e.id === nonMatchingEventId);
         expect(nonMatchingEvent).toBeUndefined(); // Non-matching event should not be included
     });
+
+    it("returns 200 with only events matching `search`", async () => {
+        // Create user and events with different search fields
+        await registerAndLoginTestUser(agent);
+    
+        const searchTerm = "asafdgasdfsdafg"; // No matches
+
+        const { res: createMatchingRes } = await createTestEvent(agent, {
+            description: `Search Match ${searchTerm}`
+        });
+        expect(createMatchingRes.status).toBe(201);
+
+        const { res: createNonMatchingRes } = await createTestEvent(agent, {
+            description: "Board Games Night"
+        });
+        expect(createNonMatchingRes.status).toBe(201);
+
+        const matchingEventId = createMatchingRes.body.eventId;
+        const nonMatchingEventId = createNonMatchingRes.body.eventId;
+
+        // Get all events with search filter
+        const { res: getAllRes } = await getAllEvents(agent, {
+            search: searchTerm
+        });
+
+        expect(getAllRes.status).toBe(200);
+
+        const matchingEvent = getAllRes.body.find(e => e.id === matchingEventId);
+        expect(matchingEvent).toBeDefined();
+
+        const nonMatchingEvent = getAllRes.body.find(e => e.id === nonMatchingEventId);
+        expect(nonMatchingEvent).toBeUndefined(); // Non-matching event should not be included
+    });
 });
