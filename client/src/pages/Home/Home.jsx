@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Header from "../../components/layout/Header"
@@ -20,14 +20,15 @@ function Home(){
     const [hasMore, setHasMore] = useState(true);
     const [loading, setLoading] = useState(false)
     const navigate = useNavigate();
+    const [ searchParams ] = useSearchParams();
+    const search = searchParams.get("q")
 
     const PAGE_SIZE = 15;
 
     useEffect (() => {
         async function getHomeEvents() {
             setLoading(true)
-            const data = await getAllEvents(PAGE_SIZE, 0, activeSourceFilter, selectedDate);
-    
+            const data = await getAllEvents(PAGE_SIZE, 0, activeSourceFilter, selectedDate, search);
             setHasMore(true)
 
             if (data.error) {
@@ -68,11 +69,11 @@ function Home(){
             }
         }
         getHomeEvents();
-    }, [activeSourceFilter, selectedDate]);
+    }, [activeSourceFilter, selectedDate, search]);
 
     const loadMore = async() => {
         setLoading(true)
-        const newEvents = await getAllEvents(PAGE_SIZE, offset, activeSourceFilter, selectedDate);
+        const newEvents = await getAllEvents(PAGE_SIZE, offset, activeSourceFilter, selectedDate, search);
         
         if (newEvents.error) {
             setLoading(false)

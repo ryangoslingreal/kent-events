@@ -153,7 +153,7 @@ async function getEvent(eventId, opts) {
  * 
  * @returns {Promise<Object[]>} Array of formatted event DTOs
  */
-async function getAllEvents(limit, offset, sourceFilter, dateFilter) {
+async function getAllEvents(limit, offset, sourceFilter, dateFilter, search) {
     const sourceMap = {
         "society": ["ksu", "society"],
         "university": "kentUni",
@@ -165,7 +165,8 @@ async function getAllEvents(limit, offset, sourceFilter, dateFilter) {
         limit,
         offset,
         sourceMap[sourceFilter] ?? null,
-        dateFilter ?? null
+        dateFilter ?? null,
+        search ?? null
     );
 
     return rows.map(toEventDTO);

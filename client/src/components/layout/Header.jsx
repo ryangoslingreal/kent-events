@@ -1,5 +1,5 @@
 
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getMe, logout } from "../../api"
 
@@ -12,10 +12,25 @@ import createImg from "../../assets/create.png"
 import editImg from "../../assets/edit2.png"
 import ticketImg from "../../assets/ticket.png"
 
+// Searchbar placeholders. New one with each f5
+const placeholders = [
+    "Find... new friends",
+    "Find... your future",
+    "Find... great fun",
+    "Find... your place",
+    "Find... community",
+    "Find... inspiration",
+    "Find... new ideas"    
+]
+const placeholdLength = placeholders.length
+const placeholder = placeholders[(Math.floor(Math.random() * placeholdLength))]
+
 function Header() {
     const [ signedIn, setSignedIn ] = useState(false);
     const [ initial, setInitial ] = useState("");
     const [ userEmail, setUserEmail ] = useState("");
+    const [ searchValue, setSearchValue ] = useState("");
+    const [ searchParams, setSearchParams ] = useSearchParams();
     
     const navigate = useNavigate();
 
@@ -52,6 +67,14 @@ function Header() {
         navigate("/")
         toast.success(result.message, {style: {background: '#05345C', color: '#ffffff'}})
     }
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        navigate("/?q="+searchValue)
+        //setSearchParams({ q: searchValue });
+    }
+    const handleChange = (e) => {
+        setSearchValue(e.target.value);
+    }
 
     return (
         <>
@@ -61,10 +84,10 @@ function Header() {
                         <img className={styles.logo} src={kentlogo} alt="University of Kent"></img>
                     </Link>
                 </div>
-                <div className={styles.searchBar}>
-                    <input className={styles.searchInput} placeholder="Find... new friends"></input>
-                    <img className={styles.searchIcon} src={searchicon} alt="Search"></img>
-                </div>
+               <form onSubmit={handleSubmit}  className={styles.searchBar}>
+                    <input onChange={handleChange} className={styles.searchInput} value={searchValue} placeholder={placeholder}></input>
+                    <img onClick={handleSubmit} className={styles.searchIcon} src={searchicon} alt="Search"></img>
+                </form>
                 <nav className={styles.actions}>
                     {signedIn ? (
                         <div className={styles.eventDropdown}>

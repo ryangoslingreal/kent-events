@@ -181,7 +181,7 @@ async function getEvent(eventId, { mode = "api" } = {}) {
  * 
  * @returns {Promise<Object[]>} Array of event rows
  */
-async function getAllEvents(limit, offset, sourceFilter, dateFilter) {
+async function getAllEvents(limit, offset, sourceFilter, dateFilter, search) {
     let query = `
         SELECT
             e.id, e.title, e.description,
@@ -211,13 +211,18 @@ async function getAllEvents(limit, offset, sourceFilter, dateFilter) {
         params.push(sourceFilter);
     }
 
+    if (search != null && search != ""){
+        query += ` AND ( title LIKE CONCAT ("%", ?, "%") OR description LIKE CONCAT ("%", ?, "%") OR location LIKE CONCAT ("%", ?, "%") OR tags LIKE CONCAT ("%", ?, "%") )`;
+        params.push(search, search, search, search)
+    }
+
     query += `
         ORDER BY e.date ASC, e.start_time ASC 
         LIMIT ? OFFSET ?
     `;
 
     params.push(limit, offset);
-
+    
     const [rows] = await db.query(query, params);
     return rows.map(row => ({
         ...row,
