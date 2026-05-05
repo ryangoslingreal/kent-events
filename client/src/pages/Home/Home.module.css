@@ -5,7 +5,6 @@
     justify-content: center;
     /* background-color: rgba(125, 125, 125, 0.101); */
     min-height: 100vh;
-    overflow-x: hidden;
 }
 
 .page{
@@ -162,6 +161,8 @@
     height: fit-content;
     background-color: rgba(193, 193, 193, 0.101);
     border-left: 4px solid #b88e2e;
+    position: sticky;
+    top: 46px;
     /* width: 100%; */
 }
 
