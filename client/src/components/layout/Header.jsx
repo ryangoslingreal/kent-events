@@ -101,14 +101,6 @@ function Header() {
                                         <p className={styles.dropdownEmail}>{userEmail}</p>
                                     </div>
                                 </div>
-                                <a>View Profile</a>
-                                <a>Settings</a>
-                                <div className={styles.dropdownDivider} />
-                                <Link to="/tickets">
-                                    <img className={styles.dropdownIcon} src={ticketImg} alt="" />
-                                    My Tickets
-                                </Link>
-                                <div className={styles.dropdownDivider} />
                                 <Link to="/events/create">
                                     <img className={styles.dropdownIcon} src={createImg} alt="" />
                                     Create Events
