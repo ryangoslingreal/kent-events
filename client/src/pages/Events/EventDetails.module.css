@@ -499,22 +499,6 @@
     box-shadow: 0 6px 18px rgba(5,52,92,0.28);
 }
 
-.save {
-    padding: 1.0rem;
-    background: transparent;
-    color: #05345C;
-    /* font-family: 'DM Sans', sans-serif; */
-    font-size: 0.88rem;
-    font-weight: 500;
-    border: 1.5px solid #d0c8b8;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: all 0.18s;
-}
-.save:hover {
-    border-color: #05345C;
-    background: #f4f1ea;
-}
 
 .shareEvent {
     display: flex;

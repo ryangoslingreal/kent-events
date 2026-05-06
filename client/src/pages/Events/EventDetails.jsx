@@ -164,7 +164,7 @@ function EventDetails() {
                             </>
                         ) : (
                             <div className={styles.ticketType}>
-                                <button className={styles.save}>Save event</button>
+                                <></>
                             </div>
                         )}
                         
