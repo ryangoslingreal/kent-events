@@ -66,6 +66,9 @@ async function scrape() {
         await detailPage.waitForSelector('.text__body', { timeout: 5000 }); 
         
         const details = await detailPage.evaluate(() => {
+            function isValidEmail(email) {
+                return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
+            }
 
             const description = document.querySelector('.text__body')?.innerHTML.trim();
 
@@ -148,10 +151,6 @@ async function scrape() {
     return fullEvents;
 
     
-}
-
-function isValidEmail(email) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
 }
 
 module.exports = { scrape } ;
