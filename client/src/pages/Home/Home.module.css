@@ -5,6 +5,7 @@
     justify-content: center;
     /* background-color: rgba(125, 125, 125, 0.101); */
     min-height: 100vh;
+    overflow: hidden;
 }
 
 .page{

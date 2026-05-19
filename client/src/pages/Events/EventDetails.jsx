@@ -159,7 +159,6 @@ function EventDetails() {
                                     <p className={styles.ticketTitle}>University of Kent students</p>
                                 </div>
                                 <button className={styles.register} onClick={() => window.open(formData.ticket_url)}>Register Now →</button>
-                                <button className={styles.save}>Save event</button>
                             </div>
                             </>
                         ) : (
