@@ -42,7 +42,7 @@ function Home(){
             }
 
             if (data.length === 0) {
-                toast.error("No events found. " + data.error)
+                toast.error("No events found. ")
                 setAllEvents([]);
                 setRawEvents([]);
                 setFeaturedUrl("");
