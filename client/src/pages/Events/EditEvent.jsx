@@ -345,7 +345,6 @@ function EditEvent(){
                                     name="contact_email"
                                     value={formData.contact_email}
                                     onChange={handleInputChange}
-                                    required
                                 />
                             </Field>
                         </section>

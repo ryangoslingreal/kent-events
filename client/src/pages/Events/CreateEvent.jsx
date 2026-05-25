@@ -43,6 +43,7 @@ function CreateEvent() {
         }
 
         toast.success(result.message);
+        setTimeout(() => navigate("/"), 1000);
     };
 
     const handleReset = () => {
@@ -258,7 +259,7 @@ function CreateEvent() {
 
                         <div className={styles.formButton}>
                             <button type="button" className={styles.saveForm} onClick={handleReset}>
-                                Delete
+                                Reset Form
                             </button>
                             <button type="submit" className={styles.createForm}>
                                 Create Event
