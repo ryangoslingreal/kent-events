@@ -77,7 +77,7 @@ function Home(){
         
         if (newEvents.error) {
             setLoading(false)
-            toast.error("No events found. " + newEvents.error)
+            toast.error("No events found.")
             return;
         }
         
