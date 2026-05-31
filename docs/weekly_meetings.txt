@@ -1,0 +1,278 @@
+﻿COMP6003 meeting notes
+12/11/2025
+Not In Attendance: N/A
+
+
+What’s Been Done since the Previous Meeting: 
+Sam: Continue with ethics checklist 
+Sasha: Think about login system formatting
+Mel:
+
+
+What needs to be done for next week: 
+Sam: Contact Information Systems regarding integration possibilities, Contact Palani and Ozgur regarding ethics approval and checklist clarification.
+Sasha: Continue discussing auth
+Mel: Research University of Kent branding 
+
+
+
+
+
+
+19/11/2025
+Not In Attendance: N/A
+
+
+What’s Been Done since the Previous Meeting: 
+Sam: contacted the university’s IT department to identify who owns and maintains relevant university systems, began figma prototyping
+Sasha:
+Mel:
+
+
+What needs to be done for next week:
+Sam: Send project proposal to Vanessa. Continue developing Figma prototypes and documenting progress.
+Sasha:
+Mel: Start figma prototyping
+
+
+
+
+
+
+26/11/2025
+Not In Attendance: N/A
+
+
+What’s Been Done since the Previous Meeting: 
+Sam: Updating ethics, continued working on figma designs
+Sasha: Started learning Node.js
+Mel: Continued figma prototyping 
+
+
+What needs to be done for next week:
+Sam: Continue ethics, and figma
+Sasha: Create repository for project
+Mel: figma prototyping
+Vanessa: Contact Palani for clarification regarding ethics
+ 
+Further discussion:
+* Discussed database options, and decided to go with MySQL
+* Sasha said he will set up mirrored repo later on
+
+
+
+
+02/02/2026 
+Not In Attendance: Mel due to personal issues 
+
+
+What’s Been Done since the Previous Meeting: 
+Sasha: Finished email verification 
+Sam: Ethics is done. ‘Create events’ backend is done, started ‘edit events’ frontend and backend. 
+
+
+What needs to be done for next week: 
+Sasha: Authentication backend testing. Might need help with auth for ‘create events’. 
+Sam: Make an archive of chosen events for editing. ‘Edit events’ for frontend and backend. 
+09/02/2026 
+Not In Attendance: N/A 
+
+
+What’s Been Done since the Previous Meeting: 
+Sasha: Made testing infrastructure.
+Sam: ‘Edit events’ completed.
+Mel: Learning node.js and react 
+
+
+What needs to be done for next week: 
+Sasha: Finish testing infrastructure, start writing tests, and update events with new testing architecture 
+Sam: Make archive in ‘choose events’. Start the homepage, front end and backend. Finish ethics issues. 
+Mel: Use Figma design in the codebase.
+
+
+ Further Discussion:
+* Next week start poster designing stuff
+
+
+
+
+
+
+16/02/2026 
+Not In Attendance: N/A 
+
+
+What’s Been Done since the Previous Meeting: 
+Sasha: Testing infrastructure, tested authentication and started testing documents with evidence. 
+Sam: Edited design for ‘choose events’. Continued work on homepage.
+Mel: Continued working on Figma design and frontend design.
+
+
+What needs to be done: 
+Vanessa: Email kent website developer.
+Sasha: Refactor and connect auth.
+Sam: Poster and abstract. Ethics completion and Homepage.
+Mel: Will work on frontend design.
+
+
+
+
+
+
+23/02/2026
+Not In Attendance: N/A 
+
+
+What’s Been Done since the Previous Meeting: 
+Sasha: Written switch statements, minimalistically connected frontend auth and backend auth. Added password hashing to the backend.
+Mel: Frontend header
+Sam: Designed poster, wrote abstract, designed frontend and backend for homepage, Finished ethics.
+
+
+
+
+What needs to be done:
+Sasha: Refine abstract, possible testing utilities
+Mel: Start mobile layout design
+Sam: Refine poster and abstract, frontend authentication for api responses.
+
+
+
+
+
+
+16/04/2026
+Not In Attendance: N/A
+
+
+What’s been done since the previous meeting:
+Sasha: Refactoring api, pages, components, testing.
+Mel: Worked on Mobile UI.
+Sam: Worked on SignIn, Scrapers, filtering events.
+
+
+What needs to be done:
+Sasha: Continue tests.
+Mel: Making search bar function.
+Sam: Continue working on filtering events issues.
+
+
+
+
+
+
+23/04/2026
+Not In Attendance: N/A
+
+
+What’s been done since the previous meeting:
+Sasha: First round testing for all events, helped finalise filtering.
+Mel: Continued working on the search filter.
+Sam: Finished filtering, and fixed homepage issues.
+
+
+What’s needs to be done:
+Sasha: Clearing image functionality, finish testing with it. Add extra functions to authentication, sign in and assign filtering to an account. 
+Mel: needs to finish search feature and mobile functionality
+Sam: Finish fixing issues with home and event details, along with ‘create events’.
+
+
+Further Discussion:
+* Removed old filtering process
+* Want to add range of dates for filtering
+
+
+
+
+
+
+30/04/2026
+Not In Attendance: N/A
+
+
+What's been done since the previous meeting:
+Sasha: Image handling and updated test. Wrote JS doc for backend features. Cleaned up time naming. Removed repeated event fields.
+Mel: worked on search bar
+Sam: Refactored/fixed and added to all events pages to finalise features for each page.
+
+
+What’s needs to be done:
+Sasha: FInish event refactor, account type flag, redoing email verification with code.
+Mel: Search bar, and finalising code for mobile UI
+Sam: Start doing a project report.
+
+
+
+
+
+
+07/05/2026
+Not in Attendance: N/A
+
+
+What's been done since the previous meeting:
+Sasha: Society registration, email registration using email code, and tests written for these.
+Mel: Search Bar finished.
+Sam: Group report.
+
+
+What needs to be done:
+Sasha: Group project report.
+Mel: Group project report.
+Sam: Group project report. 
+
+
+
+
+
+
+14/05/2026
+Not In Attendance: N/A
+
+
+What’s been done since the previous meeting:
+Sasha: Group project report. 
+Mel: Group project report. 
+Sam: Group project report. 
+
+
+What needs to be done:
+Sasha: Group project report. 
+Mel: Group project report. 
+Sam: Group project report. 
+
+
+
+
+21/05/2026
+Not In Attendance: N/A
+
+
+What’s been done since previous meeting:
+Sasha: Group project report. 
+Mel: Group project report. 
+Sam: Group project report. 
+
+
+What needs to be done:
+Sasha: Finish group report. Finish video demonstration.
+Mel: Finish group report. Finish video demonstration.
+Sam: Finish group report. Finish video demonstration.
+
+
+
+
+28/05/2026
+Not In Attendance: N/A
+
+
+What’s been done since previous meeting:
+Sasha: Finished technical report, and started making video.
+Mel: Finished technical report.
+Sam: Finished technical report.
+
+
+What needs to be done:
+Sasha: Finish making video.
+Mel: 
+Sam: Finish corpus and submit.
