@@ -315,7 +315,7 @@ async function lastScrapeTime(){
     `;
 
     const [result] = await db.execute(query);
-    return result;
+    return result[0]?.updated_at ?? null;
 }
 
 /**
