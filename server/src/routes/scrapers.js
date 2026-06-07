@@ -1,6 +1,6 @@
 const { scrape: scrapeKSU } = require("../scrapers/scrapeKSU");
 const { scrape: scrapeUni } = require("../scrapers/scrapeUni");
-const eventsRepo = require("../repos/eventsRepo");
+const scrapeRepo = require("../repos/scrapeRepo");
 
 const SCRAPE_INTERVAL_MS = 24 * 60 * 60 * 1000; // 1 day
 
@@ -28,7 +28,7 @@ async function runScrapers() {
     let lastScrape;
 
     try {
-        lastScrape = await eventsRepo.lastScrapeTime();
+        lastScrape = await scrapeRepo.lastScrapeTime();
     } catch (err) {
         console.error("Could not check last scrape time:", err.message);
         return;
@@ -45,7 +45,7 @@ async function runScrapers() {
 
             const events = await scrape();
 
-            await eventsRepo.saveScrapedEvents(events, source); // TODO: Delegate to scrapeRepo?
+            await scrapeRepo.saveScrapedEvents(events, source);
 
             console.log(`Scrape ${name} done - saved ${events.length} events`);
         } catch (err) {
