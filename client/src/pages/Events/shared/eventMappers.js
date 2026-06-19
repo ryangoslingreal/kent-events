@@ -48,7 +48,6 @@ export function mapEventToCard(item) {
         time: formatTime(item.start_time),
         date: formatDateShort(item.date),
         location: item.location,
-        price: item.price,
         title: item.title,
         tags: item.tags
     };

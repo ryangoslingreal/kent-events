@@ -27,7 +27,7 @@ async function saveScrapedEvents(events, account) {
     `;
 
     for (const event of events) {
-        if (!event.title) {
+        if (!event.title || !event.date || !event.start_time || !event.location || !event.external_url) {
             continue; 
         }
         
@@ -36,14 +36,14 @@ async function saveScrapedEvents(events, account) {
             accountUserIds[account] ?? null, // Null will fail
             event.description || "No description provided",
             event.date,
-            event.time,
-            event.end_event_time,
+            event.start_time,
+            event.end_time ?? null,
             event.location,
-            JSON.stringify(event.tags),
-            event.ticket_url,
-            event.contact_email,
-            event.image_url,
-            event.background_event_image_url,
+            JSON.stringify(event.tags ?? []),
+            event.ticket_url ?? null,
+            event.contact_email ?? null,
+            event.image_url ?? null,
+            event.background_image_url ?? null,
             event.external_url
         ];
 
